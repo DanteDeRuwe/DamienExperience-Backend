@@ -6,7 +6,7 @@ namespace DamianTourBackend.Core.Entities {
     public class Path {
         public ICollection<CoordinateTuple> Coordinates { get; set; }
 
-        public Path(ICollection<CoordinateTuple> coordinates) {
+        public Path() {
             Coordinates = new List<CoordinateTuple>();
         }
 
