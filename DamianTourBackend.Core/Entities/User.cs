@@ -10,8 +10,8 @@ namespace DamianTourBackend.Core.Entities
         public string FirstName { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
-        public ICollection<Registration> Registration { get; set; }
-        public ICollection<Walk> Walk { get; set; }
+        public ICollection<Registration> Registrations { get; set; }
+        public ICollection<Walk> Walks { get; set; }
 
         public User() { }
 
@@ -22,8 +22,8 @@ namespace DamianTourBackend.Core.Entities
             FirstName = firstName;
             Email = email;
             PhoneNumber = phoneNumber;
-            Registration = new List<Registration>();
-            Walk = new List<Walk>();
+            Registrations = new List<Registration>();
+            Walks = new List<Walk>();
         }
     }
 }

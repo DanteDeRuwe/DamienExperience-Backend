@@ -10,8 +10,7 @@ namespace DamianTourBackend.Infrastructure.Data
         public DbSet<Route> Routes { get; set; }
         public DbSet<Walk> Walks { get; set; }
         public DbSet<Registration> Registrations { get; set; }
-        public DbSet<Path> MyProperty { get; set; }
-        //public DbSet<CoordinateTuple> CoordinateTuples { get; set; } 
+        public DbSet<Path> Paths { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
