@@ -1,6 +1,6 @@
 ﻿namespace DamianTourBackend.Core.Entities
 {
-    public struct CoordinateTuple
+    public class CoordinateTuple
     {
         public double Latitude { get; set; }
         public double Longitude { get; set; }
