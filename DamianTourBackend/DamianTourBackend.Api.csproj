@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>c6a21848-86e1-4925-b308-85cfdd0b4996</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,7 +10,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NSwag.AspNetCore" Version="13.7.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.8" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.8.2" />
   </ItemGroup>
 
   <ItemGroup>
