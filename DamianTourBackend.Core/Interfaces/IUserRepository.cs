@@ -1,7 +1,6 @@
 ﻿using DamianTourBackend.Core.Entities;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DamianTourBackend.Core.Interfaces
 {
@@ -9,7 +8,7 @@ namespace DamianTourBackend.Core.Interfaces
     {
         User GetBy(string email);
         User GetBy(Guid id);
-        void Add(User parkUser);
+        void Add(User user);
         IEnumerable<User> GetAll();
         void Update(User user);
         void SaveChanges();
