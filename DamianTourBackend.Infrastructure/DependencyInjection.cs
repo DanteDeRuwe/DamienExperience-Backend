@@ -14,6 +14,10 @@ namespace DamianTourBackend.Infrastructure
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DamianToursContext")));
 
+            var provider = services.BuildServiceProvider();
+            var context = provider.GetRequiredService<ApplicationDbContext>();
+            context.Database.EnsureCreated();
+
             services.AddScoped<IUserRepository, UserRepository>();
         }
     }
