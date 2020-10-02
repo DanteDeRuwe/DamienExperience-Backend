@@ -11,13 +11,15 @@ namespace DamianTourBackend.Infrastructure
     {
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DamianToursContext")));
-
             var provider = services.BuildServiceProvider();
+
             var context = provider.GetRequiredService<ApplicationDbContext>();
             //context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
+            var result = context.Database.EnsureCreated();
+
 
             services.AddScoped<IUserRepository, UserRepository>();
         }

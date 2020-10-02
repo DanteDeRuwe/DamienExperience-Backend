@@ -32,7 +32,7 @@ namespace DamianTourBackend.Api.Controllers
             IConfiguration config
             )
         {
-            _signInManager= signInManager;
+            _signInManager = signInManager;
             _userManager = userManager;
             _configuration = config;
             _userRepository = userRepository;

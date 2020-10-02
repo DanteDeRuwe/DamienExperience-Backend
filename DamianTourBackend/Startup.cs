@@ -25,12 +25,13 @@ namespace DamianTourBackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers();
 
-            services.AddInfrastructure(Configuration); // Configure the services of the infrastructure layer
 
 
             //authentication services
             services.AddIdentity<IdentityUser, IdentityRole>(cfg => cfg.User.RequireUniqueEmail = true).AddEntityFrameworkStores<ApplicationDbContext>();
+
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings.
@@ -72,7 +73,6 @@ namespace DamianTourBackend
                 };
             });
 
-            services.AddControllers();
 
             services.AddOpenApiDocument(c =>
             {
@@ -94,6 +94,10 @@ namespace DamianTourBackend
 
             services.AddCors(options => options.AddPolicy("AllowAllOrigins", builder => builder.AllowAnyOrigin()));
 
+
+
+            services.AddInfrastructure(Configuration); // Configure the services of the infrastructure layer
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -104,8 +108,8 @@ namespace DamianTourBackend
                 app.UseDeveloperExceptionPage();
             }
 
-
             app.UseHttpsRedirection();
+
             // Register the Swagger generator and the Swagger UI middlewares
             app.UseOpenApi();
             app.UseSwaggerUi3();
