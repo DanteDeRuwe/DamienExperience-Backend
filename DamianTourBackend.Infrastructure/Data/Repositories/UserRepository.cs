@@ -25,8 +25,9 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
 
         public IEnumerable<User> GetAll()
         {
-            return _users.Include(u => u.Registrations)
-                         .Include(u => u.Walks).ToList();
+            return _users//.Include(u => u.Registrations)
+                         //.Include(u => u.Walks)
+                         .ToList();
         }
 
         public User GetBy(string email)
