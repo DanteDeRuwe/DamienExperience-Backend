@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DamianTourBackend.Core.DTOs
 {
-    public class RegisterDTO
+    public class RegisterDTO: LoginDTO
     {
         [Required]
         [StringLength(200)]
