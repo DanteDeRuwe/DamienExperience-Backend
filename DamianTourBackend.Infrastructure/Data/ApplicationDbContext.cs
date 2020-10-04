@@ -7,10 +7,6 @@ namespace DamianTourBackend.Infrastructure.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
-        //Server=.;Database=test;Trusted_Connection=True
-        //Server=tcp:damiaantour.database.windows.net,1433;Initial Catalog=damiaantourDB;Persist Security Info=False;User ID=DamiaanAdmin;Password=DamiaanTour2020$;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
-
-
         public DbSet<User> Users { get; set; }
         //public DbSet<Route> Routes { get; set; }
         //public DbSet<Walk> Walks { get; set; }
@@ -24,7 +20,7 @@ namespace DamianTourBackend.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<IdentityUser>().ToTable("IdentityUsers");
-            //modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
         }
     }
