@@ -4,7 +4,7 @@ using DamianTourBackend.Core.Entities;
 
 namespace DamianTourBackend.Tests.UnitTests
 {
-    public class DummyData
+    public static class DummyData
     {
         public static readonly Faker<User> UserFaker = new Faker<User>()
             .RuleFor(u => u.FirstName, f => f.Person.FirstName)
@@ -19,5 +19,8 @@ namespace DamianTourBackend.Tests.UnitTests
             .RuleFor(r => r.Password, f => f.Internet.Password(8))
             .RuleFor(r => r.PasswordConfirmation, (f, r) => r.Password);
 
+        public static readonly Faker<LoginDTO> LoginDTOFaker = new Faker<LoginDTO>()
+            .RuleFor(r => r.Email, f => f.Person.Email)
+            .RuleFor(r => r.Password, f => f.Internet.Password(8));
     }
 }

@@ -30,31 +30,59 @@ namespace DamianTourBackend.Tests.UnitTests.Application.Validators
         }
 
         [Theory]
-        [InlineData("plainaddress")]
-        [InlineData("#@%^%#$@#$@#.com")]
-        [InlineData("@example.com")]
-        [InlineData("Joe Smith <email@example.com>")]
-        [InlineData("email.example.com")]
-        [InlineData("email@example@example.com")]
-        [InlineData(".email@example.com")]
-        [InlineData("email.@example.com")]
-        [InlineData("あいうえお@example.com")]
-        [InlineData("email@example.com (Joe Smith)")]
-        [InlineData("email@example")]
-        [InlineData("email@-example.com")]
-        [InlineData("email@example..com")]
-        public void Validate_BadEmail_ShouldFail(string email)
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("                                           ")]
+        public void Validate_BadFirstName_ShouldFail(string name)
         {
             // Arrange
             var registerDTO = DummyData.RegisterDTOFaker.Generate();
-            registerDTO.Email = email;
+            registerDTO.FirstName = name;
 
             // Act
             var result = _sut.TestValidate(registerDTO);
 
             // Assert          
-            result.ShouldHaveValidationErrorFor(x => x.Email);
+            result.ShouldHaveValidationErrorFor(x => x.FirstName);
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("                                           ")]
+        public void Validate_BadLastName_ShouldFail(string name)
+        {
+            // Arrange
+            var registerDTO = DummyData.RegisterDTOFaker.Generate();
+            registerDTO.LastName = name;
+
+            // Act
+            var result = _sut.TestValidate(registerDTO);
+
+            // Assert          
+            result.ShouldHaveValidationErrorFor(x => x.LastName);
+        }
+
+        [Theory]
+        [InlineData("TestPassword", "testPassword")]
+        [InlineData("TestPassword", "Test Password")]
+        [InlineData("Test-Password", "test-password")]
+        [InlineData("TestPassword", "testpassword")]
+        [InlineData("TestPassword", "Test0Password")]
+        [InlineData("TestPassword", "TestPassw0rd")]
+        public void Validate_NonMatchingPasswords_ShouldFail(string pass, string confirm)
+        {
+            // Arrange
+            var registerDTO = DummyData.RegisterDTOFaker.Generate();
+            registerDTO.Password = pass;
+            registerDTO.PasswordConfirmation = confirm;
+
+            // Act
+            var result = _sut.TestValidate(registerDTO);
+
+            // Assert          
+            result.ShouldNotHaveValidationErrorFor(x => x.Password);
+            result.ShouldHaveValidationErrorFor(x => x.PasswordConfirmation);
+        }
     }
 }
