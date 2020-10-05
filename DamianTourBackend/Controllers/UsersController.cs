@@ -1,4 +1,4 @@
-﻿using DamianTourBackend.Api.Helpers;
+using DamianTourBackend.Api.Helpers;
 using DamianTourBackend.Application.DTOs;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
@@ -55,10 +55,9 @@ namespace DamianTourBackend.Api.Controllers
             if (!validation.IsValid) return BadRequest(validation);
 
             var user = await _userManager.FindByNameAsync(model.Email);
-
             if (user == null) return BadRequest();
-            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
 
+            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
             if (!result.Succeeded) return BadRequest();
 
             string token = TokenHelper.GetToken(user, _configuration);
@@ -81,20 +80,21 @@ namespace DamianTourBackend.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDTO model)
         {
-
             var validation = _registerValidator.Validate(model);
             if (!validation.IsValid) return BadRequest(validation);
 
-            if (_userRepository.GetBy(model.Email) != null) return BadRequest();
+            var existingUser = _userRepository.GetBy(model.Email);
+            if (existingUser != null) return BadRequest();
 
             IdentityUser identityUser = new IdentityUser { UserName = model.Email, Email = model.Email };
             User user = new User { Email = model.Email, FirstName = model.FirstName, LastName = model.LastName };
-            var result = await _userManager.CreateAsync(identityUser, model.Password);
 
+            var result = await _userManager.CreateAsync(identityUser, model.Password);
             if (!result.Succeeded) return BadRequest();
 
             _userRepository.Add(user);
             _userRepository.SaveChanges();
+
             string token = TokenHelper.GetToken(identityUser, _configuration);
             return Created("", token);
         }
