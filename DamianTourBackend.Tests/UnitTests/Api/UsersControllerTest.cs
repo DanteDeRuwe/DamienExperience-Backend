@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
+using NSubstitute.ReturnsExtensions;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -28,19 +29,22 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _userRepository = Substitute.For<IUserRepository>();
 
             _sim = new FakeSignInManager();
-            _um = new FakeUserManager();
+            //_um = new FakeUserManager();
+            _um = Substitute.For<FakeUserManager>();
             _config = FakeConfiguration.Get();
             _registerValidator = Substitute.For<IValidator<RegisterDTO>>();
-            _registerValidator = Substitute.For<IValidator<LoginDTO>>();
+            _loginValidator = Substitute.For<IValidator<LoginDTO>>();
 
             _sut = new UsersController(_userRepository, _sim, _um, _config, _loginValidator, _registerValidator);
         }
+        #region Register Tests
 
         [Fact]
         public async Task Register_GoodUser_ShouldRegisterAsync()
         {
             // Arrange
             var registerDTO = DummyData.RegisterDTOFaker.Generate();
+            _um.CreateAsync(Arg.Any<IdentityUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
             _registerValidator.SetupPass();
 
             // Act          
@@ -86,5 +90,54 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _userRepository.DidNotReceive().Add(Arg.Any<User>());
             _userRepository.DidNotReceive().SaveChanges();
         }
+        #endregion
+
+        #region Login Tests
+        [Fact]
+        public async Task Login_ValidationSucces_TokenGenerated()
+        {
+            // Arrange
+            var loginDTO = DummyData.LoginDTOFaker.Generate();
+            _loginValidator.SetupPass();
+            _um.FindByNameAsync(loginDTO.Email).Returns(new IdentityUser() { UserName = loginDTO.Email, Email = loginDTO.Email });
+
+            //Act
+            var login = await _sut.Login(loginDTO);
+
+            //Assert
+            login.Should().BeOfType<OkObjectResult>();
+
+        }
+
+        [Fact]
+        public async Task Login_UserNotFoundOrRegistered_NoTokenGenerated()
+        {
+            // Arrange
+            var loginDTO = DummyData.LoginDTOFaker.Generate();
+            _loginValidator.SetupPass();
+            _um.FindByNameAsync(loginDTO.Email).ReturnsNull();
+
+            //Act
+            var login = await _sut.Login(loginDTO);
+
+            //Assert
+            login.Should().BeOfType<BadRequestResult>();
+
+        }
+
+        [Fact]
+        public async Task Login_ValidationFailed_ShouldNotLoginAndReturnsBadRequest()
+        {
+            // Arrange
+            _loginValidator.SetupFail();
+
+            // Act     
+            var loginFail = await _sut.Login(new LoginDTO());
+
+            // Assert
+            loginFail.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        #endregion
     }
 }
