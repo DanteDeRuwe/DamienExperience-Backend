@@ -1,7 +1,8 @@
-using DamianTourBackend.Api.Helpers;
+﻿using DamianTourBackend.Api.Helpers;
 using DamianTourBackend.Application.DTOs;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,17 +22,23 @@ namespace DamianTourBackend.Api.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
+        private readonly IValidator<LoginDTO> _loginValidator;
+        private readonly IValidator<RegisterDTO> _registerValidator;
 
         public UsersController(
             IUserRepository userRepository,
             SignInManager<IdentityUser> signInManager,
             UserManager<IdentityUser> userManager,
-            IConfiguration config
+            IConfiguration config,
+            IValidator<LoginDTO> loginValidator,
+            IValidator<RegisterDTO> registerValidator
             )
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _configuration = config;
+            _loginValidator = loginValidator;
+            _registerValidator = registerValidator;
             _userRepository = userRepository;
         }
 
@@ -42,8 +49,11 @@ namespace DamianTourBackend.Api.Controllers
         /// <param name="model">the login details</param>
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(LoginDTO model)
+        public async Task<IActionResult> Login(LoginDTO model)
         {
+            var validation = _loginValidator.Validate(model);
+            if (!validation.IsValid) return BadRequest(validation);
+
             var user = await _userManager.FindByNameAsync(model.Email);
 
             if (user == null) return BadRequest();
@@ -56,10 +66,10 @@ namespace DamianTourBackend.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<User> GetById(Guid id)
+        public IActionResult GetById(Guid id)
         {
             var user = _userRepository.GetBy(id);
-            return (ActionResult<User>) user ?? NotFound();
+            return (user as IActionResult) ?? NotFound();
         }
 
         /// <summary>
@@ -71,6 +81,10 @@ namespace DamianTourBackend.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDTO model)
         {
+
+            var validation = _registerValidator.Validate(model);
+            if (!validation.IsValid) return BadRequest(validation);
+
             if (_userRepository.GetBy(model.Email) != null) return BadRequest();
 
             IdentityUser identityUser = new IdentityUser { UserName = model.Email, Email = model.Email };
