@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DamianTourBackend.Application\DamianTourBackend.Application.csproj" />
     <ProjectReference Include="..\DamianTourBackend.Core\DamianTourBackend.Core.csproj" />
     <ProjectReference Include="..\DamianTourBackend.Infrastructure\DamianTourBackend.Infrastructure.csproj" />
   </ItemGroup>

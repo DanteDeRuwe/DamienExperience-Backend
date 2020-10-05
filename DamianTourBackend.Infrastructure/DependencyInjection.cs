@@ -17,9 +17,7 @@ namespace DamianTourBackend.Infrastructure
             var provider = services.BuildServiceProvider();
 
             var context = provider.GetRequiredService<ApplicationDbContext>();
-            //context.Database.EnsureDeleted();
-            var result = context.Database.EnsureCreated();
-
+            context.Database.EnsureCreated();
 
             services.AddScoped<IUserRepository, UserRepository>();
         }

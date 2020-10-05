@@ -14,7 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DamianTourBackend.Tests", "DamianTourBackend.Tests\DamianTourBackend.Tests.csproj", "{B528BAA4-BCC5-44AC-BAEA-EC18A07F264C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DamianTourBackend.Tests", "DamianTourBackend.Tests\DamianTourBackend.Tests.csproj", "{B528BAA4-BCC5-44AC-BAEA-EC18A07F264C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DamianTourBackend.Application", "DamianTourBackend.Application\DamianTourBackend.Application.csproj", "{0EC419B8-C190-46B7-BAEE-7768238FEC92}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +40,10 @@ Global
 		{B528BAA4-BCC5-44AC-BAEA-EC18A07F264C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B528BAA4-BCC5-44AC-BAEA-EC18A07F264C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B528BAA4-BCC5-44AC-BAEA-EC18A07F264C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EC419B8-C190-46B7-BAEE-7768238FEC92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EC419B8-C190-46B7-BAEE-7768238FEC92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EC419B8-C190-46B7-BAEE-7768238FEC92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EC419B8-C190-46B7-BAEE-7768238FEC92}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
