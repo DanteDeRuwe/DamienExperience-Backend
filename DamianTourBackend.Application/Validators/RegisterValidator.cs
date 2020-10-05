@@ -19,7 +19,7 @@ namespace DamianTourBackend.Application.Validators
 
             RuleFor(x => x.PasswordConfirmation)
                 .NotEmpty().WithMessage("Password confirmation is required")
-                .Matches("^((?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])|(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[^a-zA-Z0-9])|(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[^a-zA-Z0-9])|(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^a-zA-Z0-9])).{8,}$").WithMessage("Passwords must be at least 8 characters and contain at 3 of 4 of the following: upper case (A-Z), lower case (a-z), number (0-9) and special character (e.g. !@#$%^&*)")
+                .MinimumLength(8).WithMessage("Password should be a minimum of 8 characters long")
                 .Equal(x => x.Password).WithMessage("Passwords should match.");
         }
     }
