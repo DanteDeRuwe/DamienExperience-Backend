@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DamianTourBackend.Application\DamianTourBackend.Application.csproj" />
     <ProjectReference Include="..\DamianTourBackend.Core\DamianTourBackend.Core.csproj" />
     <ProjectReference Include="..\DamianTourBackend.Infrastructure\DamianTourBackend.Infrastructure.csproj" />
     <ProjectReference Include="..\DamianTourBackend\DamianTourBackend.Api.csproj" />

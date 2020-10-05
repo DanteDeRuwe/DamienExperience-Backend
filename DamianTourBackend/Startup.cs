@@ -1,3 +1,4 @@
+using DamianTourBackend.Application;
 using DamianTourBackend.Infrastructure;
 using DamianTourBackend.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -97,6 +98,7 @@ namespace DamianTourBackend
 
 
             services.AddInfrastructure(Configuration); // Configure the services of the infrastructure layer
+            services.AddApplication(Configuration); // Configure the services of the application layer
 
         }
 

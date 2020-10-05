@@ -1,5 +1,5 @@
-﻿using DamianTourBackend.Api.Controllers;
-using DamianTourBackend.Core.DTOs;
+using DamianTourBackend.Api.Controllers;
+using DamianTourBackend.Application.DTOs;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentAssertions;

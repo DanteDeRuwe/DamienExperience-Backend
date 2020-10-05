@@ -1,5 +1,5 @@
-﻿using DamianTourBackend.Api.Helpers;
-using DamianTourBackend.Core.DTOs;
+using DamianTourBackend.Api.Helpers;
+using DamianTourBackend.Application.DTOs;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;

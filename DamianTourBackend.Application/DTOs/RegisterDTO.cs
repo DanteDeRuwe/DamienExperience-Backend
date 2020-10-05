@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DamianTourBackend.Core.DTOs
+namespace DamianTourBackend.Application.DTOs
 {
     public class RegisterDTO : LoginDTO
     {
