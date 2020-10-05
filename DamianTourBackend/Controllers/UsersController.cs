@@ -3,6 +3,7 @@ using DamianTourBackend.Application.DTOs;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -64,11 +65,15 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(token);
         }
 
+
+        //TODO for development purposes only, should replace with /me or /profile
         [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult GetById(Guid id)
         {
             var user = _userRepository.GetBy(id);
-            return (user as IActionResult) ?? NotFound();
+            if (user == null) return NotFound();
+            return Ok(user);
         }
 
         /// <summary>
