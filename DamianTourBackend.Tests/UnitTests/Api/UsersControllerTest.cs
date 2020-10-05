@@ -11,11 +11,13 @@ using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace DamianTourBackend.Tests.UnitTests.Api
 {
     public class UsersControllerTest
     {
+        private readonly ITestOutputHelper _testOutputHelper;
         private readonly IUserRepository _userRepository;
         private readonly SignInManager<IdentityUser> _sim;
         private readonly UsersController _sut;
@@ -24,8 +26,9 @@ namespace DamianTourBackend.Tests.UnitTests.Api
         private readonly IValidator<RegisterDTO> _registerValidator;
         private readonly IValidator<LoginDTO> _loginValidator;
 
-        public UsersControllerTest()
+        public UsersControllerTest(ITestOutputHelper testOutputHelper)
         {
+            _testOutputHelper = testOutputHelper;
             _userRepository = Substitute.For<IUserRepository>();
 
             _sim = new FakeSignInManager();
@@ -40,7 +43,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
         #region Register Tests
 
         [Fact]
-        public async Task Register_GoodUser_ShouldRegisterAsync()
+        public async Task Register_GoodUser_ShouldRegisterAndReturnToken()
         {
             // Arrange
             var registerDTO = DummyData.RegisterDTOFaker.Generate();
@@ -51,9 +54,12 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             var result = await _sut.Register(registerDTO);
 
             // Assert
-            result.Should().BeOfType<CreatedResult>();
+            result.Should().BeOfType<CreatedResult>()
+                .Which.Value.ToString().Should().MatchRegex("^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$");
+
             _userRepository.Received().Add(Arg.Any<User>());
             _userRepository.Received().SaveChanges();
+
         }
 
         [Fact]
@@ -94,7 +100,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
 
         #region Login Tests
         [Fact]
-        public async Task Login_ValidationSucces_TokenGenerated()
+        public async Task Login_ValidationSucces_ShouldReturnToken()
         {
             // Arrange
             var loginDTO = DummyData.LoginDTOFaker.Generate();
@@ -105,12 +111,13 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             var login = await _sut.Login(loginDTO);
 
             //Assert
-            login.Should().BeOfType<OkObjectResult>();
+            login.Should().BeOfType<OkObjectResult>()
+                .Which.Value.ToString().Should().MatchRegex("^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$");
 
         }
 
         [Fact]
-        public async Task Login_UserNotFoundOrRegistered_NoTokenGenerated()
+        public async Task Login_UserNotFoundOrRegistered_ShouldReturnBadRequest()
         {
             // Arrange
             var loginDTO = DummyData.LoginDTOFaker.Generate();
@@ -126,7 +133,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
         }
 
         [Fact]
-        public async Task Login_ValidationFailed_ShouldNotLoginAndReturnsBadRequest()
+        public async Task Login_ValidationFailed_ShouldNotLoginAndReturnBadRequest()
         {
             // Arrange
             _loginValidator.SetupFail();
