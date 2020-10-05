@@ -37,18 +37,10 @@ namespace DamianTourBackend.Tests.UnitTests.Api
         }
 
         [Fact]
-        public async Task Register_NewUser_ShouldRegisterAsync()
+        public async Task Register_GoodUser_ShouldRegisterAsync()
         {
             // Arrange
-            var user = DummyData.UserFaker.Generate();
-            var registerDTO = new RegisterDTO()
-            {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Password = "P@ssworTest123",
-                PasswordConfirmation = "P@ssworTest123"
-            };
+            var registerDTO = DummyData.RegisterDTOFaker.Generate();
             _registerValidator.SetupPass();
 
             // Act          
@@ -61,18 +53,12 @@ namespace DamianTourBackend.Tests.UnitTests.Api
         }
 
         [Fact]
-        public async Task Register_UserAlreadyRegistered_ShouldNotRegisterAndReturnsBadRequest()
+        public async Task Register_EmailAlreadyRegistered_ShouldNotRegisterAndReturnsBadRequest()
         {
             // Arrange
             var user = DummyData.UserFaker.Generate();
-            var registerDTO = new RegisterDTO()
-            {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Password = "P@ssworTest123",
-                PasswordConfirmation = "P@ssworTest123"
-            };
+            var registerDTO = DummyData.RegisterDTOFaker.Generate();
+            registerDTO.Email = user.Email;
 
             _registerValidator.SetupPass();
             _userRepository.GetBy(user.Email).Returns(user); //already registered
