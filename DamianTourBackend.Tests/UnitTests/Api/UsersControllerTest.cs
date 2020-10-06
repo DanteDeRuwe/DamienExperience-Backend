@@ -180,7 +180,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api
         }
 
 
-
         [Fact]
         public void GetProfile_UserNotLoggedIn_FailsAndReturnsBadRequestResult()
         {
@@ -198,13 +197,35 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             ////
             // Act 
             var meResult = _sut.GetProfile();
-            _testOutputHelper.WriteLine(meResult.GetType().ToString());
             // Assert 
             meResult.Should().BeOfType<BadRequestResult>();
         }
+        [Fact]
+        public void GetProfile_UserLoggedIn_FailsAndReturnsBadRequestResult()
+        {
+            // Arrange 
+            var user = DummyData.UserFaker.Generate();
+            //// mocking identity
+            var identityUser = new GenericIdentity(user.Email);
 
+            var context = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(identityUser)
+                }
+            };
+            _sut.ControllerContext = context;
+            ////
+            _userRepository.GetBy(user.Email).ReturnsNull();
+            // Act 
+            var meResult = _sut.GetProfile();
 
-
+            // Assert 
+            meResult.Should().BeOfType<BadRequestResult>();
+        }
         #endregion
+
+
     }
 }
