@@ -4,11 +4,14 @@ using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentAssertions;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -144,6 +147,63 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Assert
             loginFail.Should().BeOfType<BadRequestObjectResult>();
         }
+
+        #endregion
+
+        #region GetProfile Tests 
+
+        [Fact]
+        public void GetProfile_UserLoggedIn_ReceivesUser()
+        {
+            // Arrange 
+            var user = DummyData.UserFaker.Generate();
+            //// mocking identity
+            var identityUser = new GenericIdentity(user.Email);
+
+            var context = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(identityUser)
+                }
+            };
+            _sut.ControllerContext = context;
+            ////
+            _userRepository.GetBy(user.Email).Returns(user);
+
+            // Act 
+            var meResult = _sut.GetProfile();
+
+            // Assert 
+            meResult.Should().BeOfType<OkObjectResult>();
+            _userRepository.Received().GetBy(user.Email);
+        }
+
+
+
+        [Fact]
+        public void GetProfile_UserNotLoggedIn_FailsAndReturnsBadRequestResult()
+        {
+            // Arrange 
+            //// mocking identity
+
+            var context = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = null
+                }
+            };
+            _sut.ControllerContext = context;
+            ////
+            // Act 
+            var meResult = _sut.GetProfile();
+            _testOutputHelper.WriteLine(meResult.GetType().ToString());
+            // Assert 
+            meResult.Should().BeOfType<BadRequestResult>();
+        }
+
+
 
         #endregion
     }

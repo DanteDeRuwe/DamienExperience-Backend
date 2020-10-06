@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Threading.Tasks;
 
 namespace DamianTourBackend.Api.Controllers
@@ -17,6 +16,7 @@ namespace DamianTourBackend.Api.Controllers
     [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UsersController : ControllerBase
     {
         private readonly SignInManager<IdentityUser> _signInManager;
@@ -65,14 +65,14 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(token);
         }
 
-
-        //TODO for development purposes only, should replace with /me or /profile
-        [HttpGet("{id}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public IActionResult GetById(Guid id)
+        [HttpGet("getProfile")]
+        public IActionResult GetProfile()
         {
-            var user = _userRepository.GetBy(id);
-            if (user == null) return NotFound();
+            if (!User.Identity.IsAuthenticated) return BadRequest();
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null) return BadRequest();
+            var user = _userRepository.GetBy(mailAdress);
+            if (user == null) return BadRequest();
             return Ok(user);
         }
 
