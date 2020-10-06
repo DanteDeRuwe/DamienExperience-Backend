@@ -43,7 +43,6 @@ namespace DamianTourBackend.Api.Controllers
             _userRepository = userRepository;
         }
 
-
         /// <summary>
         /// Login
         /// </summary>
@@ -65,6 +64,10 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(token);
         }
 
+        /// <summary>
+        /// Logged in user can ask his/her account details
+        /// </summary>
+        /// <returns>User details (id,firstname,lastname,email,tel)</returns>
         [HttpGet("getProfile")]
         public IActionResult GetProfile()
         {
