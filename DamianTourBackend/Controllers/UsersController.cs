@@ -8,8 +8,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace DamianTourBackend.Api.Controllers
@@ -46,6 +44,7 @@ namespace DamianTourBackend.Api.Controllers
             _updateProfileValidator = updateProfileValidator;
             _userRepository = userRepository;
         }
+        #region Login & Register
 
         /// <summary>
         /// Login
@@ -67,7 +66,36 @@ namespace DamianTourBackend.Api.Controllers
             string token = TokenHelper.GetToken(user, _configuration);
             return Ok(token);
         }
+        /// <summary>
+        /// Register a user
+        /// </summary>
+        /// <param name="model">the user details</param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(RegisterDTO model)
+        {
+            var validation = _registerValidator.Validate(model);
+            if (!validation.IsValid) return BadRequest(validation);
 
+            var existingUser = _userRepository.GetBy(model.Email);
+            if (existingUser != null) return BadRequest();
+
+            IdentityUser identityUser = new IdentityUser { UserName = model.Email, Email = model.Email };
+            User user = new User { Email = model.Email, FirstName = model.FirstName, LastName = model.LastName };
+
+            var result = await _userManager.CreateAsync(identityUser, model.Password);
+            if (!result.Succeeded) return BadRequest();
+
+            _userRepository.Add(user);
+            _userRepository.SaveChanges();
+
+            string token = TokenHelper.GetToken(identityUser, _configuration);
+            return Created("", token);
+        }
+        #endregion
+
+        #region Profile Methods
         /// <summary>
         /// Logged in user can ask his/her account details
         /// </summary>
@@ -96,11 +124,11 @@ namespace DamianTourBackend.Api.Controllers
             //find user
             User user = _userRepository.GetBy(mailAdress);
             IdentityUser identityUser = await _userManager.FindByNameAsync(mailAdress);
-            if  (identityUser == null) return BadRequest();
-            if (user == null)  return BadRequest();
+            if (identityUser == null) return BadRequest();
+            if (user == null) return BadRequest();
             //delete identityUser
             var result = await _userManager.DeleteAsync(identityUser);
-            if  (!result.Succeeded) return BadRequest();
+            if (!result.Succeeded) return BadRequest();
             //delete user
             _userRepository.Delete(user);
             _userRepository.SaveChanges();
@@ -115,12 +143,16 @@ namespace DamianTourBackend.Api.Controllers
         [HttpPut("updateProfile")]
         public async Task<IActionResult> UpdateProfile(UpdateProfileDTO updateProfileDTO)
         {
+            //validation
+            var validation = _updateProfileValidator.Validate(updateProfileDTO);
+            if (!validation.IsValid) return BadRequest(validation);
+            //user
             if (!User.Identity.IsAuthenticated) return Unauthorized();
             string mailAdress = User.Identity.Name;
             if (mailAdress == null) return BadRequest();
             //find user 
-            User user = _userRepository.GetBy(mailAdress);
-            IdentityUser identityUser = await _userManager.FindByNameAsync(mailAdress);
+            var user = _userRepository.GetBy(mailAdress);
+            var identityUser = await _userManager.FindByNameAsync(mailAdress);
             if (identityUser == null) return BadRequest();
             if (user == null) return BadRequest();
 
@@ -144,34 +176,7 @@ namespace DamianTourBackend.Api.Controllers
             _userRepository.SaveChanges();
             return Ok();    //Moet dit geen user teruggeven?
         }
-
-        /// <summary>
-        /// Register a user
-        /// </summary>
-        /// <param name="model">the user details</param>
-        /// <returns></returns>
-        [AllowAnonymous]
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDTO model)
-        {
-            var validation = _registerValidator.Validate(model);
-            if (!validation.IsValid) return BadRequest(validation);
-
-            var existingUser = _userRepository.GetBy(model.Email);
-            if (existingUser != null) return BadRequest();
-
-            IdentityUser identityUser = new IdentityUser { UserName = model.Email, Email = model.Email };
-            User user = new User { Email = model.Email, FirstName = model.FirstName, LastName = model.LastName };
-
-            var result = await _userManager.CreateAsync(identityUser, model.Password);
-            if (!result.Succeeded) return BadRequest();
-
-            _userRepository.Add(user);
-            _userRepository.SaveChanges();
-
-            string token = TokenHelper.GetToken(identityUser, _configuration);
-            return Created("", token);
-        }
+        #endregion
 
         /// <summary>
         /// Checks if an email is available as username
@@ -186,6 +191,6 @@ namespace DamianTourBackend.Api.Controllers
             return user == null;
         }
 
-       
+
     }
 }

@@ -238,6 +238,11 @@ namespace DamianTourBackend.Tests.UnitTests.Api
         {
             // Arrange 
             var user = DummyData.UserFaker.Generate();
+            var idUser = new IdentityUser() { UserName = user.Email, Email = user.Email };
+
+
+            _um.FindByNameAsync(idUser.Email).Returns(idUser);
+            _um.DeleteAsync(idUser).Returns(IdentityResult.Success);
             //// mocking identity
             var identityUser = new GenericIdentity(user.Email);
 
@@ -251,7 +256,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _sut.ControllerContext = context;
             ////
             _userRepository.GetBy(user.Email).Returns(user);
-           
+
 
             // Act 
             var result = await _sut.DeleteProfile();
@@ -316,7 +321,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
 
         #region Edit Profile Tests
         [Fact]
-        public void UpdateProfile_ProfileUpdated_Success()
+        public async Task UpdateProfile_ProfileUpdated_Success()
         {
             // Arrange 
             var updateProfileDTO = DummyData.UpdateProfileDTOFaker.Generate();
@@ -343,7 +348,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
 
 
             // Act 
-            var result = _sut.UpdateProfile(updateProfileDTO);
+            var result = await _sut.UpdateProfile(updateProfileDTO);
             // Assert 
             result.Should().BeOfType<OkResult>();
             _userRepository.Received().Update(user);
@@ -351,7 +356,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
         }
 
         [Fact]
-        public void UpdateProfile_ValidationFailed_ShouldReturnBadRequest()
+        public async Task UpdateProfile_ValidationFailed_ShouldReturnBadRequest()
         {
             // Arrange 
             var updateProfileDTO = DummyData.UpdateProfileDTOFaker.Generate();
@@ -372,13 +377,13 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             ////
 
             // Act 
-            var result = _sut.UpdateProfile(updateProfileDTO);
+            var result = await _sut.UpdateProfile(updateProfileDTO);
             // Assert 
-            result.Should().BeOfType<BadRequestResult>();
+            result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Fact]
-        public void UpdateProfile_UserNotFound_ShouldReturnBadRequest()
+        public async Task UpdateProfile_UserNotFound_ShouldReturnBadRequest()
         {
             // Arrange 
             var updateProfileDTO = DummyData.UpdateProfileDTOFaker.Generate();
@@ -399,19 +404,19 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             };
             _sut.ControllerContext = context;
             ////
-            
+
             _userRepository.GetBy(user.Email).ReturnsNull();
 
             // Act 
-            var result = _sut.UpdateProfile(updateProfileDTO);
+            var result = await _sut.UpdateProfile(updateProfileDTO);
             // Assert 
 
             result.Should().BeOfType<BadRequestResult>();
         }
 
-        
+
         [Fact]
-        public void UpdateProfile_UserNotLoggedIn_FailsAndReturnsBadRequestResult()
+        public async Task UpdateProfile_UserNotLoggedIn_FailsAndReturnsBadRequestResult()
         {
             // Arrange 
             //// mocking identity
@@ -428,7 +433,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _sut.ControllerContext = context;
             ////
             // Act 
-            var meResult = _sut.UpdateProfile(updateProfileDTO);
+            var meResult = await _sut.UpdateProfile(updateProfileDTO);
             // Assert 
             meResult.Should().BeOfType<UnauthorizedResult>();
         }
