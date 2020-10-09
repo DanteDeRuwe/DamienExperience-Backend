@@ -104,10 +104,13 @@ namespace DamianTourBackend.Api.Controllers
         public IActionResult GetProfile()
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
+
             string mailAdress = User.Identity.Name;
             if (mailAdress == null) return BadRequest();
+
             var user = _userRepository.GetBy(mailAdress);
             if (user == null) return BadRequest();
+
             return Ok(user);
         }
 
@@ -119,19 +122,23 @@ namespace DamianTourBackend.Api.Controllers
         public async Task<IActionResult> DeleteProfile()
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
+
             string mailAdress = User.Identity.Name;
             if (mailAdress == null) return BadRequest();
-            //find user
-            User user = _userRepository.GetBy(mailAdress);
-            IdentityUser identityUser = await _userManager.FindByNameAsync(mailAdress);
+
+            // IdentityUser
+            var identityUser = await _userManager.FindByNameAsync(mailAdress);
             if (identityUser == null) return BadRequest();
-            if (user == null) return BadRequest();
-            //delete identityUser
+
             var result = await _userManager.DeleteAsync(identityUser);
             if (!result.Succeeded) return BadRequest();
-            //delete user
+
+            // User
+            var user = _userRepository.GetBy(mailAdress);
+            if (user == null) return BadRequest();
             _userRepository.Delete(user);
             _userRepository.SaveChanges();
+
             return Ok();
         }
 
@@ -143,38 +150,32 @@ namespace DamianTourBackend.Api.Controllers
         [HttpPut("updateProfile")]
         public async Task<IActionResult> UpdateProfile(UpdateProfileDTO updateProfileDTO)
         {
-            //validation
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
+
             var validation = _updateProfileValidator.Validate(updateProfileDTO);
             if (!validation.IsValid) return BadRequest(validation);
-            //user
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+
             string mailAdress = User.Identity.Name;
             if (mailAdress == null) return BadRequest();
-            //find user 
-            var user = _userRepository.GetBy(mailAdress);
+
+            // IdentityUser
             var identityUser = await _userManager.FindByNameAsync(mailAdress);
             if (identityUser == null) return BadRequest();
+
+            updateProfileDTO.UpdateIdentityUser(ref identityUser);
+            var result = await _userManager.UpdateAsync(identityUser);
+            if (!result.Succeeded) return BadRequest();
+
+            // User
+            var user = _userRepository.GetBy(mailAdress);
             if (user == null) return BadRequest();
 
-
-            //update user
-            user.Email = updateProfileDTO.Email;
-            user.FirstName = updateProfileDTO.FirstName;
-            user.LastName = updateProfileDTO.LastName;
-
-
-            ///identity
-            identityUser.Email = updateProfileDTO.Email;
-            identityUser.UserName = updateProfileDTO.Email;
-
-
-            //var result = await _userManager.UpdateAsync(null
-            var result = await _userManager.UpdateAsync(identityUser);
-
-            //Testen of gelukt is 
+            updateProfileDTO.UpdateUser(ref user);
             _userRepository.Update(user);
             _userRepository.SaveChanges();
-            return Ok();    //Moet dit geen user teruggeven?
+
+
+            return Ok(user);
         }
         #endregion
 
@@ -190,7 +191,5 @@ namespace DamianTourBackend.Api.Controllers
             var user = await _userManager.FindByNameAsync(email);
             return user == null;
         }
-
-
     }
 }
