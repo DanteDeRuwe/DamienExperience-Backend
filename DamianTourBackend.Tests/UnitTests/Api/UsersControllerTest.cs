@@ -42,8 +42,9 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _registerValidator = Substitute.For<IValidator<RegisterDTO>>();
             _loginValidator = Substitute.For<IValidator<LoginDTO>>();
             _updateProfileValidator = Substitute.For<IValidator<UpdateProfileDTO>>();
-
+          
             _sut = new UsersController(_userRepository, _sim, _um, _config, _loginValidator, _registerValidator, _updateProfileValidator);
+
         }
         #region Register Tests
 
