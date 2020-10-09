@@ -9,6 +9,7 @@ namespace DamianTourBackend.Core.Interfaces
         User GetBy(string email);
         User GetBy(Guid id);
         void Add(User user);
+        void Delete(User user);
         IEnumerable<User> GetAll();
         void Update(User user);
         void SaveChanges();

@@ -45,7 +45,11 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
             _context.Update(user);
         }
 
-        public void SaveChanges() => _context.SaveChanges();
+        public void Delete(User user)
+        {
+            _users.Remove(user);
+        }
 
+        public void SaveChanges() => _context.SaveChanges();
     }
 }

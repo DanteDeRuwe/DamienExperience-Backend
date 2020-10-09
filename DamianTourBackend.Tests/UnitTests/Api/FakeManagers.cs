@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using System;
-using System.Threading.Tasks;
 
 namespace DamianTourBackend.Tests.UnitTests.Api
 {
@@ -41,23 +40,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api
                 Substitute.For<IServiceProvider>(),
                 Substitute.For<ILogger<UserManager<IdentityUser>>>())
         { }
-
-        public override Task<IdentityResult> CreateAsync(IdentityUser user, string password)
-        {
-
-            return Task.FromResult(IdentityResult.Success);
-        }
-
-        public override Task<IdentityResult> AddToRoleAsync(IdentityUser user, string role)
-        {
-            return Task.FromResult(IdentityResult.Success);
-        }
-
-        public override Task<string> GenerateEmailConfirmationTokenAsync(IdentityUser user)
-        {
-            return Task.FromResult(Guid.NewGuid().ToString());
-        }
-
 
     }
 }
