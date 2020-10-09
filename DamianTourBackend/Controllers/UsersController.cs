@@ -127,10 +127,8 @@ namespace DamianTourBackend.Api.Controllers
             if (mailAdress == null) return BadRequest();
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();
-
             var identityUser = await _userManager.FindByNameAsync(mailAdress);
-            if (identityUser == null) return BadRequest();
+            if (user == null || identityUser == null) return BadRequest();
 
             // Delete User
             _userRepository.Delete(user);
@@ -161,10 +159,8 @@ namespace DamianTourBackend.Api.Controllers
             if (mailAdress == null) return BadRequest();
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();
-
             var identityUser = await _userManager.FindByNameAsync(mailAdress);
-            if (identityUser == null) return BadRequest();
+            if (user == null || identityUser == null) return BadRequest();
 
             // Update User
             updateProfileDTO.UpdateUser(ref user);
