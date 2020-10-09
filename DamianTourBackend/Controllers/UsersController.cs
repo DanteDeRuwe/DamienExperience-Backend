@@ -1,6 +1,7 @@
 using DamianTourBackend.Api.Helpers;
-using DamianTourBackend.Application.DTOs;
-using DamianTourBackend.Application.Mappers;
+using DamianTourBackend.Application.Login;
+using DamianTourBackend.Application.Register;
+using DamianTourBackend.Application.UpdateProfile;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentValidation;
