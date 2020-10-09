@@ -10,12 +10,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
+
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
+
 
 namespace DamianTourBackend.Tests.UnitTests.Api
 {
@@ -36,14 +38,18 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _testOutputHelper = testOutputHelper;
             _userRepository = Substitute.For<IUserRepository>();
 
+
             _sim = Substitute.For<FakeSignInManager>();
+
             _um = Substitute.For<FakeUserManager>();
             _config = FakeConfiguration.Get();
             _registerValidator = Substitute.For<IValidator<RegisterDTO>>();
             _loginValidator = Substitute.For<IValidator<LoginDTO>>();
+
             _updateProfileValidator = Substitute.For<IValidator<UpdateProfileDTO>>();
           
             _sut = new UsersController(_userRepository, _sim, _um, _config, _loginValidator, _registerValidator, _updateProfileValidator);
+
 
         }
         #region Register Tests
@@ -54,6 +60,8 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Arrange
             var registerDTO = DummyData.RegisterDTOFaker.Generate();
             _um.CreateAsync(Arg.Any<IdentityUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
+
+
 
             _registerValidator.SetupPass();
 
@@ -108,14 +116,18 @@ namespace DamianTourBackend.Tests.UnitTests.Api
 
         #region Login Tests
         [Fact]
+
         public async Task Login_ValidationSuccess_ShouldReturnToken()
+
         {
             // Arrange
             var loginDTO = DummyData.LoginDTOFaker.Generate();
             _loginValidator.SetupPass();
             _um.FindByNameAsync(loginDTO.Email).Returns(new IdentityUser() { UserName = loginDTO.Email, Email = loginDTO.Email });
+
             _sim.CheckPasswordSignInAsync(Arg.Any<IdentityUser>(), Arg.Any<string>(), Arg.Any<bool>())
                 .Returns(Task.FromResult(SignInResult.Success));
+
 
             //Act
             var login = await _sut.Login(loginDTO);
@@ -156,6 +168,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
         }
 
         #endregion
+
 
         #region Profile Tests 
 
@@ -446,5 +459,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api
 
 
         #endregion
+
     }
 }

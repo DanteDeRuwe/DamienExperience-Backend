@@ -21,6 +21,10 @@ namespace DamianTourBackend.Tests.UnitTests.Api
                 Substitute.For<IUserConfirmation<IdentityUser>>()
             )
         { }
+        public override Task<SignInResult> CheckPasswordSignInAsync(IdentityUser user, string password, bool lockoutOnFailure)
+        {
+            return Task.FromResult(SignInResult.Success);
+        }
     }
 
     public class FakeUserManager : UserManager<IdentityUser>
@@ -36,5 +40,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api
                 Substitute.For<IServiceProvider>(),
                 Substitute.For<ILogger<UserManager<IdentityUser>>>())
         { }
+
     }
 }
