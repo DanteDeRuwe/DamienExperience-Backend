@@ -1,5 +1,6 @@
 using DamianTourBackend.Api.Helpers;
 using DamianTourBackend.Application.DTOs;
+using DamianTourBackend.Application.Mappers;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentValidation;
@@ -81,12 +82,11 @@ namespace DamianTourBackend.Api.Controllers
             var existingUser = _userRepository.GetBy(model.Email);
             if (existingUser != null) return BadRequest();
 
-            IdentityUser identityUser = new IdentityUser { UserName = model.Email, Email = model.Email };
-            User user = new User { Email = model.Email, FirstName = model.FirstName, LastName = model.LastName };
-
+            var identityUser = model.MapToIdentityUser();
             var result = await _userManager.CreateAsync(identityUser, model.Password);
             if (!result.Succeeded) return BadRequest();
 
+            var user = model.MapToUser();
             _userRepository.Add(user);
             _userRepository.SaveChanges();
 
