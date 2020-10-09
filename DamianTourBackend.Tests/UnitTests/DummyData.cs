@@ -22,5 +22,11 @@ namespace DamianTourBackend.Tests.UnitTests
         public static readonly Faker<LoginDTO> LoginDTOFaker = new Faker<LoginDTO>()
             .RuleFor(r => r.Email, f => f.Person.Email)
             .RuleFor(r => r.Password, f => f.Internet.Password(8));
+
+
+        public static readonly Faker<UpdateProfileDTO> UpdateProfileDTOFaker = new Faker<UpdateProfileDTO>()
+            .RuleFor(r => r.Email, f => f.Person.Email)
+            .RuleFor(r => r.FirstName, f => f.Person.FirstName)
+            .RuleFor(r => r.LastName, f => f.Person.LastName);
     }
 }
