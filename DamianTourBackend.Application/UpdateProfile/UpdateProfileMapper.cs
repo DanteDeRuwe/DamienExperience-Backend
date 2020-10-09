@@ -1,8 +1,7 @@
-﻿using DamianTourBackend.Application.DTOs;
-using DamianTourBackend.Core.Entities;
+﻿using DamianTourBackend.Core.Entities;
 using Microsoft.AspNetCore.Identity;
 
-namespace DamianTourBackend.Application.Mappers
+namespace DamianTourBackend.Application.UpdateProfile
 {
     public static class UpdateProfileMapper
     {

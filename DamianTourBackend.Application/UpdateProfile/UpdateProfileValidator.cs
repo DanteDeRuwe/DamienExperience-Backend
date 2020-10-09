@@ -1,15 +1,12 @@
-﻿using DamianTourBackend.Application.DTOs;
-using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using FluentValidation;
 using System.Text.RegularExpressions;
 
-namespace DamianTourBackend.Application.Validators
+namespace DamianTourBackend.Application.UpdateProfile
 {
     public class UpdateProfileValidator : AbstractValidator<UpdateProfileDTO>
     {
-        public UpdateProfileValidator() {
+        public UpdateProfileValidator()
+        {
             RuleFor(x => x.FirstName)
                     .NotEmpty().WithMessage("First name is required")
                     .MaximumLength(200).WithMessage("First name cannot be longer than 200 characters");
@@ -17,7 +14,7 @@ namespace DamianTourBackend.Application.Validators
             RuleFor(x => x.LastName)
                     .NotEmpty().WithMessage("Last name is required")
                     .MaximumLength(200).WithMessage("Last name cannot be longer than 200 characters");
-            RuleFor(x=> x.Email)
+            RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required.")
                 .Must(BeValidEmail).WithMessage("Invalid email format.");
         }

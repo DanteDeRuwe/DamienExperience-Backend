@@ -1,4 +1,6 @@
-﻿namespace DamianTourBackend.Application.DTOs
+﻿using DamianTourBackend.Application.Login;
+
+namespace DamianTourBackend.Application.Register
 {
     public class RegisterDTO : LoginDTO
     {
