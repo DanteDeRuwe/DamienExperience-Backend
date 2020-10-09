@@ -1,4 +1,4 @@
-﻿using DamianTourBackend.Api.Controllers;
+using DamianTourBackend.Api.Controllers;
 using DamianTourBackend.Application.DTOs;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
@@ -12,6 +12,7 @@ using NSubstitute.ReturnsExtensions;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace DamianTourBackend.Tests.UnitTests.Api
 {
@@ -31,12 +32,12 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _testOutputHelper = testOutputHelper;
             _userRepository = Substitute.For<IUserRepository>();
 
-            _sim = new FakeSignInManager();
-            //_um = new FakeUserManager();
+            _sim = Substitute.For<FakeSignInManager>();
             _um = Substitute.For<FakeUserManager>();
             _config = FakeConfiguration.Get();
             _registerValidator = Substitute.For<IValidator<RegisterDTO>>();
             _loginValidator = Substitute.For<IValidator<LoginDTO>>();
+
 
             _sut = new UsersController(_userRepository, _sim, _um, _config, _loginValidator, _registerValidator);
         }
@@ -48,6 +49,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Arrange
             var registerDTO = DummyData.RegisterDTOFaker.Generate();
             _um.CreateAsync(Arg.Any<IdentityUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
+
             _registerValidator.SetupPass();
 
             // Act          
@@ -75,6 +77,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
 
             // Act     
             var secondTimeRegister = await _sut.Register(registerDTO);
+
 
             // Assert
             secondTimeRegister.Should().BeOfType<BadRequestResult>();
@@ -106,6 +109,8 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             var loginDTO = DummyData.LoginDTOFaker.Generate();
             _loginValidator.SetupPass();
             _um.FindByNameAsync(loginDTO.Email).Returns(new IdentityUser() { UserName = loginDTO.Email, Email = loginDTO.Email });
+            _sim.CheckPasswordSignInAsync(Arg.Any<IdentityUser>(), Arg.Any<string>(), Arg.Any<bool>())
+                .Returns(Task.FromResult(SignInResult.Success));
 
             //Act
             var login = await _sut.Login(loginDTO);
