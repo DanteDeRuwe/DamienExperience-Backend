@@ -126,18 +126,20 @@ namespace DamianTourBackend.Api.Controllers
             string mailAdress = User.Identity.Name;
             if (mailAdress == null) return BadRequest();
 
-            // IdentityUser
+            var user = _userRepository.GetBy(mailAdress);
+            if (user == null) return BadRequest();
+
             var identityUser = await _userManager.FindByNameAsync(mailAdress);
             if (identityUser == null) return BadRequest();
 
+            // Delete User
+            _userRepository.Delete(user);
+            _userRepository.SaveChanges();
+
+            // Delete IdentityUser
             var result = await _userManager.DeleteAsync(identityUser);
             if (!result.Succeeded) return BadRequest();
 
-            // User
-            var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();
-            _userRepository.Delete(user);
-            _userRepository.SaveChanges();
 
             return Ok();
         }
@@ -158,24 +160,23 @@ namespace DamianTourBackend.Api.Controllers
             string mailAdress = User.Identity.Name;
             if (mailAdress == null) return BadRequest();
 
-            // IdentityUser
-            var identityUser = await _userManager.FindByNameAsync(mailAdress);
-            if (identityUser == null) return BadRequest();
-
-            updateProfileDTO.UpdateIdentityUser(ref identityUser);
-            var result = await _userManager.UpdateAsync(identityUser);
-            if (!result.Succeeded) return BadRequest();
-
-            // User
             var user = _userRepository.GetBy(mailAdress);
             if (user == null) return BadRequest();
 
+            var identityUser = await _userManager.FindByNameAsync(mailAdress);
+            if (identityUser == null) return BadRequest();
+
+            // Update User
             updateProfileDTO.UpdateUser(ref user);
             _userRepository.Update(user);
             _userRepository.SaveChanges();
 
+            // Update IdentityUser
+            updateProfileDTO.UpdateIdentityUser(ref identityUser);
+            var result = await _userManager.UpdateAsync(identityUser);
+            if (!result.Succeeded) return BadRequest();
 
-            return Ok(user);
+            return Ok();
         }
         #endregion
 
