@@ -1,5 +1,7 @@
 ﻿using Bogus;
-using DamianTourBackend.Application.DTOs;
+using DamianTourBackend.Application.Login;
+using DamianTourBackend.Application.Register;
+using DamianTourBackend.Application.UpdateProfile;
 using DamianTourBackend.Core.Entities;
 
 namespace DamianTourBackend.Tests.UnitTests

@@ -1,4 +1,4 @@
-﻿using DamianTourBackend.Application.Validators;
+﻿using DamianTourBackend.Application.Login;
 using FluentValidation.TestHelper;
 using Xunit;
 using Xunit.Abstractions;

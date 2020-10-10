@@ -1,8 +1,5 @@
-﻿using DamianTourBackend.Application.Validators;
+﻿using DamianTourBackend.Application.UpdateProfile;
 using FluentValidation.TestHelper;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace DamianTourBackend.Tests.UnitTests.Application.Validators

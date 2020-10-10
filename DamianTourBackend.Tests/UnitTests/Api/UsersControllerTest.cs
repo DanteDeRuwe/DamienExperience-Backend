@@ -1,5 +1,7 @@
 using DamianTourBackend.Api.Controllers;
-using DamianTourBackend.Application.DTOs;
+using DamianTourBackend.Application.Login;
+using DamianTourBackend.Application.Register;
+using DamianTourBackend.Application.UpdateProfile;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentAssertions;
@@ -10,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
-
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -47,7 +48,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _loginValidator = Substitute.For<IValidator<LoginDTO>>();
 
             _updateProfileValidator = Substitute.For<IValidator<UpdateProfileDTO>>();
-          
+
             _sut = new UsersController(_userRepository, _sim, _um, _config, _loginValidator, _registerValidator, _updateProfileValidator);
 
 

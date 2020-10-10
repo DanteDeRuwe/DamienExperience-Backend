@@ -1,5 +1,6 @@
-﻿using DamianTourBackend.Application.DTOs;
-using DamianTourBackend.Application.Validators;
+﻿using DamianTourBackend.Application.Login;
+using DamianTourBackend.Application.Register;
+using DamianTourBackend.Application.UpdateProfile;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
