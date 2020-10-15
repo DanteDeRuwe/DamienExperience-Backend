@@ -1,6 +1,5 @@
 ﻿using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,7 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly ApplicationDbContext _context;
+        /*private readonly ApplicationDbContext _context;
         private readonly DbSet<User> _users;
 
         public UserRepository(ApplicationDbContext context)
@@ -50,6 +49,40 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
             _users.Remove(user);
         }
 
-        public void SaveChanges() => _context.SaveChanges();
+        public void SaveChanges() => _context.SaveChanges();*/
+        public void Add(User user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete(User user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<User> GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public User GetBy(string email)
+        {
+            throw new NotImplementedException();
+        }
+
+        public User GetBy(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SaveChanges()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Update(User user)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
