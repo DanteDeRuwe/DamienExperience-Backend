@@ -1,5 +1,4 @@
 ﻿using DamianTourBackend.Core.Entities;
-using Microsoft.AspNetCore.Identity;
 
 namespace DamianTourBackend.Application.UpdateProfile
 {
@@ -12,10 +11,10 @@ namespace DamianTourBackend.Application.UpdateProfile
             user.LastName = model.LastName ?? user.LastName;
         }
 
-        public static void UpdateIdentityUser(this UpdateProfileDTO model, ref IdentityUser identityUser)
+        public static void UpdateIdentityUser(this UpdateProfileDTO model, ref AppUser appUser)
         {
-            identityUser.Email = model.Email ?? identityUser.Email;
-            identityUser.UserName = model.Email ?? identityUser.UserName;
+            appUser.Email = model.Email ?? appUser.Email;
+            appUser.UserName = model.Email ?? appUser.UserName;
         }
     }
 }

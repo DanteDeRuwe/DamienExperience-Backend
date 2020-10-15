@@ -1,4 +1,5 @@
 using DamianTourBackend.Api.Controllers;
+using DamianTourBackend.Application;
 using DamianTourBackend.Application.Login;
 using DamianTourBackend.Application.Register;
 using DamianTourBackend.Application.UpdateProfile;
@@ -26,9 +27,9 @@ namespace DamianTourBackend.Tests.UnitTests.Api
     {
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly IUserRepository _userRepository;
-        private readonly SignInManager<IdentityUser> _sim;
+        private readonly SignInManager<AppUser> _sim;
         private readonly UsersController _sut;
-        private readonly UserManager<IdentityUser> _um;
+        private readonly UserManager<AppUser> _um;
         private readonly IConfiguration _config;
         private readonly IValidator<RegisterDTO> _registerValidator;
         private readonly IValidator<LoginDTO> _loginValidator;
@@ -60,7 +61,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
         {
             // Arrange
             var registerDTO = DummyData.RegisterDTOFaker.Generate();
-            _um.CreateAsync(Arg.Any<IdentityUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
+            _um.CreateAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
 
 
 
@@ -74,7 +75,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api
                 .Which.Value.ToString().Should().MatchRegex("^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$");
 
             _userRepository.Received().Add(Arg.Any<User>());
-            _userRepository.Received().SaveChanges();
 
         }
 
@@ -96,7 +96,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Assert
             secondTimeRegister.Should().BeOfType<BadRequestResult>();
             _userRepository.DidNotReceive().Add(Arg.Any<User>());
-            _userRepository.DidNotReceive().SaveChanges();
         }
 
         [Fact]
@@ -111,7 +110,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Assert
             secondTimeRegister.Should().BeOfType<BadRequestObjectResult>();
             _userRepository.DidNotReceive().Add(Arg.Any<User>());
-            _userRepository.DidNotReceive().SaveChanges();
         }
         #endregion
 
@@ -124,9 +122,9 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Arrange
             var loginDTO = DummyData.LoginDTOFaker.Generate();
             _loginValidator.SetupPass();
-            _um.FindByNameAsync(loginDTO.Email).Returns(new IdentityUser() { UserName = loginDTO.Email, Email = loginDTO.Email });
+            _um.FindByNameAsync(loginDTO.Email).Returns(new AppUser() { UserName = loginDTO.Email, Email = loginDTO.Email });
 
-            _sim.CheckPasswordSignInAsync(Arg.Any<IdentityUser>(), Arg.Any<string>(), Arg.Any<bool>())
+            _sim.CheckPasswordSignInAsync(Arg.Any<AppUser>(), Arg.Any<string>(), Arg.Any<bool>())
                 .Returns(Task.FromResult(SignInResult.Success));
 
 
@@ -180,13 +178,13 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Arrange 
             var user = DummyData.UserFaker.Generate();
             //// mocking identity
-            var identityUser = new GenericIdentity(user.Email);
+            var AppUser = new GenericIdentity(user.Email);
 
             var context = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
                 {
-                    User = new ClaimsPrincipal(identityUser)
+                    User = new ClaimsPrincipal(AppUser)
                 }
             };
             _sut.ControllerContext = context;
@@ -229,13 +227,13 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Arrange 
             var user = DummyData.UserFaker.Generate();
             //// mocking identity
-            var identityUser = new GenericIdentity(user.Email);
+            var AppUser = new GenericIdentity(user.Email);
 
             var context = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
                 {
-                    User = new ClaimsPrincipal(identityUser)
+                    User = new ClaimsPrincipal(AppUser)
                 }
             };
             _sut.ControllerContext = context;
@@ -257,19 +255,19 @@ namespace DamianTourBackend.Tests.UnitTests.Api
         {
             // Arrange 
             var user = DummyData.UserFaker.Generate();
-            var idUser = new IdentityUser() { UserName = user.Email, Email = user.Email };
+            var idUser = new AppUser() { UserName = user.Email, Email = user.Email };
 
 
             _um.FindByNameAsync(idUser.Email).Returns(idUser);
             _um.DeleteAsync(idUser).Returns(IdentityResult.Success);
             //// mocking identity
-            var identityUser = new GenericIdentity(user.Email);
+            var AppUser = new GenericIdentity(user.Email);
 
             var context = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
                 {
-                    User = new ClaimsPrincipal(identityUser)
+                    User = new ClaimsPrincipal(AppUser)
                 }
             };
             _sut.ControllerContext = context;
@@ -282,7 +280,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Assert 
             result.Should().BeOfType<OkResult>();
             _userRepository.Received().Delete(user);
-            _userRepository.Received().SaveChanges();
         }
 
         [Fact]
@@ -291,13 +288,13 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Arrange 
             var user = DummyData.UserFaker.Generate();
             //// mocking identity
-            var identityUser = new GenericIdentity(user.Email);
+            var AppUser = new GenericIdentity(user.Email);
 
             var context = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
                 {
-                    User = new ClaimsPrincipal(identityUser)
+                    User = new ClaimsPrincipal(AppUser)
                 }
             };
             _sut.ControllerContext = context;
@@ -316,7 +313,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Arrange 
             var user = DummyData.UserFaker.Generate();
             //// mocking identity
-            var identityUser = new GenericIdentity(user.Email);
+            var AppUser = new GenericIdentity(user.Email);
 
             var context = new ControllerContext
             {
@@ -345,20 +342,20 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Arrange 
             var updateProfileDTO = DummyData.UpdateProfileDTOFaker.Generate();
             var user = DummyData.UserFaker.Generate();
-            var idUser = new IdentityUser() { UserName = user.Email, Email = user.Email };
+            var idUser = new AppUser() { UserName = user.Email, Email = user.Email };
 
             _updateProfileValidator.SetupPass();
             _um.FindByNameAsync(idUser.Email).Returns(idUser);
             _um.UpdateAsync(idUser).Returns(IdentityResult.Success);
 
             //// mocking identity
-            var identityUser = new GenericIdentity(user.Email);
+            var AppUser = new GenericIdentity(user.Email);
 
             var context = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
                 {
-                    User = new ClaimsPrincipal(identityUser)
+                    User = new ClaimsPrincipal(AppUser)
                 }
             };
             _sut.ControllerContext = context;
@@ -371,7 +368,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Assert 
             result.Should().BeOfType<OkResult>();
             _userRepository.Received().Update(user);
-            _userRepository.Received().SaveChanges();
         }
 
         [Fact]
@@ -383,13 +379,13 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _updateProfileValidator.SetupFail();
 
             //// mocking identity
-            var identityUser = new GenericIdentity(user.Email);
+            var AppUser = new GenericIdentity(user.Email);
 
             var context = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
                 {
-                    User = new ClaimsPrincipal(identityUser)
+                    User = new ClaimsPrincipal(AppUser)
                 }
             };
             _sut.ControllerContext = context;
@@ -407,18 +403,18 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             // Arrange 
             var updateProfileDTO = DummyData.UpdateProfileDTOFaker.Generate();
             var user = DummyData.UserFaker.Generate();
-            var idUser = new IdentityUser() { UserName = user.Email, Email = user.Email };
+            var idUser = new AppUser() { UserName = user.Email, Email = user.Email };
             _um.FindByNameAsync(idUser.Email).Returns(idUser);
             _updateProfileValidator.SetupPass();
 
             //// mocking identity
-            var identityUser = new GenericIdentity(user.Email);
+            var AppUser = new GenericIdentity(user.Email);
 
             var context = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
                 {
-                    User = new ClaimsPrincipal(identityUser)
+                    User = new ClaimsPrincipal(AppUser)
                 }
             };
             _sut.ControllerContext = context;

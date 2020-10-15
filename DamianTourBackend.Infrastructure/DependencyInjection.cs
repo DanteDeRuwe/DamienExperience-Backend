@@ -1,5 +1,5 @@
 ﻿using AspNetCore.Identity.Mongo;
-using AspNetCore.Identity.Mongo.Model;
+using DamianTourBackend.Application;
 using DamianTourBackend.Core.Interfaces;
 using DamianTourBackend.Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,7 +17,7 @@ namespace DamianTourBackend.Infrastructure
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
 
-            services.AddIdentityMongoDbProvider<MongoUser, MongoRole>(options =>
+            services.AddIdentityMongoDbProvider<AppUser>(options =>
             {
                 // Password settings.
                 options.Password.RequireDigit = false;
@@ -37,8 +37,11 @@ namespace DamianTourBackend.Infrastructure
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = true;
             },
-                mongoOptions => mongoOptions.ConnectionString = configuration["MongoDbSettings:ConnectionString"]
-            );
+                mongoOptions =>
+                {
+                    mongoOptions.ConnectionString = configuration["MongoDbSettings:ConnectionString"];
+                    mongoOptions.UsersCollection = "MongoUsers";
+                });
 
             services.AddAuthentication(x =>
             {
@@ -59,6 +62,14 @@ namespace DamianTourBackend.Infrastructure
                     RequireExpirationTime = true //Ensure token hasn't expired
                 };
             });
+
+
+            services.AddSingleton(x =>
+            {
+                var client = new MongoClient(configuration["MongoDbSettings:ConnectionString"]);
+                return client.GetDatabase(configuration["MongoDbSettings:DatabaseName"]);
+            });
+
 
             services.AddScoped<IUserRepository, UserRepository>();
         }

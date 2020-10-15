@@ -1,21 +1,14 @@
 using DamianTourBackend.Application;
 using DamianTourBackend.Infrastructure;
-using DamianTourBackend.Infrastructure.Data;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using NSwag;
 using NSwag.Generation.Processors.Security;
-using System;
 using System.Linq;
-using System.Text;
-using AspNetCore.Identity.Mongo;
-using AspNetCore.Identity.Mongo.Model;
-using DamianTourBackend.Core.Entities;
 
 namespace DamianTourBackend
 {
@@ -29,15 +22,6 @@ namespace DamianTourBackend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-
-
-
-            //authentication services
-            //services.AddIdentity<IdentityUser, IdentityRole>(cfg => cfg.User.RequireUniqueEmail = true).AddEntityFrameworkStores<ApplicationDbContext>();
-
-
-            
-
 
             services.AddOpenApiDocument(c =>
             {
