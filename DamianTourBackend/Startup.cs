@@ -21,6 +21,7 @@ namespace DamianTourBackend.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddRouting(options => options.LowercaseUrls = true);
 
             services.AddOpenApiDocument(c =>
             {
