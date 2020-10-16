@@ -9,7 +9,9 @@ namespace DamianTourBackend.Application.Register
             {
                 Email = model.Email,
                 FirstName = model.FirstName,
-                LastName = model.LastName
+                LastName = model.LastName,
+                PhoneNumber = model.PhoneNumber,
+                DateOfBirth = DateParser.Parse(model.DateOfBirth)
             };
 
         public static AppUser MapToAppUser(this RegisterDTO model) =>
