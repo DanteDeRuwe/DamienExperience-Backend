@@ -12,6 +12,5 @@ namespace DamianTourBackend.Core.Interfaces
         void Delete(User user);
         IEnumerable<User> GetAll();
         void Update(User user);
-        void SaveChanges();
     }
 }

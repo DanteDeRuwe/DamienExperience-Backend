@@ -1,8 +1,7 @@
-﻿using DamianTourBackend.Application.DTOs;
-using FluentValidation;
+﻿using FluentValidation;
 using System.Text.RegularExpressions;
 
-namespace DamianTourBackend.Application.Validators
+namespace DamianTourBackend.Application.Login
 {
     public class LoginValidator : AbstractValidator<LoginDTO>
     {

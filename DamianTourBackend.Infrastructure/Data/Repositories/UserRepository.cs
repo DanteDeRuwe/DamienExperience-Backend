@@ -1,55 +1,50 @@
-﻿using DamianTourBackend.Core.Entities;
+﻿using AspNetCore.Identity.Mongo.Model;
+using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace DamianTourBackend.Infrastructure.Data.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly ApplicationDbContext _context;
-        private readonly DbSet<User> _users;
+        public readonly IMongoCollection<User> _users;
+        private readonly IMongoCollection<MongoUser> _mongoUsers;
 
-        public UserRepository(ApplicationDbContext context)
+        public UserRepository(IMongoDatabase db)
         {
-            _context = context;
-            _users = context.Users;
+            _users = db.GetCollection<User>("Users");
         }
 
         public void Add(User user)
         {
-            _users.Add(user);
-        }
-
-        public IEnumerable<User> GetAll()
-        {
-            return _users//.Include(u => u.Registrations)
-                         //.Include(u => u.Walks)
-                         .ToList();
-        }
-
-        public User GetBy(string email)
-        {
-            return GetAll().Where(u => u.Email.Equals(email)).FirstOrDefault();
-        }
-
-        public User GetBy(Guid id)
-        {
-            return GetAll().Where(u => u.Id.Equals(id)).FirstOrDefault();
-        }
-
-        public void Update(User user)
-        {
-            _context.Update(user);
+            _users.InsertOne(user);
         }
 
         public void Delete(User user)
         {
-            _users.Remove(user);
+            _users.FindOneAndDelete(x => x.Id.Equals(user.Id));
         }
 
-        public void SaveChanges() => _context.SaveChanges();
+        public IEnumerable<User> GetAll()
+        {
+            return _users.Find(x => true).ToList();
+        }
+
+        public User GetBy(string email)
+        {
+            return _users.Find(user => user.Email.Equals(email)).FirstOrDefault();
+        }
+
+        public User GetBy(Guid id)
+        {
+            return _users.Find(user => user.Id.Equals(id)).FirstOrDefault();
+        }
+
+        public void Update(User user)
+        {
+            _users.ReplaceOne(u => u.Email.Equals(user.Email), user);
+        }
     }
 }
