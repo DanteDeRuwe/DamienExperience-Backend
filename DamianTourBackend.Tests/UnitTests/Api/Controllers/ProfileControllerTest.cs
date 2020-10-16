@@ -4,13 +4,10 @@ using DamianTourBackend.Application.UpdateProfile;
 using DamianTourBackend.Core.Interfaces;
 using FluentAssertions;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -37,18 +34,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         {
             // Arrange 
             var user = DummyData.UserFaker.Generate();
-            //// mocking identity
-            var AppUser = new GenericIdentity(user.Email);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(AppUser)
-                }
-            };
-            _sut.ControllerContext = context;
-            ////
+            _sut.ControllerContext = FakeControllerContext.For(user);
             _userRepository.GetBy(user.Email).Returns(user);
 
             // Act 
@@ -64,19 +50,11 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         public void GetProfile_UserNotLoggedIn_FailsAndReturnsBadRequestResult()
         {
             // Arrange 
-            //// mocking identity
+            _sut.ControllerContext = FakeControllerContext.NotLoggedIn;
 
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = null
-                }
-            };
-            _sut.ControllerContext = context;
-            ////
             // Act 
             var meResult = _sut.Get();
+
             // Assert 
             meResult.Should().BeOfType<UnauthorizedResult>();
         }
@@ -86,19 +64,9 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         {
             // Arrange 
             var user = DummyData.UserFaker.Generate();
-            //// mocking identity
-            var AppUser = new GenericIdentity(user.Email);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(AppUser)
-                }
-            };
-            _sut.ControllerContext = context;
-            ////
+            _sut.ControllerContext = FakeControllerContext.For(user);
             _userRepository.GetBy(user.Email).ReturnsNull();
+
             // Act 
             var meResult = _sut.Get();
 
@@ -114,26 +82,14 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var user = DummyData.UserFaker.Generate();
             var idUser = new AppUser() { UserName = user.Email, Email = user.Email };
 
-
             _um.FindByNameAsync(idUser.Email).Returns(idUser);
             _um.DeleteAsync(idUser).Returns(IdentityResult.Success);
-            //// mocking identity
-            var AppUser = new GenericIdentity(user.Email);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(AppUser)
-                }
-            };
-            _sut.ControllerContext = context;
-            ////
+            _sut.ControllerContext = FakeControllerContext.For(user);
             _userRepository.GetBy(user.Email).Returns(user);
-
 
             // Act 
             var result = await _sut.Delete();
+
             // Assert 
             result.Should().BeOfType<OkResult>();
             _userRepository.Received().Delete(user);
@@ -144,20 +100,8 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         {
             // Arrange 
             var user = DummyData.UserFaker.Generate();
-            //// mocking identity
-            var AppUser = new GenericIdentity(user.Email);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(AppUser)
-                }
-            };
-            _sut.ControllerContext = context;
-            ////
+            _sut.ControllerContext = FakeControllerContext.For(user);
             _userRepository.GetBy(user.Email).ReturnsNull();
-
 
             // Act 
             var result = await _sut.Delete();
@@ -171,20 +115,8 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         {
             // Arrange 
             var user = DummyData.UserFaker.Generate();
-            //// mocking identity
-            var AppUser = new GenericIdentity(user.Email);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = null
-                }
-            };
-            _sut.ControllerContext = context;
-            ////
+            _sut.ControllerContext = FakeControllerContext.NotLoggedIn;
             _userRepository.GetBy(user.Email).ReturnsNull();
-
 
             // Act 
             var result = await _sut.Delete();
@@ -204,20 +136,8 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _um.FindByNameAsync(idUser.Email).Returns(idUser);
             _um.UpdateAsync(idUser).Returns(IdentityResult.Success);
 
-            //// mocking identity
-            var AppUser = new GenericIdentity(user.Email);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(AppUser)
-                }
-            };
-            _sut.ControllerContext = context;
-            ////
+            _sut.ControllerContext = FakeControllerContext.For(user);
             _userRepository.GetBy(user.Email).Returns(user);
-
 
             // Act 
             var result = await _sut.Update(updateProfileDTO);
@@ -234,18 +154,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var user = DummyData.UserFaker.Generate();
             _updateProfileValidator.SetupFail();
 
-            //// mocking identity
-            var AppUser = new GenericIdentity(user.Email);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(AppUser)
-                }
-            };
-            _sut.ControllerContext = context;
-            ////
+            _sut.ControllerContext = FakeControllerContext.For(user);
 
             // Act 
             var result = await _sut.Update(updateProfileDTO);
@@ -262,19 +171,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var idUser = new AppUser() { UserName = user.Email, Email = user.Email };
             _um.FindByNameAsync(idUser.Email).Returns(idUser);
             _updateProfileValidator.SetupPass();
-
-            //// mocking identity
-            var AppUser = new GenericIdentity(user.Email);
-
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(AppUser)
-                }
-            };
-            _sut.ControllerContext = context;
-            ////
+            _sut.ControllerContext = FakeControllerContext.For(user);
 
             _userRepository.GetBy(user.Email).ReturnsNull();
 
@@ -290,19 +187,10 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         public async Task UpdateProfile_UserNotLoggedIn_FailsAndReturnsBadRequestResult()
         {
             // Arrange 
-            //// mocking identity
             var updateProfileDTO = DummyData.UpdateProfileDTOFaker.Generate();
             _updateProfileValidator.SetupPass();
+            _sut.ControllerContext = FakeControllerContext.NotLoggedIn;
 
-            var context = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = null
-                }
-            };
-            _sut.ControllerContext = context;
-            ////
             // Act 
             var meResult = await _sut.Update(updateProfileDTO);
             // Assert 
