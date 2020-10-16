@@ -30,7 +30,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _sut = new LoginController(_validator, _sim, _um, config);
         }
 
-        #region Login Tests
         [Fact]
 
         public async Task Login_ValidationSuccess_ShouldReturnToken()
@@ -82,8 +81,5 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             // Assert
             loginFail.Should().BeOfType<BadRequestObjectResult>();
         }
-
-        #endregion
-
     }
 }
