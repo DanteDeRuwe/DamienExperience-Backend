@@ -1,177 +1,37 @@
 using DamianTourBackend.Api.Controllers;
 using DamianTourBackend.Application;
-using DamianTourBackend.Application.Login;
-using DamianTourBackend.Application.Register;
 using DamianTourBackend.Application.UpdateProfile;
-using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentAssertions;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
-using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
-
-namespace DamianTourBackend.Tests.UnitTests.Api
+namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
 {
-    public class UsersControllerTest
+    public class ProfileControllerTest
     {
-        private readonly ITestOutputHelper _testOutputHelper;
         private readonly IUserRepository _userRepository;
-        private readonly SignInManager<AppUser> _sim;
-        private readonly UsersController _sut;
+        private readonly ProfileController _sut;
         private readonly UserManager<AppUser> _um;
-        private readonly IConfiguration _config;
-        private readonly IValidator<RegisterDTO> _registerValidator;
-        private readonly IValidator<LoginDTO> _loginValidator;
         private readonly IValidator<UpdateProfileDTO> _updateProfileValidator;
 
-        public UsersControllerTest(ITestOutputHelper testOutputHelper)
+        public ProfileControllerTest()
         {
-            _testOutputHelper = testOutputHelper;
             _userRepository = Substitute.For<IUserRepository>();
-
-
-            _sim = Substitute.For<FakeSignInManager>();
-
-            _um = Substitute.For<FakeUserManager>();
-            _config = FakeConfiguration.Get();
-            _registerValidator = Substitute.For<IValidator<RegisterDTO>>();
-            _loginValidator = Substitute.For<IValidator<LoginDTO>>();
-
             _updateProfileValidator = Substitute.For<IValidator<UpdateProfileDTO>>();
+            _um = Substitute.For<FakeUserManager>();
 
-            _sut = new UsersController(_userRepository, _sim, _um, _config, _loginValidator, _registerValidator, _updateProfileValidator);
-
-
-        }
-        #region Register Tests
-
-        [Fact]
-        public async Task Register_GoodUser_ShouldRegisterAndReturnToken()
-        {
-            // Arrange
-            var registerDTO = DummyData.RegisterDTOFaker.Generate();
-            _um.CreateAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
-
-
-
-            _registerValidator.SetupPass();
-
-            // Act          
-            var result = await _sut.Register(registerDTO);
-
-            // Assert
-            result.Should().BeOfType<CreatedResult>()
-                .Which.Value.ToString().Should().MatchRegex("^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$");
-
-            _userRepository.Received().Add(Arg.Any<User>());
-
+            _sut = new ProfileController(_userRepository, _updateProfileValidator, _um);
         }
 
-        [Fact]
-        public async Task Register_EmailAlreadyRegistered_ShouldNotRegisterAndReturnsBadRequest()
-        {
-            // Arrange
-            var user = DummyData.UserFaker.Generate();
-            var registerDTO = DummyData.RegisterDTOFaker.Generate();
-            registerDTO.Email = user.Email;
-
-            _registerValidator.SetupPass();
-            _userRepository.GetBy(user.Email).Returns(user); //already registered
-
-            // Act     
-            var secondTimeRegister = await _sut.Register(registerDTO);
-
-
-            // Assert
-            secondTimeRegister.Should().BeOfType<BadRequestResult>();
-            _userRepository.DidNotReceive().Add(Arg.Any<User>());
-        }
-
-        [Fact]
-        public async Task Register_ValidationFailed_ShouldNotRegisterAndReturnsBadRequest()
-        {
-            // Arrange
-            _registerValidator.SetupFail();
-
-            // Act     
-            var secondTimeRegister = await _sut.Register(new RegisterDTO());
-
-            // Assert
-            secondTimeRegister.Should().BeOfType<BadRequestObjectResult>();
-            _userRepository.DidNotReceive().Add(Arg.Any<User>());
-        }
-        #endregion
-
-        #region Login Tests
-        [Fact]
-
-        public async Task Login_ValidationSuccess_ShouldReturnToken()
-
-        {
-            // Arrange
-            var loginDTO = DummyData.LoginDTOFaker.Generate();
-            _loginValidator.SetupPass();
-            _um.FindByNameAsync(loginDTO.Email).Returns(new AppUser() { UserName = loginDTO.Email, Email = loginDTO.Email });
-
-            _sim.CheckPasswordSignInAsync(Arg.Any<AppUser>(), Arg.Any<string>(), Arg.Any<bool>())
-                .Returns(Task.FromResult(SignInResult.Success));
-
-
-            //Act
-            var login = await _sut.Login(loginDTO);
-
-            //Assert
-            login.Should().BeOfType<OkObjectResult>()
-                .Which.Value.ToString().Should().MatchRegex("^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$");
-
-        }
-
-        [Fact]
-        public async Task Login_UserNotFoundOrRegistered_ShouldReturnBadRequest()
-        {
-            // Arrange
-            var loginDTO = DummyData.LoginDTOFaker.Generate();
-            _loginValidator.SetupPass();
-            _um.FindByNameAsync(loginDTO.Email).ReturnsNull();
-
-            //Act
-            var login = await _sut.Login(loginDTO);
-
-            //Assert
-            login.Should().BeOfType<BadRequestResult>();
-
-        }
-
-        [Fact]
-        public async Task Login_ValidationFailed_ShouldNotLoginAndReturnBadRequest()
-        {
-            // Arrange
-            _loginValidator.SetupFail();
-
-            // Act     
-            var loginFail = await _sut.Login(new LoginDTO());
-
-            // Assert
-            loginFail.Should().BeOfType<BadRequestObjectResult>();
-        }
-
-        #endregion
-
-
-        #region Profile Tests 
-
-        #region GetProfile Tests
         [Fact]
         public void GetProfile_UserLoggedIn_ReceivesUser()
         {
@@ -192,7 +52,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _userRepository.GetBy(user.Email).Returns(user);
 
             // Act 
-            var meResult = _sut.GetProfile();
+            var meResult = _sut.Get();
 
             // Assert 
             meResult.Should().BeOfType<OkObjectResult>();
@@ -216,7 +76,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _sut.ControllerContext = context;
             ////
             // Act 
-            var meResult = _sut.GetProfile();
+            var meResult = _sut.Get();
             // Assert 
             meResult.Should().BeOfType<UnauthorizedResult>();
         }
@@ -240,15 +100,12 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             ////
             _userRepository.GetBy(user.Email).ReturnsNull();
             // Act 
-            var meResult = _sut.GetProfile();
+            var meResult = _sut.Get();
 
             // Assert 
             meResult.Should().BeOfType<BadRequestResult>();
         }
 
-        #endregion
-
-        #region Delete Profile Tests 
 
         [Fact]
         public async Task DeleteProfile_ProfileDeleted_Succes()
@@ -276,7 +133,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
 
 
             // Act 
-            var result = await _sut.DeleteProfile();
+            var result = await _sut.Delete();
             // Assert 
             result.Should().BeOfType<OkResult>();
             _userRepository.Received().Delete(user);
@@ -303,10 +160,12 @@ namespace DamianTourBackend.Tests.UnitTests.Api
 
 
             // Act 
-            var result = await _sut.DeleteProfile();
+            var result = await _sut.Delete();
             // Assert 
             result.Should().BeOfType<BadRequestResult>();
         }
+
+
         [Fact]
         public async Task DeleteProfile_UserNotLoggedIn_FailsAndReturnsUnauthorizedResult()
         {
@@ -328,14 +187,11 @@ namespace DamianTourBackend.Tests.UnitTests.Api
 
 
             // Act 
-            var result = await _sut.DeleteProfile();
+            var result = await _sut.Delete();
             // Assert 
             result.Should().BeOfType<UnauthorizedResult>();
         }
 
-        #endregion
-
-        #region Edit Profile Tests
         [Fact]
         public async Task UpdateProfile_ProfileUpdated_Success()
         {
@@ -364,7 +220,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
 
 
             // Act 
-            var result = await _sut.UpdateProfile(updateProfileDTO);
+            var result = await _sut.Update(updateProfileDTO);
             // Assert 
             result.Should().BeOfType<OkResult>();
             _userRepository.Received().Update(user);
@@ -392,7 +248,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             ////
 
             // Act 
-            var result = await _sut.UpdateProfile(updateProfileDTO);
+            var result = await _sut.Update(updateProfileDTO);
             // Assert 
             result.Should().BeOfType<BadRequestObjectResult>();
         }
@@ -423,7 +279,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _userRepository.GetBy(user.Email).ReturnsNull();
 
             // Act 
-            var result = await _sut.UpdateProfile(updateProfileDTO);
+            var result = await _sut.Update(updateProfileDTO);
             // Assert 
 
             result.Should().BeOfType<BadRequestResult>();
@@ -448,14 +304,9 @@ namespace DamianTourBackend.Tests.UnitTests.Api
             _sut.ControllerContext = context;
             ////
             // Act 
-            var meResult = await _sut.UpdateProfile(updateProfileDTO);
+            var meResult = await _sut.Update(updateProfileDTO);
             // Assert 
             meResult.Should().BeOfType<UnauthorizedResult>();
         }
-        #endregion
-
-
-        #endregion
-
     }
 }
