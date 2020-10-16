@@ -1,7 +1,7 @@
-﻿using DamianTourBackend.Application.DTOs;
+﻿using DamianTourBackend.Application.Login;
 using FluentValidation;
 
-namespace DamianTourBackend.Application.Validators
+namespace DamianTourBackend.Application.Register
 {
     public class RegisterValidator : AbstractValidator<RegisterDTO>
     {

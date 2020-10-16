@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DamianTourBackend.Application.DTOs
+﻿namespace DamianTourBackend.Application.UpdateProfile
 {
     public class UpdateProfileDTO
     {
