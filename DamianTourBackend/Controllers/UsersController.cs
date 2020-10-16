@@ -1,4 +1,5 @@
 using DamianTourBackend.Api.Helpers;
+using DamianTourBackend.Application;
 using DamianTourBackend.Application.Login;
 using DamianTourBackend.Application.Register;
 using DamianTourBackend.Application.UpdateProfile;
@@ -21,8 +22,8 @@ namespace DamianTourBackend.Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UsersController : ControllerBase
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
         private readonly IValidator<LoginDTO> _loginValidator;
@@ -31,8 +32,8 @@ namespace DamianTourBackend.Api.Controllers
 
         public UsersController(
             IUserRepository userRepository,
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
+            SignInManager<AppUser> signInManager,
+            UserManager<AppUser> userManager,
             IConfiguration config,
             IValidator<LoginDTO> loginValidator,
             IValidator<RegisterDTO> registerValidator,
@@ -65,7 +66,7 @@ namespace DamianTourBackend.Api.Controllers
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
             if (!result.Succeeded) return BadRequest();
 
-            string token = TokenHelper.GetToken(user, _configuration);
+            string token = TokenHelper.GetToken(user.Email, _configuration);
             return Ok(token);
         }
         /// <summary>
@@ -83,15 +84,14 @@ namespace DamianTourBackend.Api.Controllers
             var existingUser = _userRepository.GetBy(model.Email);
             if (existingUser != null) return BadRequest();
 
-            var identityUser = model.MapToIdentityUser();
+            var identityUser = model.MapToAppUser();
             var result = await _userManager.CreateAsync(identityUser, model.Password);
             if (!result.Succeeded) return BadRequest();
 
             var user = model.MapToUser();
             _userRepository.Add(user);
-            _userRepository.SaveChanges();
 
-            string token = TokenHelper.GetToken(identityUser, _configuration);
+            string token = TokenHelper.GetToken(user.Email, _configuration);
             return Created("", token);
         }
         #endregion
@@ -133,12 +133,10 @@ namespace DamianTourBackend.Api.Controllers
 
             // Delete User
             _userRepository.Delete(user);
-            _userRepository.SaveChanges();
 
             // Delete IdentityUser
             var result = await _userManager.DeleteAsync(identityUser);
             if (!result.Succeeded) return BadRequest();
-
 
             return Ok();
         }
@@ -166,7 +164,6 @@ namespace DamianTourBackend.Api.Controllers
             // Update User
             updateProfileDTO.UpdateUser(ref user);
             _userRepository.Update(user);
-            _userRepository.SaveChanges();
 
             // Update IdentityUser
             updateProfileDTO.UpdateIdentityUser(ref identityUser);

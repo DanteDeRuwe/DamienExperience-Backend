@@ -1,5 +1,4 @@
 ﻿using DamianTourBackend.Core.Entities;
-using Microsoft.AspNetCore.Identity;
 
 namespace DamianTourBackend.Application.Register
 {
@@ -13,8 +12,8 @@ namespace DamianTourBackend.Application.Register
                 LastName = model.LastName
             };
 
-        public static IdentityUser MapToIdentityUser(this RegisterDTO model) =>
-            new IdentityUser
+        public static AppUser MapToAppUser(this RegisterDTO model) =>
+            new AppUser()
             {
                 UserName = model.Email,
                 Email = model.Email
