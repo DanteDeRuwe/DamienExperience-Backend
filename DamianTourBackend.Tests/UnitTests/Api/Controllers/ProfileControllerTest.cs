@@ -141,8 +141,10 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
 
             // Act 
             var result = await _sut.Update(updateProfileDTO);
+
             // Assert 
-            result.Should().BeOfType<OkResult>();
+            result.Should().BeOfType<OkObjectResult>()
+                .Which.Value.Should().BeEquivalentTo(updateProfileDTO.MapToUser());
             _userRepository.Received().Update(user);
         }
 
