@@ -88,7 +88,7 @@ namespace DamianTourBackend.Api.Controllers
             var result = await _userManager.UpdateAsync(identityUser);
             if (!result.Succeeded) return BadRequest();
 
-            return Ok();
+            return Ok(user);
         }
     }
 }
