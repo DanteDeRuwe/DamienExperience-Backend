@@ -1,5 +1,7 @@
-﻿using Bogus;
-using DamianTourBackend.Application.DTOs;
+using Bogus;
+using DamianTourBackend.Application.Login;
+using DamianTourBackend.Application.Register;
+using DamianTourBackend.Application.UpdateProfile;
 using DamianTourBackend.Core.Entities;
 
 namespace DamianTourBackend.Tests.UnitTests
@@ -16,6 +18,8 @@ namespace DamianTourBackend.Tests.UnitTests
             .RuleFor(r => r.FirstName, f => f.Person.FirstName)
             .RuleFor(r => r.LastName, f => f.Person.LastName)
             .RuleFor(r => r.Email, f => f.Person.Email)
+            .RuleFor(r => r.PhoneNumber, f => f.Phone.PhoneNumber("+## ### ### ###"))
+            .RuleFor(r => r.DateOfBirth, f => f.Person.DateOfBirth.ToString("dd-MM-yyyy"))
             .RuleFor(r => r.Password, f => f.Internet.Password(8))
             .RuleFor(r => r.PasswordConfirmation, (f, r) => r.Password);
 
@@ -23,10 +27,11 @@ namespace DamianTourBackend.Tests.UnitTests
             .RuleFor(r => r.Email, f => f.Person.Email)
             .RuleFor(r => r.Password, f => f.Internet.Password(8));
 
-
         public static readonly Faker<UpdateProfileDTO> UpdateProfileDTOFaker = new Faker<UpdateProfileDTO>()
-            .RuleFor(r => r.Email, f => f.Person.Email)
             .RuleFor(r => r.FirstName, f => f.Person.FirstName)
-            .RuleFor(r => r.LastName, f => f.Person.LastName);
+            .RuleFor(r => r.LastName, f => f.Person.LastName)
+            .RuleFor(r => r.Email, f => f.Person.Email)
+            .RuleFor(r => r.PhoneNumber, f => f.Phone.PhoneNumber("+## ### ### ###"))
+            .RuleFor(r => r.DateOfBirth, f => f.Person.DateOfBirth.ToString("dd-MM-yyyy"));
     }
 }
