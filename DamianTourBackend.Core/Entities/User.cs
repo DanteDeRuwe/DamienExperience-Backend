@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace DamianTourBackend.Core.Entities
@@ -16,7 +15,11 @@ namespace DamianTourBackend.Core.Entities
         public ICollection<Registration> Registrations { get; set; }
         //public ICollection<Walk> Walks { get; set; }
 
-        public User() { }
+        public User()
+        {
+            Registrations = new List<Registration>();
+            //Walks = new List<Walk>();
+        }
 
 
         public User(string lastName, string firstName, string email, string phoneNumber)

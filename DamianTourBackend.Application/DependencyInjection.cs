@@ -1,5 +1,6 @@
 ﻿using DamianTourBackend.Application.Login;
 using DamianTourBackend.Application.Register;
+using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Application.UpdateProfile;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ namespace DamianTourBackend.Application
             services.AddTransient<IValidator<LoginDTO>, LoginValidator>();
             services.AddTransient<IValidator<RegisterDTO>, RegisterValidator>();
             services.AddTransient<IValidator<UpdateProfileDTO>, UpdateProfileValidator>();
+            services.AddTransient<IValidator<RouteRegistrationDTO>, RouteRegistrationValidator>();
         }
     }
 }

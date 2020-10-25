@@ -11,16 +11,18 @@ namespace DamianTourBackend.Core.Entities
         public Route Route { get; set; }
         public User User { get; set; }
         public bool OrderedShirt { get; set; }
+        public string SizeShirt { get; set; }
 
         public Registration() { }
 
-        public Registration(DateTime timeStamp, Route route, User user, bool orderedShirt)
+        public Registration(DateTime timeStamp, Route route, User user, bool orderedShirt, string sizeShirt)
         {
             TimeStamp = timeStamp;
             Route = route;
             User = user;
             OrderedShirt = orderedShirt;
-            user.Registrations.Add(this); // ?
+            SizeShirt = sizeShirt;
+            user.Registrations.Add(this);
         }
     }
 }
