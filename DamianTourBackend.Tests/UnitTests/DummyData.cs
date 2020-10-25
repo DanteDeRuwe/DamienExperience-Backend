@@ -1,13 +1,17 @@
 using Bogus;
 using DamianTourBackend.Application.Login;
 using DamianTourBackend.Application.Register;
+using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Application.UpdateProfile;
 using DamianTourBackend.Core.Entities;
+using System;
 
 namespace DamianTourBackend.Tests.UnitTests
 {
     public static class DummyData
     {
+        private static readonly string[] _sizes = new string[] { "s", "m", "l", "xl", "xxl" };
+
         public static readonly Faker<User> UserFaker = new Faker<User>()
             .RuleFor(u => u.FirstName, f => f.Person.FirstName)
             .RuleFor(u => u.LastName, f => f.Person.LastName)
@@ -33,5 +37,15 @@ namespace DamianTourBackend.Tests.UnitTests
             .RuleFor(r => r.Email, f => f.Person.Email)
             .RuleFor(r => r.PhoneNumber, f => f.Phone.PhoneNumber("+## ### ### ###"))
             .RuleFor(r => r.DateOfBirth, f => f.Person.DateOfBirth.ToString("dd-MM-yyyy"));
+
+        public static readonly Faker<Route> RouteFaker = new Faker<Route>()
+            .RuleFor(r => r.TourName, f => f.Random.Word())
+            .RuleFor(r => r.DistanceInMeters, f => f.Random.Int(1, 100))
+            .RuleFor(r => r.Id, f => Guid.NewGuid());
+
+        public static readonly Faker<RouteRegistrationDTO> RouteRegistrationDTOFaker = new Faker<RouteRegistrationDTO>()
+            .RuleFor(r => r.Size, f => f.PickRandom(_sizes))
+            .RuleFor(r => r.OrderedShirt, f => f.Random.Bool())
+            .RuleFor(r => r.RouteId, f => Guid.NewGuid());
     }
 }
