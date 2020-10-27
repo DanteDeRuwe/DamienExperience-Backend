@@ -53,7 +53,7 @@ namespace DamianTourBackend.Api.Controllers
             //size should not be filled in the case (OrderedShirt == false)
             if (!registrationDTO.OrderedShirt) registrationDTO.Size = "no shirt";
 
-            var registration = new Registration(DateTime.Now, route, user, registrationDTO.OrderedShirt, registrationDTO.Size);
+            var registration = registrationDTO.MapToRegistration(user, route);
 
             _registrationRepository.Add(registration);
 
