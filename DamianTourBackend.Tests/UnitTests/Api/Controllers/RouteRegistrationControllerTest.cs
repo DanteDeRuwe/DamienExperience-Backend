@@ -44,7 +44,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var meResult = _sut.Post(routeRegistrationDTO);
 
             // Assert 
-            meResult.Should().BeOfType<OkResult>();
+            meResult.Should().BeOfType<OkObjectResult>();
             _userRepository.Received().GetBy(user.Email);
             _routeRepository.Received().GetBy(route.Id);
             //registration is added to user 

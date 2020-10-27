@@ -55,9 +55,28 @@ namespace DamianTourBackend.Api.Controllers
 
             var registration = registrationDTO.MapToRegistration(user, route);
 
-            _registrationRepository.Add(registration);
+            _registrationRepository.Add(registration, mailAdress);
 
-            return Ok();
+            return Ok(registration);
+        }
+
+        //test method
+        [HttpDelete("")]
+        public IActionResult Delete(Guid id)
+        {
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null) return BadRequest();
+
+            var user = _userRepository.GetBy(mailAdress);
+            if (user == null) return BadRequest();
+
+            var registration = _registrationRepository.GetBy(id, mailAdress);
+
+            _registrationRepository.Delete(registration, user.Email);
+
+            return Ok(registration);
         }
     }
 }
