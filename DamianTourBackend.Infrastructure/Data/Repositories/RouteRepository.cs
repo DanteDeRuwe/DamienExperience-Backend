@@ -3,7 +3,6 @@ using DamianTourBackend.Core.Interfaces;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DamianTourBackend.Infrastructure.Data.Repositories
 {
@@ -33,7 +32,7 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
 
         public Route GetBy(Guid id)
         {
-            throw new NotImplementedException();
+            return new Route("tourName", 69, null) { Id = Guid.NewGuid() };
         }
 
         public void Update(Route route)

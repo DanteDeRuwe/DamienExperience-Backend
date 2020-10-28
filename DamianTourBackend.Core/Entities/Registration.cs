@@ -18,6 +18,7 @@ namespace DamianTourBackend.Core.Entities
 
         public Registration(DateTime timeStamp, Route route, User user, bool orderedShirt, string sizeShirt)
         {
+            Id = Guid.NewGuid();
             TimeStamp = timeStamp;
             //Route = route;
             RouteId = route.Id;

@@ -50,6 +50,12 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
                 .SelectMany(p => p.Registrations).Where(r => r.Id.Equals(id)).FirstOrDefault();
         }
 
+        public Registration GetLast(string email)
+        {
+            return _users.AsQueryable().Where(u => u.Email.Equals(email))
+                .SelectMany(p => p.Registrations).OrderByDescending(r => r.TimeStamp).FirstOrDefault();
+        }
+
         public void Update(Registration registration, string email)
         {
             //mabye rework this later if needed

@@ -78,5 +78,33 @@ namespace DamianTourBackend.Api.Controllers
 
             return Ok(registration);
         }
+
+        [HttpGet("GetAll")]
+        public IActionResult GetAll()
+        {
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null) return BadRequest();
+
+            var user = _userRepository.GetBy(mailAdress);
+            if (user == null) return BadRequest();
+
+            return Ok(_registrationRepository.GetAllFromUser(mailAdress));
+        }
+
+        [HttpGet("GetLast")]
+        public IActionResult GetLast()
+        {
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null) return BadRequest();
+
+            var user = _userRepository.GetBy(mailAdress);
+            if (user == null) return BadRequest();
+
+            return Ok(_registrationRepository.GetLast(mailAdress));
+        }
     }
 }
