@@ -6,10 +6,10 @@ namespace DamianTourBackend.Core.Entities
     {
         public Guid Id { get; set; }
         public Guid UserID { get; set; }
+        public Guid RouteID { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public Path WalkedPath { get; set; }
-        public Route Route { get; set; }
 
         public Walk() { }
 
@@ -17,7 +17,7 @@ namespace DamianTourBackend.Core.Entities
         {
             StartTime = startTime;
             WalkedPath = new Path();
-            Route = route;
+            RouteID = route.Id;
             UserID = user.Id;
         }
     }

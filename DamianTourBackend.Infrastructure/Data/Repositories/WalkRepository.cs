@@ -26,7 +26,7 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
             _walks.FindOneAndDelete(w => w.Id.Equals(walk.Id));
         }
 
-        public IEnumerable<Walk> GetAllWalksForTour(Guid routeId)
+        public IEnumerable<Walk> GetAllWalksForRoute(Guid routeId)
         {
             return _walks.Find(w => true).ToList();
         }
@@ -36,14 +36,19 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
             return _walks.Find(w => w.UserID.Equals(userId)).ToList();
         }
 
+        public Walk GetByUserAndRoute(Guid userId, Guid routeId)
+        {
+            return _walks.Find(w => w.UserID.Equals(userId) && w.RouteID.Equals(routeId)).SingleOrDefault();
+        }
+
         public Walk GetBy(Guid id)
         {
-            throw new NotImplementedException();
+            return _walks.Find(w => w.Id.Equals(id)).SingleOrDefault();
         }
 
         public void Update(Walk walk)
         {
-            throw new NotImplementedException();
+            _walks.ReplaceOne(w => w.Id.Equals(walk.Id), walk);
         }
     }
 }
