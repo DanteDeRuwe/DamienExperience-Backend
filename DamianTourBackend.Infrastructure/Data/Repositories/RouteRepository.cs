@@ -4,40 +4,48 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 
+using System.Text;
+
 namespace DamianTourBackend.Infrastructure.Data.Repositories
 {
-    public class RouteRepository : IRouteRepository
+    class RouteRepository : IRouteRepository
     {
         public readonly IMongoCollection<Route> _routes;
 
-        public RouteRepository(IMongoDatabase db)
+        public RouteRepository(IMongoDatabase db) 
         {
-            //_routes = db.GetCollection<Route>("Routes");
+            _routes = db.GetCollection<Route>("Routes");
+
         }
 
         public void Add(Route route)
         {
-            throw new NotImplementedException();
+            _routes.InsertOne(route);
         }
 
         public void Delete(Route route)
         {
-            throw new NotImplementedException();
+            _routes.FindOneAndDelete(r => r.Id.Equals(route.Id));
         }
 
         public IEnumerable<Route> GetAll()
         {
-            throw new NotImplementedException();
+            return _routes.Find(r => true).ToList();
         }
 
-        public Route GetBy(Guid id)
+        public Route GetById(Guid id)
         {
-            return new Route("tourName", 69, null) { Id = Guid.NewGuid() };
+            return _routes.Find(r => r.Id.Equals(id)).FirstOrDefault();
+        }
+
+        public Route GetByName(string tourname)
+        {
+            return _routes.Find(r => r.TourName.Equals(tourname)).FirstOrDefault();
         }
 
         public void Update(Route route)
         {
-            throw new NotImplementedException();
+            _routes.ReplaceOne(r => r.Id.Equals(route.Id), route);
         }
     }
 }
