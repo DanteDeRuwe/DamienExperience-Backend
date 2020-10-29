@@ -14,7 +14,7 @@ namespace DamianTourBackend.Application.RouteRegistration
             RuleFor(x => x.OrderedShirt)
                 .NotEmpty().WithMessage("Must choose if you want a shirt");
 
-            RuleFor(x => x.Size)
+            RuleFor(x => x.SizeShirt)
                 //.NotEmpty().WithMessage("Size of shirt cannot be empty")
                 .Must(CheckSize)
                 .MaximumLength(5).WithMessage("Size of shirt must be valid");

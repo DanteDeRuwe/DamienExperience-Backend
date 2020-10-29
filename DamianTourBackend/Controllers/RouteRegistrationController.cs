@@ -51,7 +51,7 @@ namespace DamianTourBackend.Api.Controllers
             //should happen in frontend 
             //validator checks if size is a part of an array! check validator!
             //size should not be filled in the case (OrderedShirt == false)
-            if (!registrationDTO.OrderedShirt) registrationDTO.Size = "no shirt";
+            if (!registrationDTO.OrderedShirt) registrationDTO.SizeShirt = "no shirt";
 
             var registration = registrationDTO.MapToRegistration(user, route);
 

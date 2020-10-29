@@ -11,7 +11,7 @@ namespace DamianTourBackend.Application.RouteRegistration
                 route: route,
                 user: user,
                 orderedShirt: model.OrderedShirt,
-                sizeShirt: model.Size
+                sizeShirt: model.SizeShirt
             );
     }
 }
