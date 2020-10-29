@@ -12,7 +12,7 @@ namespace DamianTourBackend.Application.UpdateRoute
         {
             route.TourName = model.TourName;
             route.DistanceInMeters = model.DistanceInMeters;
-            route.Path = model.Path;
+            route.Path = new Path { Coordinates = model.Coordinates};
         }
 
         public static Route MapToRoute(this RouteDTO model) =>
@@ -20,7 +20,7 @@ namespace DamianTourBackend.Application.UpdateRoute
             {
                 TourName = model.TourName,
                 DistanceInMeters= model.DistanceInMeters,
-                Path = model.Path
+                Path = new Path { Coordinates = model.Coordinates }
             };
     }
 }

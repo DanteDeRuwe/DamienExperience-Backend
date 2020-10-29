@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DamianTourBackend.Application;
 using DamianTourBackend.Application.UpdateRoute;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DamianTourBackend.Api.Controllers
@@ -17,10 +19,12 @@ namespace DamianTourBackend.Api.Controllers
     public class RouteController : ControllerBase
     {
         private readonly IRouteRepository _routeRepository;
-        
-        public RouteController(IRouteRepository routeRepository)
+        private readonly UserManager<AppUser> _userManager;
+
+        public RouteController(IRouteRepository routeRepository,UserManager<AppUser> userManager)
         {
             _routeRepository = routeRepository;
+            _userManager = userManager;
         }
 
         /// <summary>
@@ -41,7 +45,10 @@ namespace DamianTourBackend.Api.Controllers
 
 
         [HttpPost(nameof(Add))]
-        public IActionResult Add(RouteDTO routeDTO) {
+        public IActionResult Add(RouteDTO routeDTO) 
+        {
+            if (!IsAdmin().Result) return Unauthorized();
+
             if (_routeRepository.GetByName(routeDTO.TourName) != null) return BadRequest();
 
             Route route = routeDTO.MapToRoute();
@@ -51,8 +58,9 @@ namespace DamianTourBackend.Api.Controllers
         }
 
         [HttpDelete(nameof(Delete))]
-        public IActionResult Delete(string routeName) 
+        public IActionResult Delete(string routeName)
         {
+            if (!IsAdmin().Result) return Unauthorized();
             var route = _routeRepository.GetByName(routeName);
 
             if (route == null) return BadRequest();
@@ -63,7 +71,9 @@ namespace DamianTourBackend.Api.Controllers
         }
 
         [HttpPut(nameof(Update))]
-        public IActionResult Update(RouteDTO routeDTO) {
+        public IActionResult Update(RouteDTO routeDTO)
+        {
+            if (!IsAdmin().Result) return Unauthorized();
             var route = _routeRepository.GetByName(routeDTO.TourName);
             if (route == null) return BadRequest();
 
@@ -74,8 +84,16 @@ namespace DamianTourBackend.Api.Controllers
         }
 
         [HttpGet("")]
-        public IActionResult GetAll() {
+        public IActionResult GetAll() 
+        {
             return Ok(_routeRepository.GetAll());
+        }
+
+        //temp method to check claims
+        private async Task<bool> IsAdmin() {
+            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            return user.Claims.Any(c => c.ClaimValue.Equals("admin"));
         }
     }
 }

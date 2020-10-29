@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -98,31 +100,26 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(user);
         }
 
-       //[Authorize(Policy = "admin")]
+       //[Authorize(Policy = "admin")]  
         [HttpPost(nameof(AddToAdmin))]
         public async Task<ActionResult> AddToAdmin(string email) {
 
-           
-            //Als dit niet lukt, kunne we mss gwn aan de User (niet MongoUser) een role geven want die kunnen we wel opvragen denk ik
-
-
-            ////  AppUser currUser = await _userManager.GetUserAsync(HttpContext.User
-            //var currUser = System.Security.Principal.WindowsIdentity.GetCurrent();
-            //var currClaim = System.Security.Principal.WindowsIdentity.GetCurrent().Claims;
-            //var currRole = System.Security.Principal.WindowsIdentity.GetCurrent().RoleClaimType;
-
-
-            // if (currUser.Claims.claimValue)
-            ////   return NotFound();
-
             AppUser user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return NotFound();
 
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null || mailAdress.Equals("")) return Unauthorized();
+
+            AppUser admin = await _userManager.FindByEmailAsync(mailAdress);
+            if (admin == null ) return BadRequest();
+
+            bool hasRole = admin.Claims.Any(c => c.ClaimValue.Equals("admin"));
 
             if (!await _roleManager.RoleExistsAsync("admin"))
                 await _roleManager.CreateAsync(new MongoRole("admin"));
-            
-            
-            if (user == null) return NotFound();
+
+            if (!hasRole) return Unauthorized();
+
 
             await _userManager.AddToRoleAsync(user, "admin");
             await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "admin"));
