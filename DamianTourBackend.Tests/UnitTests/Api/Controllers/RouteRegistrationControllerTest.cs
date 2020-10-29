@@ -3,8 +3,10 @@ using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Core.Interfaces;
 using FluentAssertions;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
+using NSubstitute.ReturnsExtensions;
 using Xunit;
 
 namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
@@ -51,6 +53,74 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _routeRepository.Received().GetBy(route.Id);
             //registration is added to user 
             user.Registrations.Count.Should().Be(1);
+        }
+        
+        [Fact]
+        public void Post_ValidationFailed_ReturnsBadRequest()
+        {
+            // Arrange 
+            var route = DummyData.RouteFaker.Generate();
+            var user = DummyData.UserFaker.Generate();
+            var routeRegistrationDTO = DummyData.RouteRegistrationDTOFaker.Generate();
+            routeRegistrationDTO.OrderedShirt = true;
+            routeRegistrationDTO.RouteId = route.Id;
+            _sut.ControllerContext = FakeControllerContext.For(user); 
+            _userRepository.GetBy(user.Email).Returns(user);
+            _routeRepository.GetBy(route.Id).Returns(route);
+            
+            _validator.SetupFail();
+
+            // Act 
+            var result = _sut.Post(routeRegistrationDTO);
+
+            // Assert 
+            result.Should().BeOfType<BadRequestObjectResult>()
+                .Which.Value.Should().BeOfType<ValidationResult>()
+                .Which.IsValid.Should().BeFalse();
+
+            _userRepository.DidNotReceive().GetBy(user.Email);
+            user.Registrations.Count.Should().Be(0);
+        }
+        
+        [Fact]
+        public void Post_UserNotLoggedIn_ReturnsUnauthorized()
+        {
+            // Arrange 
+            var routeRegistrationDTO = DummyData.RouteRegistrationDTOFaker.Generate();
+            _sut.ControllerContext = FakeControllerContext.NotLoggedIn; //!
+
+            // Act 
+            var result = _sut.Post(routeRegistrationDTO);
+
+            // Assert 
+            result.Should().BeOfType<UnauthorizedResult>();
+        }
+        
+        
+        [Fact]
+        public void Post_RouteNotFound_ReturnsBadRequest()
+        {
+            // Arrange 
+            var route = DummyData.RouteFaker.Generate();
+            var user = DummyData.UserFaker.Generate();
+            var routeRegistrationDTO = DummyData.RouteRegistrationDTOFaker.Generate();
+            routeRegistrationDTO.OrderedShirt = true;
+            routeRegistrationDTO.RouteId = route.Id;
+            _sut.ControllerContext = FakeControllerContext.For(user); 
+            _userRepository.GetBy(user.Email).Returns(user);
+            _routeRepository.GetBy(route.Id).ReturnsNull(); //!
+            _validator.SetupPass();
+
+            // Act 
+            var result = _sut.Post(routeRegistrationDTO);
+
+            // Assert 
+            result.Should().BeOfType<BadRequestResult>();
+            
+            _userRepository.Received().GetBy(user.Email);
+            _routeRepository.Received().GetBy(route.Id);
+
+            user.Registrations.Count.Should().Be(0);
         }
     }
 }
