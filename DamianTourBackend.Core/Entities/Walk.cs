@@ -5,6 +5,7 @@ namespace DamianTourBackend.Core.Entities
     public class Walk
     {
         public Guid Id { get; set; }
+        public Guid UserID { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public Path WalkedPath { get; set; }
@@ -12,11 +13,12 @@ namespace DamianTourBackend.Core.Entities
 
         public Walk() { }
 
-        public Walk(DateTime startTime, Route route)
+        public Walk(DateTime startTime, Route route, User user)
         {
             StartTime = startTime;
             WalkedPath = new Path();
             Route = route;
+            UserID = user.Id;
         }
     }
 }
