@@ -33,7 +33,7 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
             return _routes.Find(r => true).ToList();
         }
 
-        public Route GetById(Guid id)
+        public Route GetBy(Guid id)
         {
             return _routes.Find(r => r.Id.Equals(id)).FirstOrDefault();
         }

@@ -8,7 +8,7 @@ namespace DamianTourBackend.Core.Interfaces
 {
     public interface IRouteRepository
     {
-        Route GetById(Guid id);
+        Route GetBy(Guid id);
         Route GetByName(string tourname);
         void Add(Route route);
         void Update(Route route);
