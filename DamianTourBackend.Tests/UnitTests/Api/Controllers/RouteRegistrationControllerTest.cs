@@ -14,7 +14,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IRouteRepository _routeRepository;
         private readonly IRegistrationRepository _registrationRepository;
-        private readonly IValidator<RouteRegistrationDTO> _routeRegistrationValidator;
+        private readonly IValidator<RouteRegistrationDTO> _validator;
         private readonly RouteRegistrationController _sut;
 
         public RouteRegistrationControllerTest()
@@ -22,8 +22,8 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _userRepository = Substitute.For<IUserRepository>();
             _routeRepository = Substitute.For<IRouteRepository>();
             _registrationRepository = Substitute.For<IRegistrationRepository>();
-            _routeRegistrationValidator = Substitute.For<IValidator<RouteRegistrationDTO>>();
-            _sut = new RouteRegistrationController(_userRepository, _routeRepository, _registrationRepository, _routeRegistrationValidator);
+            _validator = Substitute.For<IValidator<RouteRegistrationDTO>>();
+            _sut = new RouteRegistrationController(_userRepository, _routeRepository, _registrationRepository, _validator);
         }
 
         [Fact]
@@ -35,16 +35,18 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var routeRegistrationDTO = DummyData.RouteRegistrationDTOFaker.Generate();
             routeRegistrationDTO.OrderedShirt = true;
             routeRegistrationDTO.RouteId = route.Id;
-            _sut.ControllerContext = FakeControllerContext.For(user);
+            _sut.ControllerContext = FakeControllerContext.For(user); 
             _userRepository.GetBy(user.Email).Returns(user);
             _routeRepository.GetBy(route.Id).Returns(route);
-            _routeRegistrationValidator.SetupPass();
+            _validator.SetupPass();
 
             // Act 
-            var meResult = _sut.Post(routeRegistrationDTO);
+            var result = _sut.Post(routeRegistrationDTO);
 
             // Assert 
-            meResult.Should().BeOfType<OkObjectResult>();
+            result.Should().BeOfType<OkObjectResult>()
+                .Which.Value.Should().BeEquivalentTo(routeRegistrationDTO); //the returned registration should at least have same fields as the DTO
+
             _userRepository.Received().GetBy(user.Email);
             _routeRepository.Received().GetBy(route.Id);
             //registration is added to user 
