@@ -29,7 +29,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         }
 
         [Fact]
-        public void PostRouteRegistration_RouteExistsUserLoggedInDTOGood_RouteRegistrationPosted()
+        public void Post_LoggedInUserWithGoodRoute_ShouldRegisterAndReturnsOk()
         {
             // Arrange 
             var route = DummyData.RouteFaker.Generate();
