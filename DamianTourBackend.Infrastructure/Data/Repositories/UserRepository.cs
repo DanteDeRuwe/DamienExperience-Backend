@@ -37,7 +37,7 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
             return _users.Find(user => user.Email.Equals(email)).FirstOrDefault();
         }
 
-        public User GetBy(Guid id)
+        public User GetById(Guid id)
         {
             return _users.Find(user => user.Id.Equals(id)).FirstOrDefault();
         }

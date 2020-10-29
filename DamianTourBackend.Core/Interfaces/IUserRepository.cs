@@ -7,7 +7,7 @@ namespace DamianTourBackend.Core.Interfaces
     public interface IUserRepository
     {
         User GetBy(string email);
-        User GetBy(Guid id);
+        User GetById(Guid id);
         void Add(User user);
         void Delete(User user);
         IEnumerable<User> GetAll();
