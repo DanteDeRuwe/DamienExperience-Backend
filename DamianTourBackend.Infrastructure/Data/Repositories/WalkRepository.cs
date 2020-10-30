@@ -11,7 +11,7 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
     {
         public readonly IMongoCollection<Walk> _walks;
 
-        public WalkRepository(MongoDatabaseBase db)
+        public WalkRepository(IMongoDatabase db)
         {
             _walks = db.GetCollection<Walk>("Walks");
         }

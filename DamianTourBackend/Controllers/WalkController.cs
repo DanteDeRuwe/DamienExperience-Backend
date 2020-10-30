@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DamianTourBackend.Application;
+using DamianTourBackend.Application.UpdateWalk;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,16 +24,23 @@ namespace DamianTourBackend.Api.Controllers
         private readonly IWalkRepository _walkRepository;
         private readonly UserManager<AppUser> _userManager;
         private readonly IRegistrationRepository _registrationRepository;
+        private readonly IRouteRepository _routeRepository;
 
-        public WalkController(IUserRepository userRepository, IWalkRepository walkRepository, UserManager<AppUser> userManager, IRegistrationRepository registrationRepository)
+        public WalkController(
+            IUserRepository userRepository,
+            IWalkRepository walkRepository,
+            UserManager<AppUser> userManager,
+            IRegistrationRepository registrationRepository,
+            IRouteRepository routeRepository)
         {
             _userRepository = userRepository;
             _walkRepository = walkRepository;
             _userManager = userManager;
             _registrationRepository = registrationRepository;
+            _routeRepository = routeRepository;
         }
 
-        [HttpGet("")]
+        [HttpGet("{email}")]
         public IActionResult SearchWalker(string email) // mag ook searchwalk zijn 
         {
 
@@ -55,7 +63,7 @@ namespace DamianTourBackend.Api.Controllers
             //if (!User.Identity.IsAuthenticated) return Unauthorized(); // wachtend optiesysteem (publieke wandelaar)
 
 
-            return Ok(walk);
+            return Ok(walk.MapToWalkDTO());
         }
 
         [HttpPut(nameof(StopWalk))]
@@ -89,6 +97,42 @@ namespace DamianTourBackend.Api.Controllers
 
 
             return Ok(user);
+        }
+
+        [HttpPost(nameof(AddTest))]
+        public IActionResult AddTest(WalkDTO walkDTO) {
+            User user = _userRepository.GetBy(User.Identity.Name);
+            Route route = _routeRepository.GetByName("RouteZero");
+            Registration registration = new Registration(
+                    DateTime.Now,
+                    route,
+                    user,
+                    true,
+                    "L"
+                );
+            Walk walk = new Walk(DateTime.Now, route, user);
+            walk.SetCoords(walkDTO.Coordinates);
+            user.Registrations.Add(registration);
+
+            _userRepository.Update(user);
+            _registrationRepository.Add(registration, user.Email);
+
+           _walkRepository.Add(walk);
+
+            return Ok();
+        }
+
+        [HttpPut(nameof(Update))]
+        public IActionResult Update(WalkDTO walkDTO) {
+            User user = _userRepository.GetBy(User.Identity.Name);
+            if (user == null) return NotFound("User not found");
+            Walk walk = _walkRepository.GetByUserAndRoute(user.Id, user.Registrations.Last().Id);
+            if (walk == null) return NotFound("Walk not found for user");
+
+            walkDTO.UpdateWalk(ref walk);
+            _walkRepository.Update(walk);
+
+            return Ok(walk);
         }
     }
 }

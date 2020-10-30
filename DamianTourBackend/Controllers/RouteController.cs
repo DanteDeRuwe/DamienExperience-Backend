@@ -6,6 +6,7 @@ using DamianTourBackend.Application;
 using DamianTourBackend.Application.UpdateRoute;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -32,15 +33,16 @@ namespace DamianTourBackend.Api.Controllers
         /// </summary>
         /// <param name="tourName">Expects a tourname as parameter.</param>
         /// <returns>Returns a route with the corresponding name or gives a Bad Request when there is no route with given name.</returns>
-        [HttpGet(nameof(GetRouteByName))]
+        [AllowAnonymous]
+        [HttpGet("{routeName}")]
         public IActionResult GetRouteByName(string routeName) 
         {
 
-            var route = _routeRepository.GetByName(routeName); 
+            var routeDTO = _routeRepository.GetByName(routeName).MapToRouteDTO(); 
 
-            if (route == null) return BadRequest();
+            if (routeDTO == null) return BadRequest();
 
-            return Ok(route);
+            return Ok(routeDTO);
         }
 
         /// <summary>

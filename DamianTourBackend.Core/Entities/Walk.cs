@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DamianTourBackend.Core.Entities
 {
@@ -19,6 +20,10 @@ namespace DamianTourBackend.Core.Entities
             WalkedPath = new Path();
             RouteID = route.Id;
             UserID = user.Id;
+        }
+
+        public void SetCoords(List<double[]> coords) {
+            WalkedPath.Coordinates = coords;
         }
     }
 }
