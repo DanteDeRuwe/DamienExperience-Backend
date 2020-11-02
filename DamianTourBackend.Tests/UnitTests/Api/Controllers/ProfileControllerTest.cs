@@ -1,3 +1,4 @@
+using AspNetCore.Identity.Mongo.Model;
 using DamianTourBackend.Api.Controllers;
 using DamianTourBackend.Application;
 using DamianTourBackend.Application.UpdateProfile;
@@ -19,14 +20,16 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         private readonly ProfileController _sut;
         private readonly UserManager<AppUser> _um;
         private readonly IValidator<UpdateProfileDTO> _updateProfileValidator;
+        private readonly RoleManager<MongoRole> _rm;
 
         public ProfileControllerTest()
         {
             _userRepository = Substitute.For<IUserRepository>();
             _updateProfileValidator = Substitute.For<IValidator<UpdateProfileDTO>>();
             _um = Substitute.For<FakeUserManager>();
+            _rm = Substitute.For<FakeRoleManager>();
 
-            _sut = new ProfileController(_userRepository, _updateProfileValidator, _um);
+            _sut = new ProfileController(_userRepository, _updateProfileValidator, _um, _rm);
         }
 
         [Fact]
