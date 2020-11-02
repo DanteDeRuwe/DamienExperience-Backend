@@ -106,5 +106,25 @@ namespace DamianTourBackend.Api.Controllers
 
             return Ok(_registrationRepository.GetLast(mailAdress));
         }
+
+        [HttpGet("CheckCurrentRegistered")]
+        public IActionResult CheckCurrentRegistered()
+        {
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null) return BadRequest();
+
+            var user = _userRepository.GetBy(mailAdress);
+            if (user == null) return BadRequest();
+
+            Registration reg = _registrationRepository.GetLast(mailAdress);
+            if (reg == null) return Ok(false);
+
+            Route route = _routeRepository.GetBy(reg.RouteId);
+            if (route == null) return NotFound();
+
+            return Ok(route.Date > DateTime.Now);
+        }
     }
 }
