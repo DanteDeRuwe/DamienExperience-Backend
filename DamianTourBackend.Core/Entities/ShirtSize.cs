@@ -6,6 +6,6 @@ namespace DamianTourBackend.Core.Entities
 {
     public enum ShirtSize
     {
-        s, m, l, xl, xxl
+        GEEN, S, M, L, XL, XXL
     }
 }

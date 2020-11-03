@@ -13,19 +13,19 @@ namespace DamianTourBackend.Application.RouteRegistration
             RuleFor(x => x.RouteId)
                 .NotEmpty().WithMessage("Id cannot be null");
 
-            RuleFor(x => x.OrderedShirt)
-                .NotEmpty().WithMessage("Must choose if you want a shirt");
+            //RuleFor(x => x.OrderedShirt)
+            //    .NotEmpty().WithMessage("Must choose if you want a shirt");
 
-            RuleFor(x => x.SizeShirt)
+            RuleFor(x => x.ShirtSize)
                 //.NotEmpty().WithMessage("Size of shirt cannot be empty")
                 .Must(CheckSize)
                 .MaximumLength(5).WithMessage("Size of shirt must be valid");
         }
 
-        private bool CheckSize(string sizeShirt)
+        private bool CheckSize(string shirtSize)
         {
-            foreach (string size in Enum.GetValues(typeof(ShirtSize)))
-                if (sizeShirt.Equals(size))
+            foreach (ShirtSize size in Enum.GetValues(typeof(ShirtSize)))
+                if (shirtSize.ToLower().Equals(size.ToString().ToLower()))
                     return true;
             return false;
         }
