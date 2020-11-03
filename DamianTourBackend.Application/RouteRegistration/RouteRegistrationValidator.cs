@@ -1,11 +1,13 @@
-﻿using FluentValidation;
+﻿using DamianTourBackend.Core.Entities;
+using FluentValidation;
+using System;
 using System.Linq;
 
 namespace DamianTourBackend.Application.RouteRegistration
 {
     public class RouteRegistrationValidator : AbstractValidator<RouteRegistrationDTO>
     {
-        private readonly string[] _sizes = new string[] { "s", "m", "l", "xl", "xxl" };
+        //private readonly string[] _sizes = new string[] { "s", "m", "l", "xl", "xxl" };
         public RouteRegistrationValidator()
         {
             RuleFor(x => x.RouteId)
@@ -20,9 +22,12 @@ namespace DamianTourBackend.Application.RouteRegistration
                 .MaximumLength(5).WithMessage("Size of shirt must be valid");
         }
 
-        private bool CheckSize(string value)
+        private bool CheckSize(string sizeShirt)
         {
-            return _sizes.Contains(value.ToLower());
+            foreach (string size in Enum.GetValues(typeof(ShirtSize)))
+                if (sizeShirt.Equals(size))
+                    return true;
+            return false;
         }
     }
 }
