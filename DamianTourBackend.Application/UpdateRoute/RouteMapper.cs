@@ -24,6 +24,7 @@ namespace DamianTourBackend.Application.UpdateRoute
         public static RouteDTO MapToRouteDTO(this Route route) =>
             new RouteDTO
             {
+                TourId = route.Id,
                 TourName = route.TourName,
                 Date = route.Date,
                 DistanceInMeters = route.DistanceInMeters,
