@@ -44,7 +44,7 @@ namespace DamianTourBackend.Tests.UnitTests
             .RuleFor(r => r.Id, f => Guid.NewGuid());
 
         public static readonly Faker<RouteRegistrationDTO> RouteRegistrationDTOFaker = new Faker<RouteRegistrationDTO>()
-            .RuleFor(r => r.SizeShirt, f => f.PickRandom(_sizes))
+            .RuleFor(r => r.ShirtSize, f => f.PickRandom(Enum.GetValues(ShirtSize))
             .RuleFor(r => r.OrderedShirt, f => f.Random.Bool())
             .RuleFor(r => r.RouteId, f => Guid.NewGuid());
     }

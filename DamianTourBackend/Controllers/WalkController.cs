@@ -113,7 +113,7 @@ namespace DamianTourBackend.Api.Controllers
                     route,
                     user,
                     true,
-                    "L"
+                    ShirtSize.L
                 );
             Walk walk = new Walk(DateTime.Now, route, user);                
             //walk.SetCoords(walkDTO.Coordinates);
