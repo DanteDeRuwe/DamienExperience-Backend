@@ -243,5 +243,66 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             // Assert 
             result.Should().BeOfType<NotFoundResult>();
         }
+
+        [Fact]
+        public void CheckCurrentRegistered_IsRegisteredForFutureRoute_ReturnsTrue()
+        {
+            // Arrange 
+            var user = DummyData.UserFaker.Generate();
+            var registration = user.Registrations.Last();
+            var route = new Route {Date = DateTime.Today.AddDays(1), Id = registration.RouteId};
+
+            _sut.ControllerContext = FakeControllerContext.For(user);
+            _userRepository.GetBy(user.Email).Returns(user);
+            _registrationRepository.GetLast(user.Email).Returns(registration);
+            _routeRepository.GetBy(registration.RouteId).Returns(route);
+
+            // Act 
+            var result = _sut.CheckCurrentRegistered();
+
+            // Assert 
+            result.Should().BeOfType<OkObjectResult>().Which.Value.Should().Be(true);
+
+            _userRepository.Received().GetBy(user.Email);
+            _registrationRepository.Received().GetLast(user.Email);
+            _routeRepository.Received().GetBy(registration.RouteId);
+        }
+        
+        [Fact]
+        public void CheckCurrentRegistered_LastRouteInPast_ReturnsFalse()
+        {
+            // Arrange 
+            var user = DummyData.UserFaker.Generate();
+            var registration = user.Registrations.Last();
+            var route = new Route {Date = DateTime.Today.AddDays(-1), Id = registration.RouteId};
+
+            _sut.ControllerContext = FakeControllerContext.For(user);
+            _userRepository.GetBy(user.Email).Returns(user);
+            _registrationRepository.GetLast(user.Email).Returns(registration);
+            _routeRepository.GetBy(registration.RouteId).Returns(route);
+
+            // Act 
+            var result = _sut.CheckCurrentRegistered();
+
+            // Assert 
+            result.Should().BeOfType<OkObjectResult>().Which.Value.Should().Be(false);
+
+            _userRepository.Received().GetBy(user.Email);
+            _registrationRepository.Received().GetLast(user.Email);
+            _routeRepository.Received().GetBy(registration.RouteId);
+        }
+
+        [Fact]
+        public void CheckCurrentRegistered_UserNotLoggedIn_ReturnsUnauthorized()
+        {
+            // Arrange 
+            _sut.ControllerContext = FakeControllerContext.NotLoggedIn; //!
+
+            // Act 
+            var result = _sut.CheckCurrentRegistered();
+
+            // Assert 
+            result.Should().BeOfType<UnauthorizedResult>();
+        }
     }
 }
