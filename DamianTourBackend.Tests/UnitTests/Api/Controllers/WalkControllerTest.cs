@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using DamianTourBackend.Api.Controllers;
 using DamianTourBackend.Application;
 using DamianTourBackend.Application.RouteRegistration;
@@ -18,7 +19,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IWalkRepository _walkRepository;
-        private readonly UserManager<AppUser> _um;
         private readonly IRegistrationRepository _registrationRepository;
         private readonly WalkController _sut;
         private IRouteRepository _routeRepository;
@@ -29,7 +29,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _walkRepository = Substitute.For<IWalkRepository>();
             _registrationRepository = Substitute.For<IRegistrationRepository>();
             _routeRepository = Substitute.For<IRouteRepository>();
-            _um = Substitute.For<FakeUserManager>();
 
             _sut = new WalkController(_userRepository, _walkRepository, _um, _registrationRepository, _routeRepository);
         }
@@ -39,15 +38,14 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         {
             // Arrange
             var walker = DummyData.UserFaker.Generate();
+            var lastRegistration = walker.Registrations.Last();
             var route = DummyData.RouteFaker.Generate();
+            route.Id = lastRegistration.RouteId;
             var walk = new Walk(DateTime.Now, route);
             
-            var routeRegistrationDTO = DummyData.RouteRegistrationDTOFaker.Generate();
-            var registration = routeRegistrationDTO.MapToRegistration(walker, route);
-            
             _userRepository.GetBy(walker.Email).Returns(walker);
-            _registrationRepository.GetLast(walker.Email).Returns(registration);
-            _walkRepository.GetByUserAndRoute(walker.Id, registration.RouteId).Returns(walk);
+            _registrationRepository.GetLast(walker.Email).Returns(lastRegistration);
+            _walkRepository.GetByUserAndRoute(walker.Id, lastRegistration.RouteId).Returns(walk);
 
             // Act
             var result = _sut.SearchWalk(walker.Email);
@@ -101,15 +99,11 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         {
             // Arrange
             var walker = DummyData.UserFaker.Generate();
-            var route = DummyData.RouteFaker.Generate();
-            var walk = new Walk(DateTime.Now, route);
-            
-            var routeRegistrationDTO = DummyData.RouteRegistrationDTOFaker.Generate();
-            var registration = routeRegistrationDTO.MapToRegistration(walker, route);
+            var lastRegistration = walker.Registrations.Last();
             
             _userRepository.GetBy(walker.Email).Returns(walker);
-            _registrationRepository.GetLast(walker.Email).Returns(registration);
-            _walkRepository.GetByUserAndRoute(walker.Id, registration.RouteId).ReturnsNull(); //!
+            _registrationRepository.GetLast(walker.Email).Returns(lastRegistration);
+            _walkRepository.GetByUserAndRoute(walker.Id, lastRegistration.RouteId).ReturnsNull(); //!
 
             // Act
             var result = _sut.SearchWalk(walker.Email);
@@ -119,7 +113,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             
             _userRepository.Received().GetBy(walker.Email);
             _registrationRepository.Received().GetLast(walker.Email);
-            _walkRepository.Received().GetByUserAndRoute(walker.Id, route.Id);
+            _walkRepository.Received().GetByUserAndRoute(walker.Id, lastRegistration.RouteId);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,20 +22,17 @@ namespace DamianTourBackend.Api.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IWalkRepository _walkRepository;
-        private readonly UserManager<AppUser> _userManager;
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IRouteRepository _routeRepository;
 
         public WalkController(
             IUserRepository userRepository,
             IWalkRepository walkRepository,
-            UserManager<AppUser> userManager,
             IRegistrationRepository registrationRepository,
             IRouteRepository routeRepository)
         {
             _userRepository = userRepository;
             _walkRepository = walkRepository;
-            _userManager = userManager;
             _registrationRepository = registrationRepository;
             _routeRepository = routeRepository;
         }
@@ -44,22 +41,16 @@ namespace DamianTourBackend.Api.Controllers
         [AllowAnonymous]
         public IActionResult SearchWalk(string email)
         {
-            //string mailAdress = User.Identity.Name;
-            //if (mailAdress == null) return BadRequest();
-            //var searcher = _userRepository.GetBy(mailAdress);
-            //if (searcher == null) return BadRequest();
+            //if (!User.Identity.IsAuthenticated) return Unauthorized(); // wachtend optiesysteem (publieke wandelaar)
 
             var walker = _userRepository.GetBy(email);
             if (walker == null) return NotFound();
 
-            Registration registration = _registrationRepository.GetLast(email);
+            var registration = _registrationRepository.GetLast(email);
             if (registration == null) return NotFound();
 
-            Walk walk =_walkRepository.GetByUserAndRoute(walker.Id, registration.RouteId);
+            var walk = _walkRepository.GetByUserAndRoute(walker.Id, registration.RouteId);
             if (walk == null) return NotFound();
-
-
-            //if (!User.Identity.IsAuthenticated) return Unauthorized(); // wachtend optiesysteem (publieke wandelaar)
 
             return Ok(walk);
         }
