@@ -51,7 +51,7 @@ namespace DamianTourBackend.Api.Controllers
             //should happen in frontend 
             //validator checks if size is a part of an array! check validator!
             //size should not be filled in the case (OrderedShirt == false)
-            if (!registrationDTO.OrderedShirt) registrationDTO.SizeShirt = "no shirt";
+            //if (!registrationDTO.OrderedShirt) registrationDTO.ShirtSize = "no shirt";
 
             var registration = registrationDTO.MapToRegistration(user, route);
 
@@ -105,6 +105,26 @@ namespace DamianTourBackend.Api.Controllers
             if (user == null) return BadRequest();
 
             return Ok(_registrationRepository.GetLast(mailAdress));
+        }
+
+        [HttpGet("CheckCurrentRegistered")]
+        public IActionResult CheckCurrentRegistered()
+        {
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null) return BadRequest();
+
+            var user = _userRepository.GetBy(mailAdress);
+            if (user == null) return BadRequest();
+
+            Registration reg = _registrationRepository.GetLast(mailAdress);
+            if (reg == null) return Ok(false);
+
+            Route route = _routeRepository.GetBy(reg.RouteId);
+            if (route == null) return NotFound();
+
+            return Ok(route.Date > DateTime.Now);
         }
     }
 }

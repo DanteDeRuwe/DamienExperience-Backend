@@ -100,9 +100,8 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(user);
         }
 
-       //[Authorize(Policy = "admin")]  
-        [HttpPost(nameof(AddToAdmin))]
-        public async Task<ActionResult> AddToAdmin(string email) {
+        [HttpPost(nameof(AddAdmin))]
+        public async Task<ActionResult> AddAdmin(string email) {
 
             AppUser user = await _userManager.FindByEmailAsync(email);
             if (user == null) return NotFound();
@@ -123,6 +122,29 @@ namespace DamianTourBackend.Api.Controllers
 
             await _userManager.AddToRoleAsync(user, "admin");
             await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "admin"));
+
+            return Ok();
+        }
+
+        [HttpPost(nameof(RemoveAdmin))]
+        public async Task<ActionResult> RemoveAdmin(string email)
+        {
+
+            AppUser user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return NotFound();
+
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null || mailAdress.Equals("")) return Unauthorized();
+
+            AppUser admin = await _userManager.FindByEmailAsync(mailAdress);
+            if (admin == null) return BadRequest();
+
+            bool hasRole = admin.Claims.Any(c => c.ClaimValue.Equals("admin"));
+
+            if (!hasRole) return Unauthorized();
+
+            await _userManager.RemoveFromRoleAsync(user, "admin");
+            await _userManager.RemoveClaimAsync(user, new Claim(ClaimTypes.Role, "admin"));
 
             return Ok();
         }
