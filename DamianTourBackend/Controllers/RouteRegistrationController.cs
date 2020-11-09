@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -91,8 +92,11 @@ namespace DamianTourBackend.Api.Controllers
 
             var user = _userRepository.GetBy(mailAdress);
             if (user == null) return BadRequest();
-
-            return Ok(_registrationRepository.GetAllFromUser(mailAdress));
+            
+            var all = _registrationRepository.GetAllFromUser(mailAdress);
+            if (all == null || !all.Any()) return NotFound();
+            
+            return Ok(all);
         }
 
         [HttpGet("GetLast")]

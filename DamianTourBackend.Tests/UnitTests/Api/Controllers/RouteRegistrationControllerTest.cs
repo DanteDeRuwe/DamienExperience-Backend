@@ -202,6 +202,61 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _registrationRepository.DidNotReceive().Delete(Arg.Any<Registration>(), user.Email);
         }
 
+        
+        [Fact]
+        public void GetAll_AtLeastOneRegistration_ReturnsAllRegistrations()
+        {
+            // Arrange 
+            var user = DummyData.UserFaker.Generate();
+
+            _sut.ControllerContext = FakeControllerContext.For(user); 
+            
+            _userRepository.GetBy(user.Email).Returns(user);
+            _registrationRepository.GetAllFromUser(user.Email).Returns(user.Registrations);
+            
+            //Act
+            var result = _sut.GetAll();
+            
+            // Assert 
+            result.Should().BeOfType<OkObjectResult>()
+                .Which.Value.Should().BeEquivalentTo(
+                    user.Registrations,
+                    options => options.Using(new EnumAsStringAssertionRule()) //treat enums as strings
+                );
+        }
+
+        [Fact]
+        public void GetAll_NoRegistrations_ReturnsNotFound()
+        {
+            // Arrange 
+            var user = DummyData.UserFaker.Generate();
+            user.Registrations = new List<Registration>(); //empty
+            
+            _sut.ControllerContext = FakeControllerContext.For(user); 
+            
+            _userRepository.GetBy(user.Email).Returns(user);
+            _registrationRepository.GetLast(user.Email).ReturnsNull();
+            
+            //Act
+            var result = _sut.GetAll();
+            
+            // Assert 
+            result.Should().BeOfType<NotFoundResult>();
+        }
+        
+        [Fact]
+        public void GetAll_UserNotLoggedIn_ReturnsUnauthorized()
+        {
+            // Arrange 
+            _sut.ControllerContext = FakeControllerContext.NotLoggedIn; //!
+
+            // Act 
+            var result = _sut.GetAll();
+
+            // Assert 
+            result.Should().BeOfType<UnauthorizedResult>();
+        }
+        
         [Fact]
         public void GetLast_AtLeastOneRegistration_ReturnsLastRegistration()
         {
