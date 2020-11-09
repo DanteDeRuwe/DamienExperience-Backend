@@ -1,4 +1,4 @@
-﻿using DamianTourBackend.Api.Controllers;
+using DamianTourBackend.Api.Controllers;
 using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Core.Interfaces;
 using FluentAssertions;
@@ -47,7 +47,10 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
 
             // Assert 
             result.Should().BeOfType<OkObjectResult>()
-                .Which.Value.Should().BeEquivalentTo(routeRegistrationDTO); //the returned registration should at least have same fields as the DTO
+                .Which.Value.Should().BeEquivalentTo(
+                    routeRegistrationDTO,
+                    options => options.Using(new EnumAsStringAssertionRule()) //treat enums as strings
+                );
 
             _userRepository.Received().GetBy(user.Email);
             _routeRepository.Received().GetBy(route.Id);
