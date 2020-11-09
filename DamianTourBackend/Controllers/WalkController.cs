@@ -94,12 +94,17 @@ namespace DamianTourBackend.Api.Controllers
             var user = _userRepository.GetBy(mailAdress);
             if (user == null) return BadRequest();
 
+            var routeid = _registrationRepository.GetLast(mailAdress).RouteId;
+            var route = _routeRepository.GetBy(routeid);
 
+            var walk = new Walk(DateTime.Now, route);
 
-            return Ok(user);
+            _walkRepository.Add(mailAdress, walk);
+
+            return Ok(walk);
         }
 
-        [HttpPost(nameof(AddTest))]
+        /*[HttpPost(nameof(AddTest))]
         public IActionResult AddTest(WalkDTO walkDTO) {
             User user = _userRepository.GetBy(User.Identity.Name);
             Route route = _routeRepository.GetByName("RouteZero");
@@ -108,10 +113,10 @@ namespace DamianTourBackend.Api.Controllers
                     route,
                     user,
                     true,
-                    "L"
+                    ShirtSize.L
                 );
-            Walk walk = new Walk(DateTime.Now, route, user);
-            walk.SetCoords(walkDTO.Coordinates);
+            Walk walk = new Walk(DateTime.Now, route, user);                
+            //walk.SetCoords(walkDTO.Coordinates);
             user.Registrations.Add(registration);
 
             _userRepository.Update(user);
@@ -120,17 +125,22 @@ namespace DamianTourBackend.Api.Controllers
            _walkRepository.Add(walk);
 
             return Ok();
-        }
+        }*/
 
         [HttpPut(nameof(Update))]
-        public IActionResult Update(WalkDTO walkDTO) {
+        public IActionResult Update(List<double[]> coords) {
             User user = _userRepository.GetBy(User.Identity.Name);
             if (user == null) return NotFound("User not found");
-            Walk walk = _walkRepository.GetByUserAndRoute(user.Id, user.Registrations.Last().Id);
+
+            var routeid = _registrationRepository.GetLast(user.Email).RouteId;
+            var route = _routeRepository.GetBy(routeid);
+
+            Walk walk = _walkRepository.GetByUserAndRoute(user.Id, route.Id);
             if (walk == null) return NotFound("Walk not found for user");
 
-            walkDTO.UpdateWalk(ref walk);
-            _walkRepository.Update(walk);
+            walk.AddCoords(coords);
+
+            _walkRepository.Update(user.Email, walk);
 
             return Ok(walk);
         }

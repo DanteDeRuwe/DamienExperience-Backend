@@ -7,6 +7,7 @@ namespace DamianTourBackend.Application.UpdateRoute
 {
     public class RouteDTO
     {
+        public Guid TourId { get; set; }
         public string TourName { get; set; }
         public DateTime Date { get; set; }
         public int DistanceInMeters { get; set; }
