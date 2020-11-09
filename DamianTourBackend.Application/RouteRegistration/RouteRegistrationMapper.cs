@@ -7,19 +7,23 @@ namespace DamianTourBackend.Application.RouteRegistration
     {
         public static Registration MapToRegistration(this RouteRegistrationDTO model, User user, Route route)
         {
-            ShirtSize shirtSizeModel = ShirtSize.GEEN;
-            foreach (ShirtSize size in Enum.GetValues(typeof(ShirtSize)))
-                if (model.ShirtSize.ToLower().Equals(size.ToString().ToLower()))
-                    shirtSizeModel = size;
+            ShirtSize modelShirtSize = ShirtSize.GEEN;
+            Enum.TryParse(model.ShirtSize, out modelShirtSize);
 
             return new Registration(
                 timeStamp: DateTime.Now,
                 route: route,
                 user: user,
                 orderedShirt: model.OrderedShirt,
-                shirtSize: shirtSizeModel
+                shirtSize: modelShirtSize
             );
         }
 
+        public static RouteRegistrationDTO MapToRegistrationDTO(this Registration registration) =>
+            new RouteRegistrationDTO {
+                RouteId = registration.RouteId,
+                OrderedShirt = registration.OrderedShirt,
+                ShirtSize = registration.ShirtSize.ToString()
+            };
     }
 }

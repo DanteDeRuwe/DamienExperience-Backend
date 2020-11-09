@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -59,23 +60,25 @@ namespace DamianTourBackend.Api.Controllers
 
             return Ok(registration);
         }
-
-        //test method
+        
         [HttpDelete("")]
         public IActionResult Delete(Guid id)
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
 
-            string mailAdress = User.Identity.Name;
-            if (mailAdress == null) return BadRequest();
+            string email = User.Identity.Name;
+            if (email == null) return BadRequest();
 
-            var user = _userRepository.GetBy(mailAdress);
+            var user = _userRepository.GetBy(email);
             if (user == null) return BadRequest();
 
-            var registration = _registrationRepository.GetBy(id, mailAdress);
+            var registration = _registrationRepository.GetBy(id, email);
+            if (registration == null) return BadRequest();
 
-            _registrationRepository.Delete(registration, user.Email);
+            bool removed = user.Registrations.Remove(registration);
+            _registrationRepository.Delete(registration, email);
 
+            if (!removed) return BadRequest();
             return Ok(registration);
         }
 
@@ -89,8 +92,11 @@ namespace DamianTourBackend.Api.Controllers
 
             var user = _userRepository.GetBy(mailAdress);
             if (user == null) return BadRequest();
-
-            return Ok(_registrationRepository.GetAllFromUser(mailAdress));
+            
+            var all = _registrationRepository.GetAllFromUser(mailAdress);
+            if (all == null || !all.Any()) return NotFound();
+            
+            return Ok(all);
         }
 
         [HttpGet("GetLast")]
@@ -104,7 +110,10 @@ namespace DamianTourBackend.Api.Controllers
             var user = _userRepository.GetBy(mailAdress);
             if (user == null) return BadRequest();
 
-            return Ok(_registrationRepository.GetLast(mailAdress));
+            var last = _registrationRepository.GetLast(mailAdress);
+            if (last == null) return NotFound();
+            
+            return Ok(last);
         }
 
         [HttpGet("CheckCurrentRegistered")]
