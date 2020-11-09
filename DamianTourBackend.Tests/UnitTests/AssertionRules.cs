@@ -11,7 +11,7 @@ namespace DamianTourBackend.Tests.UnitTests
             var subject = context.Subject;
             var expectation = context.Expectation;
 
-            if (!subject.GetType().IsEnum || !(expectation is string) || subject == null || expectation == null)
+            if ( subject == null || expectation == null || !subject.GetType().IsEnum || !(expectation is string))
             {
                 return false; //rule not applicable
             }
