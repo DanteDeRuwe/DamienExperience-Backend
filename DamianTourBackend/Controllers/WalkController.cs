@@ -41,17 +41,15 @@ namespace DamianTourBackend.Api.Controllers
         }
 
         [HttpGet("{email}")]
-        public IActionResult SearchWalker(string email) // mag ook searchwalk zijn 
+        public IActionResult SearchWalk(string email)
         {
-
-            string mailAdress = User.Identity.Name;
-            if (mailAdress == null) return BadRequest();
-
-            var searcher = _userRepository.GetBy(mailAdress);
-            if (searcher == null) return BadRequest();
+            //string mailAdress = User.Identity.Name;
+            //if (mailAdress == null) return BadRequest();
+            //var searcher = _userRepository.GetBy(mailAdress);
+            //if (searcher == null) return BadRequest();
 
             var walker = _userRepository.GetBy(email);
-            if (walker == null) return BadRequest();
+            if (walker == null) return NotFound();
 
             Registration registration = _registrationRepository.GetLast(email);
             if (registration == null) return NotFound();
@@ -62,8 +60,7 @@ namespace DamianTourBackend.Api.Controllers
 
             //if (!User.Identity.IsAuthenticated) return Unauthorized(); // wachtend optiesysteem (publieke wandelaar)
 
-
-            return Ok(walk.MapToWalkDTO());
+            return Ok(walk);
         }
 
         [HttpPut(nameof(StopWalk))]
