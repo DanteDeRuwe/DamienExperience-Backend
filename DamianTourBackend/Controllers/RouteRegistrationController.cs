@@ -59,23 +59,25 @@ namespace DamianTourBackend.Api.Controllers
 
             return Ok(registration);
         }
-
-        //test method
+        
         [HttpDelete("")]
         public IActionResult Delete(Guid id)
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
 
-            string mailAdress = User.Identity.Name;
-            if (mailAdress == null) return BadRequest();
+            string email = User.Identity.Name;
+            if (email == null) return BadRequest();
 
-            var user = _userRepository.GetBy(mailAdress);
+            var user = _userRepository.GetBy(email);
             if (user == null) return BadRequest();
 
-            var registration = _registrationRepository.GetBy(id, mailAdress);
+            var registration = _registrationRepository.GetBy(id, email);
+            if (registration == null) return BadRequest();
 
-            _registrationRepository.Delete(registration, user.Email);
+            bool removed = user.Registrations.Remove(registration);
+            _registrationRepository.Delete(registration, email);
 
+            if (!removed) return BadRequest();
             return Ok(registration);
         }
 

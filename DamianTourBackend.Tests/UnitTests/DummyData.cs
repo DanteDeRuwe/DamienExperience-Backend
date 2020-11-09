@@ -51,7 +51,7 @@ namespace DamianTourBackend.Tests.UnitTests
         
         private static ICollection<Registration> GenerateRegistrationsForUser(Faker f, User u) =>
             RouteRegistrationDTOFaker
-                .Generate(f.Random.Int(0, 5))
+                .Generate(f.Random.Int(1, 5))
                 .Select(r => r.MapToRegistration(u, RouteFaker.Generate()))
                 .ToList();
     }

@@ -1,3 +1,4 @@
+using System.Linq;
 using DamianTourBackend.Api.Controllers;
 using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Core.Interfaces;
@@ -127,6 +128,36 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _routeRepository.Received().GetBy(route.Id);
 
             user.Registrations.Count.Should().Be(numberOfRegistrations);
+        }
+        
+        [Fact]
+        public void Delete_LoggedInUserWithGoodRegistration_ShouldDeleteRegistrationAndReturnsOk()
+        {
+            // Arrange 
+            var user = DummyData.UserFaker.Generate();
+            var registration = user.Registrations.Last();
+            
+            _sut.ControllerContext = FakeControllerContext.For(user); 
+            
+            _userRepository.GetBy(user.Email).Returns(user);
+            _registrationRepository.GetBy(registration.Id, user.Email).Returns(registration);
+
+            // Act 
+            var numberOfRegistrations = user.Registrations.Count;
+            var result = _sut.Delete(registration.Id);
+
+            // Assert 
+            result.Should().BeOfType<OkObjectResult>()
+                .Which.Value.Should().BeEquivalentTo(
+                    registration,
+                    options => options.Using(new EnumAsStringAssertionRule()) //treat enums as strings
+                );
+
+            user.Registrations.Count.Should().Be(numberOfRegistrations-1);
+            user.Registrations.Should().NotContain(registration);
+            
+            _userRepository.Received().GetBy(user.Email);
+            _registrationRepository.Received().Delete(registration, user.Email);
         }
     }
 }
