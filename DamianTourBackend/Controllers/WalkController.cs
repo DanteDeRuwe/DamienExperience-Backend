@@ -93,29 +93,6 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(walk);
         }
 
-        /*[HttpPost(nameof(AddTest))]
-        public IActionResult AddTest(WalkDTO walkDTO) {
-            User user = _userRepository.GetBy(User.Identity.Name);
-            Route route = _routeRepository.GetByName("RouteZero");
-            Registration registration = new Registration(
-                    DateTime.Now,
-                    route,
-                    user,
-                    true,
-                    ShirtSize.L
-                );
-            Walk walk = new Walk(DateTime.Now, route, user);                
-            //walk.SetCoords(walkDTO.Coordinates);
-            user.Registrations.Add(registration);
-
-            _userRepository.Update(user);
-            _registrationRepository.Add(registration, user.Email);
-
-           _walkRepository.Add(walk);
-
-            return Ok();
-        }*/
-
         [HttpPut(nameof(Update))]
         public IActionResult Update(List<double[]> coords) {
             User user = _userRepository.GetBy(User.Identity.Name);
