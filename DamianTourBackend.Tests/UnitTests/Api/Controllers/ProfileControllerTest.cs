@@ -147,7 +147,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
 
             // Assert 
             result.Should().BeOfType<OkObjectResult>()
-                .Which.Value.Should().BeEquivalentTo(updateProfileDTO.MapToUser());
+                .Which.Value.Should().BeEquivalentTo(updateProfileDTO);
             _userRepository.Received().Update(user);
         }
 

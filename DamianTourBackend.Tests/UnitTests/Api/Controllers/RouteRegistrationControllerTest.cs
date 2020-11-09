@@ -43,6 +43,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _validator.SetupPass();
 
             // Act 
+            var numberOfRegistrations = user.Registrations.Count;
             var result = _sut.Post(routeRegistrationDTO);
 
             // Assert 
@@ -55,7 +56,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _userRepository.Received().GetBy(user.Email);
             _routeRepository.Received().GetBy(route.Id);
             //registration is added to user 
-            user.Registrations.Count.Should().Be(1);
+            user.Registrations.Count.Should().Be(numberOfRegistrations+1);
         }
         
         [Fact]
@@ -74,6 +75,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _validator.SetupFail();
 
             // Act 
+            var numberOfRegistrations = user.Registrations.Count;
             var result = _sut.Post(routeRegistrationDTO);
 
             // Assert 
@@ -82,7 +84,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
                 .Which.IsValid.Should().BeFalse();
 
             _userRepository.DidNotReceive().GetBy(user.Email);
-            user.Registrations.Count.Should().Be(0);
+            user.Registrations.Count.Should().Be(numberOfRegistrations);
         }
         
         [Fact]
@@ -115,6 +117,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _validator.SetupPass();
 
             // Act 
+            var numberOfRegistrations = user.Registrations.Count;
             var result = _sut.Post(routeRegistrationDTO);
 
             // Assert 
@@ -123,7 +126,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _userRepository.Received().GetBy(user.Email);
             _routeRepository.Received().GetBy(route.Id);
 
-            user.Registrations.Count.Should().Be(0);
+            user.Registrations.Count.Should().Be(numberOfRegistrations);
         }
     }
 }
