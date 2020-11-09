@@ -41,6 +41,7 @@ namespace DamianTourBackend.Api.Controllers
         }
 
         [HttpGet("{email}")]
+        [AllowAnonymous]
         public IActionResult SearchWalk(string email)
         {
             //string mailAdress = User.Identity.Name;
