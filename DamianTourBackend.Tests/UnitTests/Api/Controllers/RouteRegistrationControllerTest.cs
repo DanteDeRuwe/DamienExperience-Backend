@@ -1,14 +1,17 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using DamianTourBackend.Api.Controllers;
 using DamianTourBackend.Application.RouteRegistration;
+using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentAssertions;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using Xunit;
+using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
 {
@@ -158,6 +161,87 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             
             _userRepository.Received().GetBy(user.Email);
             _registrationRepository.Received().Delete(registration, user.Email);
+        }
+
+        [Fact]
+        public void Delete_UserNotLoggedIn_ReturnsUnauthorized()
+        {
+            // Arrange 
+            _sut.ControllerContext = FakeControllerContext.NotLoggedIn; //!
+
+            // Act 
+            var result = _sut.Delete(Guid.NewGuid()); //guid shouldn't matter
+
+            // Assert 
+            result.Should().BeOfType<UnauthorizedResult>();
+        }
+
+
+        [Fact]
+        public void Delete_NoSuchRegistration_ReturnsBadRequest()
+        {
+            // Arrange 
+            var user = DummyData.UserFaker.Generate();
+            var registrationId = Guid.NewGuid();
+            
+            _sut.ControllerContext = FakeControllerContext.For(user); 
+            
+            _userRepository.GetBy(user.Email).Returns(user);
+            _registrationRepository.GetBy(Arg.Any<Guid>(), user.Email).ReturnsNull();
+
+            // Act 
+            var numberOfRegistrations = user.Registrations.Count;
+            var result = _sut.Delete(registrationId);
+
+            // Assert 
+            result.Should().BeOfType<BadRequestResult>();
+            
+            user.Registrations.Count.Should().Be(numberOfRegistrations);
+            _userRepository.Received().GetBy(user.Email);
+            _registrationRepository.Received().GetBy(registrationId, user.Email);
+            _registrationRepository.DidNotReceive().Delete(Arg.Any<Registration>(), user.Email);
+        }
+
+        [Fact]
+        public void GetLast_AtLeastOneRegistration_ReturnsLastRegistration()
+        {
+            // Arrange 
+            var user = DummyData.UserFaker.Generate();
+            var lastRegistration = user.Registrations.Last();
+            
+            _sut.ControllerContext = FakeControllerContext.For(user); 
+            
+            _userRepository.GetBy(user.Email).Returns(user);
+            _registrationRepository.GetLast(user.Email).Returns(lastRegistration);
+            
+            //Act
+            var result = _sut.GetLast();
+            
+            // Assert 
+            result.Should().BeOfType<OkObjectResult>()
+                .Which.Value.Should().BeEquivalentTo(
+                    lastRegistration,
+                    options => options.Using(new EnumAsStringAssertionRule()) //treat enums as strings
+                );
+        }
+
+        [Fact]
+        public void GetLast_NoRegistrations_ReturnsNotFound()
+        {
+            // Arrange 
+            var user = DummyData.UserFaker.Generate();
+            user.Registrations = new List<Registration>(); //empty
+            
+            _sut.ControllerContext = FakeControllerContext.For(user); 
+            
+            _userRepository.GetBy(user.Email).Returns(user);
+            _registrationRepository.GetLast(user.Email).ReturnsNull();
+            
+            //Act
+            var result = _sut.GetLast();
+            
+            // Assert 
+            result.Should().BeOfType<NotFoundResult>();
         }
     }
 }

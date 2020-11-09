@@ -106,7 +106,10 @@ namespace DamianTourBackend.Api.Controllers
             var user = _userRepository.GetBy(mailAdress);
             if (user == null) return BadRequest();
 
-            return Ok(_registrationRepository.GetLast(mailAdress));
+            var last = _registrationRepository.GetLast(mailAdress);
+            if (last == null) return NotFound();
+            
+            return Ok(last);
         }
 
         [HttpGet("CheckCurrentRegistered")]
