@@ -16,7 +16,7 @@ namespace DamianTourBackend.Api.Helpers
 
         public static bool CheckGreaterThenOrEqualsDate(DateTime datetime1)
         {
-            return datetime1.Date < DateTime.Now.Date;
+            return datetime1.Date > DateTime.Now.Date;
         }
 
     }
