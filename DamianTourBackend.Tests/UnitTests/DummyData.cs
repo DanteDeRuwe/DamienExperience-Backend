@@ -42,13 +42,14 @@ namespace DamianTourBackend.Tests.UnitTests
         public static readonly Faker<Route> RouteFaker = new Faker<Route>()
             .RuleFor(r => r.TourName, f => f.Random.Word())
             .RuleFor(r => r.DistanceInMeters, f => f.Random.Int(1, 100))
-            .RuleFor(r => r.Id, f => Guid.NewGuid());
+            .RuleFor(r => r.Id, f => Guid.NewGuid())
+            .RuleFor(r => r.Date, f => DateTime.Now);
 
         public static readonly Faker<RouteRegistrationDTO> RouteRegistrationDTOFaker = new Faker<RouteRegistrationDTO>()
             .RuleFor(r => r.ShirtSize, f => f.PickRandom<ShirtSize>().ToString())
             .RuleFor(r => r.OrderedShirt, f => f.Random.Bool())
             .RuleFor(r => r.RouteId, f => Guid.NewGuid());
-        
+
         private static ICollection<Registration> GenerateRegistrationsForUser(Faker f, User u) =>
             RouteRegistrationDTOFaker
                 .Generate(f.Random.Int(1, 5))

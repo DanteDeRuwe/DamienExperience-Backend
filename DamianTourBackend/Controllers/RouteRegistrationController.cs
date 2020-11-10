@@ -1,4 +1,5 @@
-﻿using DamianTourBackend.Application.RouteRegistration;
+﻿using DamianTourBackend.Api.Helpers;
+using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentValidation;
@@ -60,7 +61,7 @@ namespace DamianTourBackend.Api.Controllers
 
             return Ok(registration);
         }
-        
+
         [HttpDelete("")]
         public IActionResult Delete(Guid id)
         {
@@ -92,10 +93,10 @@ namespace DamianTourBackend.Api.Controllers
 
             var user = _userRepository.GetBy(mailAdress);
             if (user == null) return BadRequest();
-            
+
             var all = _registrationRepository.GetAllFromUser(mailAdress);
             if (all == null || !all.Any()) return NotFound();
-            
+
             return Ok(all);
         }
 
@@ -112,7 +113,7 @@ namespace DamianTourBackend.Api.Controllers
 
             var last = _registrationRepository.GetLast(mailAdress);
             if (last == null) return NotFound();
-            
+
             return Ok(last);
         }
 
@@ -133,7 +134,7 @@ namespace DamianTourBackend.Api.Controllers
             Route route = _routeRepository.GetBy(reg.RouteId);
             if (route == null) return NotFound();
 
-            return Ok(route.Date > DateTime.Now);
+            return Ok(DateCheckHelper.CheckGreaterThenOrEqualsDate(route.Date));
         }
     }
 }
