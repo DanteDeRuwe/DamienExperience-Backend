@@ -47,8 +47,7 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
 
         public Walk GetByUserAndRoute(Guid userId, Guid routeId)
         {
-            return _users.AsQueryable().Where(w => w.Id.Equals(userId)).SelectMany(u=>u.Walks).Where(w=>w.RouteID.Equals(routeId))
-                .SingleOrDefault();
+            return _users.AsQueryable().Where(w => w.Id.Equals(userId)).SelectMany(u => u.Walks).Where(w => w.RouteID.Equals(routeId)).FirstOrDefault();
         }
 
         public Walk GetBy(Guid id)
