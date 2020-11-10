@@ -1,16 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DamianTourBackend.Application;
-using DamianTourBackend.Application.UpdateWalk;
+using DamianTourBackend.Api.Helpers;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -74,27 +69,34 @@ namespace DamianTourBackend.Api.Controllers
         [HttpPost(nameof(StartWalk))]
         public IActionResult StartWalk()
         {
-
             if (!User.Identity.IsAuthenticated) return Unauthorized();
 
             string mailAdress = User.Identity.Name;
             if (mailAdress == null) return BadRequest();
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();
+            if (user == null) return NotFound("User not found");
 
-            var routeid = _registrationRepository.GetLast(mailAdress).RouteId;
-            var route = _routeRepository.GetBy(routeid);
+            var registration = _registrationRepository.GetLast(mailAdress);
+            if (registration == null) return NotFound("Registration not found");
 
-            var walk = new Walk(DateTime.Now, route);
+            var route = _routeRepository.GetBy(registration.RouteId);
+            if (route == null) return NotFound("Route not found");
 
-            _walkRepository.Add(mailAdress, walk);
+            var walk = _walkRepository.GetByUserAndRoute(user.Id, route.Id);
+            var now = DateTime.Now;
+            if (walk == null && DateCheckHelper.CheckEqualsDate(route.Date, now))
+            {
+                walk = new Walk(DateTime.Now, route);
 
-            return Ok(walk);
+                _walkRepository.Add(mailAdress, walk);
+            }
+            return Ok();
         }
 
         [HttpPut(nameof(Update))]
-        public IActionResult Update(List<double[]> coords) {
+        public IActionResult Update(List<double[]> coords)
+        {
             User user = _userRepository.GetBy(User.Identity.Name);
             if (user == null) return NotFound("User not found");
 
@@ -110,5 +112,6 @@ namespace DamianTourBackend.Api.Controllers
 
             return Ok(walk);
         }
+
     }
 }
