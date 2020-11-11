@@ -91,7 +91,7 @@ namespace DamianTourBackend.Api.Controllers
 
                 _walkRepository.Add(mailAdress, walk);
             }
-            return Ok("");
+            return Ok();
         }
 
         [HttpPut(nameof(Update))]
