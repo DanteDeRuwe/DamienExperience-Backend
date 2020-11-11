@@ -1,11 +1,14 @@
 using DamianTourBackend.Api.Helpers;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
+using DamianTourBackend.Infrastructure.Mailer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -19,17 +22,20 @@ namespace DamianTourBackend.Api.Controllers
         private readonly IWalkRepository _walkRepository;
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IRouteRepository _routeRepository;
+        private readonly IConfiguration _configuration;
 
         public WalkController(
             IUserRepository userRepository,
             IWalkRepository walkRepository,
             IRegistrationRepository registrationRepository,
-            IRouteRepository routeRepository)
+            IRouteRepository routeRepository,
+             IConfiguration config)
         {
             _userRepository = userRepository;
             _walkRepository = walkRepository;
             _registrationRepository = registrationRepository;
             _routeRepository = routeRepository;
+            _configuration = config;
         }
 
         [HttpGet("{email}")]
@@ -50,20 +56,27 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(walk);
         }
 
-        [HttpPut(nameof(StopWalk))]
-        public IActionResult StopWalk()
+
+        //begone
+        [AllowAnonymous]
+        [HttpPut(nameof(StopWalkAsync))]
+        public async Task<IActionResult> StopWalkAsync()
         {
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+            /*if (!User.Identity.IsAuthenticated) return Unauthorized();
 
             string mailAdress = User.Identity.Name;
             if (mailAdress == null) return BadRequest();
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();
+            if (user == null) return BadRequest();*/
 
 
+            MailService mailer = new MailService(_configuration);
 
-            return Ok(user);
+            await mailer.CreateMail();
+
+
+            return Ok();
         }
 
         [HttpPost(nameof(StartWalk))]

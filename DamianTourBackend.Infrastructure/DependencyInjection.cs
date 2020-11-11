@@ -2,18 +2,22 @@
 using DamianTourBackend.Application;
 using DamianTourBackend.Core.Interfaces;
 using DamianTourBackend.Infrastructure.Data.Repositories;
+using DamianTourBackend.Infrastructure.Mailer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using SendGrid;
 using System;
+using System.Net.Mail;
 using System.Text;
 
 namespace DamianTourBackend.Infrastructure
 {
     public static class DependencyInjection
     {
+
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
 
@@ -71,6 +75,7 @@ namespace DamianTourBackend.Infrastructure
             });
 
 
+            //services.AddScoped<IMailService, MailService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRouteRepository, RouteRepository>();
             services.AddScoped<IRegistrationRepository, RegistrationRepository>();
