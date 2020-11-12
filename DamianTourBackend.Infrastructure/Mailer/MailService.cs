@@ -1,5 +1,7 @@
 ﻿using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using SautinSoft.Document;
 using SendGrid;
@@ -82,43 +84,55 @@ namespace DamianTourBackend.Infrastructure.Mailer
             }
         }
 
-        public string Text(User user) 
+
+        public async void SendGridMailer(User user)
         {
-            return @$"<!DOCTYPE html>
-                        <html>
-                        <head></head>
-                            <body>
-                                <h1>MyName is {user.FirstName}</h1>
-                            </body>
-                        </html>";
-/*
-            System.IO.StreamWriter file = new System.IO.StreamWriter("");
-            file.WriteLine(lines);
 
-            file.Close();
-
-            return File.ReadAllText("");*/
-        }
-
-
-        public void SendGridMailer(User user) 
-        {
+            CreateCertificate();
             var sendGridClient = new SendGridClient(_configuration["SendGrid:Key"]);
 
             var sendGridMessage = new SendGridMessage();
             sendGridMessage.SetFrom("jordy.vankerkvoorde@student.hogent.be", "Damien Experience");
-            sendGridMessage.AddTo("jordy.vankerkvoorde@student.hogent.be", "FirstName LastName");
-            /*sendGridMessage.Subject = "success sendgrid";
-            sendGridMessage.HtmlContent = "<strong>and easy to do anywhere, even with C#</strong>";*/
+            sendGridMessage.AddTo(user.Email, $"{user.FirstName} {user.LastName}");
 
             sendGridMessage.SetTemplateId("d-cb844c22ba3e444fb0be079a8196acff");
             sendGridMessage.SetTemplateData(user);
 
-            var response = sendGridClient.SendEmailAsync(sendGridMessage).Result;
-            if (response.StatusCode == System.Net.HttpStatusCode.Accepted)
+            using (var fileStream = File.OpenRead("certificate.pdf"))
             {
-                Console.WriteLine("Email sent");
+                await sendGridMessage.AddAttachmentAsync($"certificate_{user.FirstName}_{user.LastName}.pdf", fileStream);
+                var response = sendGridClient.SendEmailAsync(sendGridMessage).Result;
+                if (response.StatusCode == System.Net.HttpStatusCode.Accepted)
+                {
+                    Console.WriteLine("Email sent");
+                }
+            }
+
+            DeleteCertificate();
+        }
+
+        public void CreateCertificate() 
+        {
+            DocumentCore dc = new DocumentCore();
+            dc.Content.End.Insert("Hello", new CharacterFormat()
+            {
+                FontName = "Verdana",
+                Size = 65.5f,
+                FontColor = Color.Black
+            });
+
+            dc.Save("certificate.pdf");
+        }
+
+        public void DeleteCertificate()
+        {
+            if (File.Exists("certificate.pdf"))
+            {
+                File.Delete("certificate.pdf");
             }
         }
+
+        
+
     }
 }
