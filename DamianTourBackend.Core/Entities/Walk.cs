@@ -31,5 +31,9 @@ namespace DamianTourBackend.Core.Entities
             WalkedPath.Coordinates.AddRange(coords);
         }
 
+        public TimeSpan WalkedTime() {
+            return EndTime - StartTime;
+        }
+
     }
 }

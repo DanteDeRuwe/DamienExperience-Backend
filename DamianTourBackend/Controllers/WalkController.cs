@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DamianTourBackend.Api.Controllers
@@ -23,12 +24,14 @@ namespace DamianTourBackend.Api.Controllers
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IRouteRepository _routeRepository;
         private readonly IConfiguration _configuration;
+        private readonly IMailService _mailService;
 
         public WalkController(
             IUserRepository userRepository,
             IWalkRepository walkRepository,
             IRegistrationRepository registrationRepository,
             IRouteRepository routeRepository,
+            IMailService mailService,
              IConfiguration config)
         {
             _userRepository = userRepository;
@@ -36,6 +39,7 @@ namespace DamianTourBackend.Api.Controllers
             _registrationRepository = registrationRepository;
             _routeRepository = routeRepository;
             _configuration = config;
+            _mailService = mailService;
         }
 
         [HttpGet("{email}")]
@@ -58,23 +62,24 @@ namespace DamianTourBackend.Api.Controllers
 
 
         //begone
-        [AllowAnonymous]
-        [HttpPut(nameof(StopWalkAsync))]
-        public async Task<IActionResult> StopWalkAsync()
+        [HttpPut(nameof(Stop))]
+        public async Task<IActionResult> Stop()
         {
-            /*if (!User.Identity.IsAuthenticated) return Unauthorized();
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
 
             string mailAdress = User.Identity.Name;
             if (mailAdress == null) return BadRequest();
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();*/
+            if (user == null) return BadRequest();
 
+            Walk walk = user.Walks.Last();
+            if (walk == null) return NotFound();
 
-            MailService mailer = new MailService(_configuration);
-
-            await mailer.CreateMail();
-
+            walk.EndTime = DateTime.Now;
+            _walkRepository.Update(user.Email, walk);
+               
+            await _mailService.SendMailWithCertificate(user);
 
             return Ok();
         }
@@ -98,12 +103,30 @@ namespace DamianTourBackend.Api.Controllers
 
             var walk = _walkRepository.GetByUserAndRoute(user.Id, route.Id);
             var now = DateTime.Now;
-            if (walk == null && DateCheckHelper.CheckEqualsDate(route.Date, now))
+
+            if (walk == null 
+               // && DateCheckHelper.CheckEqualsDate(route.Date, now)
+                )
             {
                 walk = new Walk(DateTime.Now, route);
 
                 _walkRepository.Add(mailAdress, walk);
             }
+            return Ok();
+        }
+
+        [HttpPost(nameof(TestMail))]
+        public IActionResult TestMail()
+        {
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null) return BadRequest();
+
+            var user = _userRepository.GetBy(mailAdress);
+            if (user == null) return NotFound("User not found");
+
+            _mailService.SendGridMailer(user);
             return Ok();
         }
 

@@ -3,6 +3,7 @@ using DamianTourBackend.Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 using SautinSoft.Document;
 using SendGrid;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 namespace DamianTourBackend.Infrastructure.Mailer
 {
     //mss internal?
-    public class MailService
+    public class MailService : IMailService
     {
         private readonly IConfiguration _configuration;
 
@@ -26,6 +27,7 @@ namespace DamianTourBackend.Infrastructure.Mailer
 
         public MailService(IConfiguration configuration)
         {
+            //Gets mail Sendgrid apiKey
             _configuration = configuration;
             string apiKey = _configuration["SendGrid:Key"];
             Client = new SmtpClient("smtp.sendgrid.net", 587)
@@ -35,31 +37,13 @@ namespace DamianTourBackend.Infrastructure.Mailer
 
         }
 
-        public void CreateTestMessage()
-        {
-            string to = "jordy.vankerkvoorde@student.hogent.be";
-            string from = "jordy.vankerkvoorde@student.hogent.be";
-            MailMessage message = new MailMessage(from, to);
-            message.Subject = "Using the new SMTP client.";
-            message.Body = @"Using this new feature, you can send an email message from an application very easily.";
-            
-            try
-            {
-                Client.Send(message);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Exception caught in CreateTestMessage,",
-                    ex.ToString());
-            }
-        }
 
 
 
-
-        public async Task CreateMail()
+        public async Task SendMailWithCertificate(User user)
         {
 
+            //Makes pdf
             DocumentCore dc = new DocumentCore();
             dc.Content.End.Insert("Hello", new CharacterFormat()
             {
@@ -69,25 +53,28 @@ namespace DamianTourBackend.Infrastructure.Mailer
             });
 
             dc.Save("certificate.pdf");
-            
-            Attachment certificate = new Attachment("certificate.pdf", MediaTypeNames.Application.Octet);
-            string to = "jordy.vankerkvoorde@student.hogent.be";
+
+            //Makes mail and attaches pdf
+            System.Net.Mail.Attachment certificate = new System.Net.Mail.Attachment("certificate.pdf", MediaTypeNames.Application.Octet);
+            string to = user.Email;
             string from = "jordy.vankerkvoorde@student.hogent.be";
             MailMessage message = new MailMessage(from, to);
-            message.Subject = "Using the new SMTP client.";
-            message.Body = @"Using this new feature, you can send an email message from an application very easily.";
+            message.Subject = "Certificaat Damien Experience";
+            message.Body = Text(user);
             message.Attachments.Add(certificate);
 
+            //tries to send mail async
             try
             {
                 await Task.Run(() => Client.Send(message));
-               
+
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Exception caught in CreateTestMessage,",
                     ex.ToString());
             }
+            //delete mail
             certificate.Dispose();
             if (File.Exists("certificate.pdf"))
             {
@@ -95,6 +82,43 @@ namespace DamianTourBackend.Infrastructure.Mailer
             }
         }
 
+        public string Text(User user) 
+        {
+            return @$"<!DOCTYPE html>
+                        <html>
+                        <head></head>
+                            <body>
+                                <h1>MyName is {user.FirstName}</h1>
+                            </body>
+                        </html>";
+/*
+            System.IO.StreamWriter file = new System.IO.StreamWriter("");
+            file.WriteLine(lines);
 
+            file.Close();
+
+            return File.ReadAllText("");*/
+        }
+
+
+        public void SendGridMailer(User user) 
+        {
+            var sendGridClient = new SendGridClient(_configuration["SendGrid:Key"]);
+
+            var sendGridMessage = new SendGridMessage();
+            sendGridMessage.SetFrom("jordy.vankerkvoorde@student.hogent.be", "Damien Experience");
+            sendGridMessage.AddTo("jordy.vankerkvoorde@student.hogent.be", "FirstName LastName");
+            /*sendGridMessage.Subject = "success sendgrid";
+            sendGridMessage.HtmlContent = "<strong>and easy to do anywhere, even with C#</strong>";*/
+
+            sendGridMessage.SetTemplateId("d-cb844c22ba3e444fb0be079a8196acff");
+            sendGridMessage.SetTemplateData(user);
+
+            var response = sendGridClient.SendEmailAsync(sendGridMessage).Result;
+            if (response.StatusCode == System.Net.HttpStatusCode.Accepted)
+            {
+                Console.WriteLine("Email sent");
+            }
+        }
     }
 }

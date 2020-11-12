@@ -75,7 +75,7 @@ namespace DamianTourBackend.Infrastructure
             });
 
 
-            //services.AddScoped<IMailService, MailService>();
+            services.AddScoped<IMailService, MailService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRouteRepository, RouteRepository>();
             services.AddScoped<IRegistrationRepository, RegistrationRepository>();
