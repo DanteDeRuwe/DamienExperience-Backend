@@ -1,14 +1,18 @@
-﻿using DamianTourBackend.Core.Entities;
+﻿
+using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using SautinSoft.Document;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Text;
@@ -19,120 +23,68 @@ namespace DamianTourBackend.Infrastructure.Mailer
     //mss internal?
     public class MailService : IMailService
     {
-        private readonly IConfiguration _configuration;
-
-        public SmtpClient Client { get; set; }
+        public readonly HttpClient _client;
 
         public MailService()
         {
+            _client = new HttpClient();
+            //{BaseAddress = new Uri("http://localhost:3000/")};
         }
 
-        public MailService(IConfiguration configuration)
+        public void SendCertificate(CertificateDTO dto)
         {
-            //Gets mail Sendgrid apiKey
-            _configuration = configuration;
-            string apiKey = _configuration["SendGrid:Key"];
-            Client = new SmtpClient("smtp.sendgrid.net", 587)
-            {
-                Credentials = new System.Net.NetworkCredential("apikey", apiKey)
-            };
+            /*var stringContent = new JsonContent(dto);
+            var message = new HttpRequestMessage(HttpMethod.Post, new Uri("http://localhost:3000/mailcertificate"));
+            message.Content = stringContent;
+            _client.SendAsync(message);*/
 
-        }
+            //https://stackoverflow.com/questions/39134985/how-to-properly-perform-http-post-of-a-json-object-using-c-sharp-httpclient
 
+            /*var JSON = JsonConvert.SerializeObject(dto);
+            var stringContent = new StringContent(JSON, Encoding.UTF8, "application/x-www-form-urlencoded");*/
 
-
-
-        public async Task SendMailWithCertificate(User user)
-        {
-
-            //Makes pdf
-            DocumentCore dc = new DocumentCore();
-            dc.Content.End.Insert("Hello", new CharacterFormat()
-            {
-                FontName = "Verdana",
-                Size = 65.5f,
-                FontColor = Color.Black
-            });
-
-            dc.Save("certificate.pdf");
-
-            //Makes mail and attaches pdf
-            System.Net.Mail.Attachment certificate = new System.Net.Mail.Attachment("certificate.pdf", MediaTypeNames.Application.Octet);
-            string to = user.Email;
-            string from = "jordy.vankerkvoorde@student.hogent.be";
-            MailMessage message = new MailMessage(from, to);
-            message.Subject = "Certificaat Damien Experience";
-            message.Body = Text(user);
-            message.Attachments.Add(certificate);
-
-            //tries to send mail async
-            try
-            {
-                await Task.Run(() => Client.Send(message));
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Exception caught in CreateTestMessage,",
-                    ex.ToString());
-            }
-            //delete mail
-            certificate.Dispose();
-            if (File.Exists("certificate.pdf"))
-            {
-                File.Delete("certificate.pdf");
-            }
-        }
-
-
-        public async void SendGridMailer(User user)
-        {
-
-            CreateCertificate();
-            var sendGridClient = new SendGridClient(_configuration["SendGrid:Key"]);
-
-            var sendGridMessage = new SendGridMessage();
-            sendGridMessage.SetFrom("jordy.vankerkvoorde@student.hogent.be", "Damien Experience");
-            sendGridMessage.AddTo(user.Email, $"{user.FirstName} {user.LastName}");
-
-            sendGridMessage.SetTemplateId("d-cb844c22ba3e444fb0be079a8196acff");
-            sendGridMessage.SetTemplateData(user);
-
-            using (var fileStream = File.OpenRead("certificate.pdf"))
-            {
-                await sendGridMessage.AddAttachmentAsync($"certificate_{user.FirstName}_{user.LastName}.pdf", fileStream);
-                var response = sendGridClient.SendEmailAsync(sendGridMessage).Result;
-                if (response.StatusCode == System.Net.HttpStatusCode.Accepted)
+            HttpContent content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
-                    Console.WriteLine("Email sent");
+                    {"id", dto.Id},
+                    {"firstname", dto.FirstName},
+                    {"lastname", dto.LastName},
+                    {"email", dto.Email},
+                    {"distance", dto.Distance},
+                    {"date", dto.Date}
                 }
+            );
+
+            _client.PostAsync("http://localhost:3000/mailcertificate", content);
+
+            /////*
+           /* var httpWebRequest = (HttpWebRequest) WebRequest.Create("http://localhost:3000/mailcertificate");
+            httpWebRequest.ContentType = "application/x-www-form-urlencoded";
+            httpWebRequest.Method = "POST";
+
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                string json = JsonConvert.SerializeObject(dto);
+
+                streamWriter.Write(json);
             }
 
-            DeleteCertificate();
-        }
-
-        public void CreateCertificate() 
-        {
-            DocumentCore dc = new DocumentCore();
-            dc.Content.End.Insert("Hello", new CharacterFormat()
+            var httpResponse = (HttpWebResponse) httpWebRequest.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
             {
-                FontName = "Verdana",
-                Size = 65.5f,
-                FontColor = Color.Black
-            });
+                var result = streamReader.ReadToEnd();
+            }*/
 
-            dc.Save("certificate.pdf");
         }
 
-        public void DeleteCertificate()
+        public async Task SendCertificateAsync(CertificateDTO dto) 
         {
-            if (File.Exists("certificate.pdf"))
-            {
-                File.Delete("certificate.pdf");
-            }
+            throw new NotImplementedException();
         }
+    }
 
-        
 
+    public class JsonContent : StringContent
+    {
+        public JsonContent(object obj) : base(JsonConvert.SerializeObject(obj), Encoding.UTF8, "application/x-www-form-urlencoded") { }
     }
 }

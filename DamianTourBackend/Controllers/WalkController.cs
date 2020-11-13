@@ -78,8 +78,8 @@ namespace DamianTourBackend.Api.Controllers
 
             walk.EndTime = DateTime.Now;
             _walkRepository.Update(user.Email, walk);
-               
-            await _mailService.SendMailWithCertificate(user);
+
+            //_mailService.SendCertificate();
 
             return Ok();
         }
@@ -115,18 +115,28 @@ namespace DamianTourBackend.Api.Controllers
             return Ok();
         }
 
+        [AllowAnonymous]
         [HttpPost(nameof(TestMail))]
-        public IActionResult TestMail()
+        public IActionResult TestMail(string id, string firstname, string lastname, string email, string distance, string date)
         {
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+           /* if (!User.Identity.IsAuthenticated) return Unauthorized();
 
             string mailAdress = User.Identity.Name;
             if (mailAdress == null) return BadRequest();
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return NotFound("User not found");
+            if (user == null) return NotFound("User not found");*/
 
-            _mailService.SendGridMailer(user);
+           
+
+            _mailService.SendCertificate(new CertificateDTO() { 
+                Id = id,
+                FirstName = firstname,
+                LastName = lastname,
+                Email = email,
+                Distance = distance,
+                Date = date,
+            });
             return Ok();
         }
 
