@@ -4,11 +4,12 @@ namespace DamianTourBackend.Core.Entities
 {
     public class Path
     {
-        public ICollection<CoordinateTuple> Coordinates { get; set; }
+        public string LineColor { get; set; }
+        public List<double[]> Coordinates { get; set; }
 
         public Path()
         {
-            Coordinates = new List<CoordinateTuple>();
+            Coordinates = new List<double[]>();
         }
     }
 }

@@ -26,9 +26,9 @@ namespace DamianTourBackend.Api
             services.AddOpenApiDocument(c =>
             {
                 c.DocumentName = "apidocs";
-                c.Title = "DamianTours API";
+                c.Title = "DamienExperience API";
                 c.Version = "v1";
-                c.Description = "The API for the DamianTour web application and mobile apps.";
+                c.Description = "The API for the Damien Experience web application and mobile apps.";
                 c.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
                 {
                     Type = OpenApiSecuritySchemeType.ApiKey,

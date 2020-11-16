@@ -1,4 +1,5 @@
-﻿using DamianTourBackend.Application;
+﻿using AspNetCore.Identity.Mongo.Model;
+using DamianTourBackend.Application;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -6,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace DamianTourBackend.Tests.UnitTests.Api
 {
@@ -36,6 +39,18 @@ namespace DamianTourBackend.Tests.UnitTests.Api
                 Substitute.For<IdentityErrorDescriber>(),
                 Substitute.For<IServiceProvider>(),
                 Substitute.For<ILogger<UserManager<AppUser>>>())
+        { }
+    }
+
+    public class FakeRoleManager : RoleManager<MongoRole>
+    {
+        public FakeRoleManager()
+            : base(Substitute.For<IRoleStore<MongoRole>>(),
+                  new List<IRoleValidator<MongoRole>>(),
+                  Substitute.For<ILookupNormalizer>(),
+                  Substitute.For<IdentityErrorDescriber>(),
+                  Substitute.For<ILogger<RoleManager<MongoRole>>>()
+                  )
         { }
     }
 }

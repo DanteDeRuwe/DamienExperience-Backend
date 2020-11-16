@@ -1,3 +1,4 @@
+using AspNetCore.Identity.Mongo.Model;
 using DamianTourBackend.Application;
 using DamianTourBackend.Application.UpdateProfile;
 using DamianTourBackend.Core.Interfaces;
@@ -6,6 +7,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace DamianTourBackend.Api.Controllers
@@ -20,12 +24,17 @@ namespace DamianTourBackend.Api.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IUserRepository _userRepository;
         private readonly IValidator<UpdateProfileDTO> _updateProfileValidator;
+        private readonly RoleManager<MongoRole> _roleManager;
 
-        public ProfileController(IUserRepository userRepository, IValidator<UpdateProfileDTO> updateProfileValidator, UserManager<AppUser> userManager)
+        public ProfileController(IUserRepository userRepository, 
+            IValidator<UpdateProfileDTO> updateProfileValidator, 
+            UserManager<AppUser> userManager,
+            RoleManager<MongoRole> roleManager)
         {
             _userRepository = userRepository;
             _updateProfileValidator = updateProfileValidator;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         [HttpGet("")]
@@ -87,6 +96,55 @@ namespace DamianTourBackend.Api.Controllers
             updateProfileDTO.UpdateIdentityUser(ref identityUser);
             var result = await _userManager.UpdateAsync(identityUser);
             if (!result.Succeeded) return BadRequest();
+
+            return Ok(user);
+        }
+
+        [HttpPost(nameof(AddAdmin))]
+        public async Task<ActionResult> AddAdmin(string email) {
+
+            AppUser user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return NotFound();
+
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null || mailAdress.Equals("")) return Unauthorized();
+
+            AppUser admin = await _userManager.FindByEmailAsync(mailAdress);
+            if (admin == null ) return BadRequest();
+
+            bool hasRole = admin.Claims.Any(c => c.ClaimValue.Equals("admin"));
+
+            if (!await _roleManager.RoleExistsAsync("admin"))
+                await _roleManager.CreateAsync(new MongoRole("admin"));
+
+            if (!hasRole) return Unauthorized();
+
+
+            await _userManager.AddToRoleAsync(user, "admin");
+            await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "admin"));
+
+            return Ok();
+        }
+
+        [HttpPost(nameof(RemoveAdmin))]
+        public async Task<ActionResult> RemoveAdmin(string email)
+        {
+
+            AppUser user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return NotFound();
+
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null || mailAdress.Equals("")) return Unauthorized();
+
+            AppUser admin = await _userManager.FindByEmailAsync(mailAdress);
+            if (admin == null) return BadRequest();
+
+            bool hasRole = admin.Claims.Any(c => c.ClaimValue.Equals("admin"));
+
+            if (!hasRole) return Unauthorized();
+
+            await _userManager.RemoveFromRoleAsync(user, "admin");
+            await _userManager.RemoveClaimAsync(user, new Claim(ClaimTypes.Role, "admin"));
 
             return Ok();
         }

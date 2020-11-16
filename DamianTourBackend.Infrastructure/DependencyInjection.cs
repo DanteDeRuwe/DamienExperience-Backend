@@ -72,6 +72,9 @@ namespace DamianTourBackend.Infrastructure
 
 
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRouteRepository, RouteRepository>();
+            services.AddScoped<IRegistrationRepository, RegistrationRepository>();
+            services.AddScoped<IWalkRepository, WalkRepository>();
         }
     }
 }
