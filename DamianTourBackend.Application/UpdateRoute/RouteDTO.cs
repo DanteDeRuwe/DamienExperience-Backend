@@ -1,4 +1,5 @@
-﻿using DamianTourBackend.Core.Entities;
+﻿using DamianTourBackend.Application.UpdateWaypoint;
+using DamianTourBackend.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,5 +14,7 @@ namespace DamianTourBackend.Application.UpdateRoute
         public int DistanceInMeters { get; set; }
         public string LineColor { get; set; }
         public List<double[]> Coordinates { get; set; }
+
+        public ICollection<WaypointDTO> Waypoints { get; set; }
     } 
 }
