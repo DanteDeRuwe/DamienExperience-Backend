@@ -38,11 +38,11 @@ namespace DamianTourBackend.Api.Controllers
         public IActionResult GetRouteByName(string routeName) 
         {
 
-            var routeDTO = _routeRepository.GetByName(routeName).MapToRouteDTO(); 
+            var route = _routeRepository.GetByName(routeName); 
 
-            if (routeDTO == null) return BadRequest();
+            if (route == null) return BadRequest();
 
-            return Ok(routeDTO);
+            return Ok(route);
         }
 
         /// <summary>

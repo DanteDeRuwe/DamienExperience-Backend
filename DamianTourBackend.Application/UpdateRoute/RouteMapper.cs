@@ -10,6 +10,7 @@ namespace DamianTourBackend.Application.UpdateRoute
             route.Date = model.Date;
             route.DistanceInMeters = model.DistanceInMeters;
             route.Path = new Path { LineColor = model.LineColor, Coordinates = model.Coordinates };
+            route.Info = model.Info;
         }
 
         public static Route MapToRoute(this RouteDTO model) =>
@@ -18,18 +19,20 @@ namespace DamianTourBackend.Application.UpdateRoute
                 TourName = model.TourName,
                 Date = model.Date,
                 DistanceInMeters = model.DistanceInMeters,
-                Path = new Path { LineColor = model.LineColor, Coordinates = model.Coordinates }
+                Path = new Path { LineColor = model.LineColor, Coordinates = model.Coordinates },
+                Info = model.Info
             };
 
         public static RouteDTO MapToRouteDTO(this Route route) =>
             new RouteDTO
             {
-                TourId = route.Id,
+                //TourId = route.Id,
                 TourName = route.TourName,
                 Date = route.Date,
                 DistanceInMeters = route.DistanceInMeters,
                 LineColor = route.Path.LineColor,
-                Coordinates = route.Path.Coordinates
+                Coordinates = route.Path.Coordinates,
+                Info = route.Info
             };
     }
 }
