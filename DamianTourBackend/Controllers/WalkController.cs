@@ -63,7 +63,7 @@ namespace DamianTourBackend.Api.Controllers
 
         //begone
         [HttpPut(nameof(Stop))]
-        public async Task<IActionResult> Stop()
+        public IActionResult Stop()
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
 
@@ -129,13 +129,14 @@ namespace DamianTourBackend.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost(nameof(TestMail))]
-        public IActionResult TestMail(string id, string firstname, string lastname, string email, string distance, string date)
+        public IActionResult TestMail(string firstname, string lastname, string email, string distance, string date, string tourname)
         {
-            _mailService.SendCertificate(new CertificateDTO() { 
-                Id = id,
+            _mailService.SendRegistrationConfirmation(new RegistrationMailDTO()
+            {
+                Email = email,
                 FirstName = firstname,
                 LastName = lastname,
-                Email = email,
+                Tourname = tourname,
                 Distance = distance,
                 Date = date,
             });

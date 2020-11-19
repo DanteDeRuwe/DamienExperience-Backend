@@ -45,5 +45,21 @@ namespace DamianTourBackend.Infrastructure.Mailer
 
             _client.PostAsync("http://localhost:3000/mailcertificate", content);
         }
+
+        public void SendRegistrationConfirmation(RegistrationMailDTO dto) {
+            //email, firstname, lastname, tourname, distance, date
+            HttpContent content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    {"email", dto.Email},
+                    {"firstname", dto.FirstName},
+                    {"lastname", dto.LastName},
+                    {"tourname", dto.Tourname },
+                    {"distance", dto.Distance},
+                    {"date", dto.Date}
+                }
+           );
+
+            _client.PostAsync("http://localhost:3000/mailregistration", content);
+        }
     }
 }

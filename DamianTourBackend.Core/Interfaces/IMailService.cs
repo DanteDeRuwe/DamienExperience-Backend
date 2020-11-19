@@ -6,5 +6,6 @@ namespace DamianTourBackend.Core.Interfaces
     public interface IMailService
     {
         void SendCertificate(CertificateDTO dto);
+        void SendRegistrationConfirmation(RegistrationMailDTO dto);
     }
 }
