@@ -79,13 +79,25 @@ namespace DamianTourBackend.Api.Controllers
             walk.EndTime = DateTime.Now;
             _walkRepository.Update(user.Email, walk);
 
+            Registration reg = _registrationRepository.GetLast(user.Email);
+            Route route = _routeRepository.GetBy(reg.RouteId);
+
             //_mailService.SendCertificate();
+            _mailService.SendCertificate(new CertificateDTO()
+            {
+                Id = walk.Id.ToString(),
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Distance = (route.DistanceInMeters/1000).ToString() + " KM",
+                Date = DateTime.Now.ToString(),
+            });
 
             return Ok();
         }
 
-        [HttpPost(nameof(StartWalk))]
-        public IActionResult StartWalk()
+        [HttpPost(nameof(Start))]
+        public IActionResult Start()
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
 
@@ -119,16 +131,6 @@ namespace DamianTourBackend.Api.Controllers
         [HttpPost(nameof(TestMail))]
         public IActionResult TestMail(string id, string firstname, string lastname, string email, string distance, string date)
         {
-           /* if (!User.Identity.IsAuthenticated) return Unauthorized();
-
-            string mailAdress = User.Identity.Name;
-            if (mailAdress == null) return BadRequest();
-
-            var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return NotFound("User not found");*/
-
-           
-
             _mailService.SendCertificate(new CertificateDTO() { 
                 Id = id,
                 FirstName = firstname,
