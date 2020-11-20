@@ -43,6 +43,8 @@ namespace DamianTourBackend.Application.UpdateWaypoint
         public static ICollection<WaypointDTO> MapToWaypointDTOs(this ICollection<Waypoint> waypoints)
         {
             ICollection<WaypointDTO> res = new List<WaypointDTO>();
+            if (waypoints == null)
+                return null;
             foreach (Waypoint waypoint in waypoints)
             {
                 res.Add(MapToWaypointDTO(waypoint));
