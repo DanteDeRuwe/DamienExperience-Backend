@@ -1,4 +1,5 @@
-﻿using DamianTourBackend.Core.Entities;
+﻿using DamianTourBackend.Application.UpdateWaypoint;
+using DamianTourBackend.Core.Entities;
 
 namespace DamianTourBackend.Application.UpdateRoute
 {
@@ -21,6 +22,7 @@ namespace DamianTourBackend.Application.UpdateRoute
                 DistanceInMeters = model.DistanceInMeters,
                 Path = new Path { LineColor = model.LineColor, Coordinates = model.Coordinates },
                 Info = model.Info
+                Waypoints = WaypointMapper.MapToWaypoints(model.Waypoints)
             };
 
         public static RouteDTO MapToRouteDTO(this Route route) =>
@@ -33,6 +35,7 @@ namespace DamianTourBackend.Application.UpdateRoute
                 LineColor = route.Path.LineColor,
                 Coordinates = route.Path.Coordinates,
                 Info = route.Info
+                Waypoints = WaypointMapper.MapToWaypointDTOs(route.Waypoints)
             };
     }
 }
