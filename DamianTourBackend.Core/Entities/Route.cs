@@ -11,6 +11,7 @@ namespace DamianTourBackend.Core.Entities
         public DateTime Date { get; set; }
         public int DistanceInMeters { get; set; }
         public Path Path { get; set; }
+        public Dictionary<string, string> Info { get; set; }
         public ICollection<Waypoint> Waypoints { get; set; } 
 
         public Route() { }
@@ -21,6 +22,7 @@ namespace DamianTourBackend.Core.Entities
             Date = date;
             DistanceInMeters = distanceInMeters;
             Path = path;
+            Info = new Dictionary<string, string>();
             Waypoints = waypoints;
         }
     }
