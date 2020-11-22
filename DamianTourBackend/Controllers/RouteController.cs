@@ -105,9 +105,9 @@ namespace DamianTourBackend.Api.Controllers
         public IActionResult GetFutureRoutes()
         {   
             //maybe refactor into repomethod
+            
 
-
-            return Ok(_routeRepository.GetAll().Where(r => r.Date > DateTime.Now).Select(r => r.MapToRouteDTO()));
+            return Ok(_routeRepository.GetAll().Where(r => r.Date > DateTime.Now));
         } 
 
         /// <summary>
