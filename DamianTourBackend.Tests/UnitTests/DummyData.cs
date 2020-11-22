@@ -3,6 +3,7 @@ using DamianTourBackend.Application.Login;
 using DamianTourBackend.Application.Register;
 using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Application.UpdateProfile;
+using DamianTourBackend.Application.UpdateRoute;
 using DamianTourBackend.Core.Entities;
 using System;
 using System.Collections.Generic;
@@ -43,7 +44,10 @@ namespace DamianTourBackend.Tests.UnitTests
             .RuleFor(r => r.TourName, f => f.Random.Word())
             .RuleFor(r => r.DistanceInMeters, f => f.Random.Int(1, 100))
             .RuleFor(r => r.Id, f => Guid.NewGuid())
-            .RuleFor(r => r.Date, f => DateTime.Now);
+            .RuleFor(r => r.Date, f => DateTime.Now)
+            .RuleFor(r => r.Path, f => new Path() { LineColor = "Black", Coordinates = new List<double[]>() })
+            .RuleFor(r => r.Info, f => new Dictionary<string, string>())
+            ;
 
         public static readonly Faker<RouteRegistrationDTO> RouteRegistrationDTOFaker = new Faker<RouteRegistrationDTO>()
             .RuleFor(r => r.ShirtSize, f => f.PickRandom<ShirtSize>().ToString())

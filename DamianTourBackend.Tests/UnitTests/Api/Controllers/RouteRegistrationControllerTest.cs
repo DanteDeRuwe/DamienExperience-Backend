@@ -20,6 +20,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IRouteRepository _routeRepository;
         private readonly IRegistrationRepository _registrationRepository;
+        private readonly IMailService _mailService;
         private readonly IValidator<RouteRegistrationDTO> _validator;
         private readonly RouteRegistrationController _sut;
 
@@ -29,7 +30,8 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _routeRepository = Substitute.For<IRouteRepository>();
             _registrationRepository = Substitute.For<IRegistrationRepository>();
             _validator = Substitute.For<IValidator<RouteRegistrationDTO>>();
-            _sut = new RouteRegistrationController(_userRepository, _routeRepository, _registrationRepository, _validator);
+            _mailService = Substitute.For<IMailService>();
+            _sut = new RouteRegistrationController(_userRepository, _routeRepository, _registrationRepository, _mailService, _validator);
         }
 
         [Fact]
