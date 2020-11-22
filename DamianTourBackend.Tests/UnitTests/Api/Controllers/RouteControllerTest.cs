@@ -58,14 +58,19 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             result.Should().BeOfType<BadRequestResult>();
         }
         /*
+        TODO: Fix or delete comment
+        
         [Fact]
         public async Task Add_UserIsAdmin_RouteAdded()
         {
             // Arrange
             var user = DummyData.UserFaker.Generate();
             var routeDTO = DummyData.RouteFaker.Generate().MapToRouteDTO();
-            
-            //_userManager.FindByNameAsync(user.Email).Returns(new AppUser() { Claims = "admin"});
+
+            // Werkt nie......
+            var appUser = new AppUser() { Claims = new List<IdentityUserClaim<string>>() };
+            appUser.Claims.Add(new IdentityUserClaim<string>() { ClaimType = "admin"});
+            _userManager.FindByNameAsync(user.Email).Returns(appUser);
 
             // Act
             var result = _routeController.Add(routeDTO);
@@ -74,6 +79,45 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             result.Should().BeOfType<OkObjectResult>();
         }
         */
-        
+        /*
+        [Fact]
+        public async Task Add_UserIsNotAdmin_Fails()
+        {
+            // Arrange
+            var user = DummyData.UserFaker.Generate();
+            var routeDTO = DummyData.RouteFaker.Generate().MapToRouteDTO();
+
+            // Werkt nie................
+            var appUser = new AppUser();
+            _userManager.FindByNameAsync(user.Email).Returns(appUser);
+
+            // Act
+            var result = _routeController.Add(routeDTO);
+
+            // Assert
+            result.Should().BeOfType<UnauthorizedResult>();
+        }
+        */
+        [Fact]
+        private async Task GetFutureRoutes_Works()
+        {
+            // Arrange
+            var route = DummyData.RouteFaker.Generate();
+            var pastRoute = DummyData.PastRouteFaker.Generate();
+            var routes = new List<Route>();
+            routes.Add(route);
+            routes.Add(pastRoute);
+            _routeRepository.GetAll().Returns(routes);
+
+            // Act
+            var result = _routeController.GetAll();
+
+            // Assert
+            routes.Remove(pastRoute);
+
+            result.Should().BeOfType<OkObjectResult>();
+            ((OkObjectResult)result).Value.Should().BeSameAs(routes);
+
+        }
     }
 }

@@ -49,6 +49,15 @@ namespace DamianTourBackend.Tests.UnitTests
             .RuleFor(r => r.Info, f => new Dictionary<string, string>())
             ;
 
+        public static readonly Faker<Route> PastRouteFaker = new Faker<Route>()
+            .RuleFor(r => r.TourName, f => f.Random.Word())
+            .RuleFor(r => r.DistanceInMeters, f => f.Random.Int(1, 100))
+            .RuleFor(r => r.Id, f => Guid.NewGuid())
+            .RuleFor(r => r.Date, f => DateTime.Now.AddYears(-1))
+            .RuleFor(r => r.Path, f => new Path() { LineColor = "Black", Coordinates = new List<double[]>() })
+            .RuleFor(r => r.Info, f => new Dictionary<string, string>())
+            ;
+
         public static readonly Faker<RouteRegistrationDTO> RouteRegistrationDTOFaker = new Faker<RouteRegistrationDTO>()
             .RuleFor(r => r.ShirtSize, f => f.PickRandom<ShirtSize>().ToString())
             .RuleFor(r => r.OrderedShirt, f => f.Random.Bool())
