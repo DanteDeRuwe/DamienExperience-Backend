@@ -6,11 +6,11 @@ namespace DamianTourBackend.Api.Helpers
     {
         public static bool CheckEqualsDate(DateTime datetime1, DateTime datetime2)
         {
-            var date1 = datetime1.Date;
-            var date2 = datetime2.Date;
-            if (date1.Year != date2.Year) return false;
-            if (date1.Month != date2.Month) return false;
-            if (date1.Day != date2.Day) return false;
+            var routeDate = datetime1.Date;
+            var now = datetime2.Date;
+            if (routeDate.Year != now.Year) return false;
+            if (routeDate.Month != now.Month) return false;
+            if (routeDate.Day != now.Day) return false;
             return true;
         }
 

@@ -22,14 +22,17 @@ namespace DamianTourBackend.Api.Controllers
         private readonly IRouteRepository _routeRepository;
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IValidator<RouteRegistrationDTO> _routeRegistrationDTOValidator;
+        private readonly IMailService _mailService;
 
         public RouteRegistrationController(IUserRepository userRepository, IRouteRepository routeRepository,
-            IRegistrationRepository registrationRepository, IValidator<RouteRegistrationDTO> routeRegistrationDTOValidator)
+            IRegistrationRepository registrationRepository,
+            IMailService mailService, IValidator<RouteRegistrationDTO> routeRegistrationDTOValidator)
         {
             _userRepository = userRepository;
             _routeRepository = routeRepository;
             _registrationRepository = registrationRepository;
             _routeRegistrationDTOValidator = routeRegistrationDTOValidator;
+            _mailService = mailService;
         }
 
         [HttpPost("")]
@@ -58,6 +61,16 @@ namespace DamianTourBackend.Api.Controllers
             var registration = registrationDTO.MapToRegistration(user, route);
 
             _registrationRepository.Add(registration, mailAdress);
+
+            _mailService.SendRegistrationConfirmation(new RegistrationMailDTO
+            {
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Tourname = route.TourName,
+                Distance = (route.DistanceInMeters/1000).ToString(),
+                Date = route.Date.ToString()
+            });
 
             return Ok(registration);
         }
