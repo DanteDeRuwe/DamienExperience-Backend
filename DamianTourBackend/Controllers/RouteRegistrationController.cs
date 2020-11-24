@@ -76,10 +76,16 @@ namespace DamianTourBackend.Api.Controllers
             var registration = _registrationRepository.GetBy(id, email);
             if (registration == null) return BadRequest();
 
-            bool removed = user.Registrations.Remove(registration);
-            _registrationRepository.Delete(registration, email);
+            try
+            {
+                _registrationRepository.Delete(registration, email);
+            }
+            catch (Exception)
+            {
 
-            if (!removed) return BadRequest();
+                return BadRequest();
+            }
+
             return Ok(registration);
         }
 
