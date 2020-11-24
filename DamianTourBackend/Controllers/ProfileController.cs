@@ -1,4 +1,5 @@
 using AspNetCore.Identity.Mongo.Model;
+using DamianTourBackend.Api.Helpers;
 using DamianTourBackend.Application;
 using DamianTourBackend.Application.UpdateProfile;
 using DamianTourBackend.Core.Interfaces;
@@ -112,12 +113,10 @@ namespace DamianTourBackend.Api.Controllers
             AppUser admin = await _userManager.FindByEmailAsync(mailAdress);
             if (admin == null ) return BadRequest();
 
-            bool hasRole = admin.Claims.Any(c => c.ClaimValue.Equals("admin"));
-
             if (!await _roleManager.RoleExistsAsync("admin"))
                 await _roleManager.CreateAsync(new MongoRole("admin"));
 
-            if (!hasRole) return Unauthorized();
+            if (!admin.IsAdmin()) return Unauthorized();
 
 
             await _userManager.AddToRoleAsync(user, "admin");
@@ -138,10 +137,9 @@ namespace DamianTourBackend.Api.Controllers
 
             AppUser admin = await _userManager.FindByEmailAsync(mailAdress);
             if (admin == null) return BadRequest();
+            
 
-            bool hasRole = admin.Claims.Any(c => c.ClaimValue.Equals("admin"));
-
-            if (!hasRole) return Unauthorized();
+            if (!admin.IsAdmin()) return Unauthorized();
 
             await _userManager.RemoveFromRoleAsync(user, "admin");
             await _userManager.RemoveClaimAsync(user, new Claim(ClaimTypes.Role, "admin"));
