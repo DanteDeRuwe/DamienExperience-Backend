@@ -158,8 +158,6 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
                     options => options.Using(new EnumAsStringAssertionRule()) //treat enums as strings
                 );
 
-            user.Registrations.Count.Should().Be(numberOfRegistrations-1);
-            user.Registrations.Should().NotContain(registration);
             
             _userRepository.Received().GetBy(user.Email);
             _registrationRepository.Received().Delete(registration, user.Email);
