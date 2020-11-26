@@ -3,6 +3,7 @@ using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using System;
@@ -16,6 +17,8 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IWalkRepository _walkRepository;
         private readonly IRegistrationRepository _registrationRepository;
+        private readonly IMailService _mailService;
+        private readonly IConfiguration _configuration;
         private readonly WalkController _sut;
         private readonly IRouteRepository _routeRepository;
 
@@ -25,8 +28,10 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _walkRepository = Substitute.For<IWalkRepository>();
             _registrationRepository = Substitute.For<IRegistrationRepository>();
             _routeRepository = Substitute.For<IRouteRepository>();
+            _mailService = Substitute.For<IMailService>();
+            _configuration = Substitute.For<IConfiguration>();
 
-            _sut = new WalkController(_userRepository, _walkRepository, _registrationRepository, _routeRepository);
+            _sut = new WalkController(_userRepository, _walkRepository, _registrationRepository, _routeRepository, _mailService, _configuration);
         }
 
         [Fact]
@@ -128,7 +133,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _walkRepository.GetByUserAndRoute(user.Id, route.Id).ReturnsNull();
 
             //Act
-            var result = _sut.StartWalk();
+            var result = _sut.Start();
 
             //Assert
             result.Should().BeOfType<OkResult>();
@@ -154,7 +159,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _walkRepository.GetByUserAndRoute(user.Id, route.Id).Returns(new Walk());
 
             //Act
-            var result = _sut.StartWalk();
+            var result = _sut.Start();
 
             //Assert
             result.Should().BeOfType<OkResult>();
@@ -180,7 +185,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _walkRepository.GetByUserAndRoute(user.Id, route.Id).Returns(new Walk());
 
             //Act
-            var result = _sut.StartWalk();
+            var result = _sut.Start();
 
             //Assert
             result.Should().BeOfType<NotFoundObjectResult>();
@@ -205,7 +210,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _walkRepository.GetByUserAndRoute(user.Id, route.Id).Returns(new Walk());
 
             //Act
-            var result = _sut.StartWalk();
+            var result = _sut.Start();
 
             //Assert
             result.Should().BeOfType<NotFoundObjectResult>();
@@ -232,7 +237,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _walkRepository.GetByUserAndRoute(user.Id, route.Id).Returns(new Walk());
 
             //Act
-            var result = _sut.StartWalk();
+            var result = _sut.Start();
 
             //Assert
             result.Should().BeOfType<NotFoundObjectResult>();
