@@ -62,7 +62,7 @@ namespace DamianTourBackend.Api.Controllers
             route.Waypoints = waypoints;
             _routeRepository.Update(route);
 
-            return Ok();
+            return Ok(waypoints);
         }
 
 
