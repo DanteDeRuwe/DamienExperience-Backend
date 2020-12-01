@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using DamianTourBackend.Api.Helpers;
+using DamianTourBackend.Application;
 using DamianTourBackend.Application.UpdateWaypoint;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
-using DamianTourBackend.Api.Helpers;
-using DamianTourBackend.Application;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -37,25 +34,27 @@ namespace DamianTourBackend.Api.Controllers
         [HttpGet(nameof(Get))]
         public IActionResult Get(string tourName)
         {
-            
+
             var route = _routeRepository.GetByName(tourName);
             if (route == null) return BadRequest();
-            
+
             IEnumerable<Waypoint> waypoints = route.Waypoints;
             return Ok(waypoints);
         }
 
         [HttpPost(nameof(AddWaypoints))]
-        public IActionResult AddWaypoints(string tourName, ICollection<WaypointDTO> dtos) 
+        public IActionResult AddWaypoints(UpdateWaypointDTO updateWaypoint)
         {
+            //needed to put it in an object 
             if (!IsAdmin().Result) return Unauthorized();
 
-            var route = _routeRepository.GetByName(tourName);
+            var route = _routeRepository.GetByName(updateWaypoint.TourName);
             if (route == null) return BadRequest();
 
             ICollection<Waypoint> waypoints = new List<Waypoint>();
 
-            foreach (WaypointDTO dto in dtos) {
+            foreach (var dto in updateWaypoint.Dtos)
+            {
                 waypoints.Add(dto.MapToWaypoint());
             }
 
@@ -64,8 +63,6 @@ namespace DamianTourBackend.Api.Controllers
 
             return Ok(waypoints);
         }
-
-
 
 
         [HttpPut(nameof(AddWaypoint))]
