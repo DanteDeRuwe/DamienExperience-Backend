@@ -146,5 +146,18 @@ namespace DamianTourBackend.Api.Controllers
 
             return Ok();
         }
-    }
+
+        [HttpGet(nameof(IsAdmin))]
+        public async Task<ActionResult> IsAdmin()
+        {
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null || mailAdress.Equals("")) return Unauthorized();
+
+            AppUser admin = await _userManager.FindByEmailAsync(mailAdress);
+            if (admin == null) return BadRequest();
+
+
+            return Ok(admin.IsAdmin());
+        }        
+     }
 }

@@ -132,6 +132,8 @@ namespace DamianTourBackend.Api.Controllers
         //temp method to check claims
         private async Task<bool> IsAdmin()
         {
+            if (User.Identity.Name == null) return false;
+
             AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
 
             return user.Claims.Any(c => c.ClaimValue.Equals("admin"));
