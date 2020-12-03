@@ -157,9 +157,7 @@ namespace DamianTourBackend.Api.Controllers
             if (admin == null) return BadRequest();
 
 
-            if (!admin.IsAdmin()) { return Ok(false); } else {
-                return Ok(true);
-            }
+            return Ok(admin.IsAdmin());
         }        
      }
 }
