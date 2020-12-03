@@ -100,7 +100,10 @@ namespace DamianTourBackend.Api.Controllers
 
         private async Task<bool> IsAdmin()
         {
+            if (User.Identity.Name == null) return false;
+
             AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+
             return user.IsAdmin();
         }
     }
