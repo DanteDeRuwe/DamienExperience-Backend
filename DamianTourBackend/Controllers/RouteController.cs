@@ -71,7 +71,7 @@ namespace DamianTourBackend.Api.Controllers
             Route route = routeDTO.MapToRoute();
             _routeRepository.Add(route);
 
-            return Ok();
+            return Ok(route);
         }
 
         /// <summary>
