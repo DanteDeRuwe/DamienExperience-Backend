@@ -71,7 +71,7 @@ namespace DamianTourBackend.Api.Controllers
             Route route = routeDTO.MapToRoute();
             _routeRepository.Add(route);
 
-            return Ok();
+            return Ok(route);
         }
 
         /// <summary>
@@ -116,10 +116,8 @@ namespace DamianTourBackend.Api.Controllers
         public IActionResult GetFutureRoutes()
         {
             //maybe refactor into repomethod
-
-
-            return Ok(_routeRepository.GetAll().Where(r => r.Date > DateTime.Now).Select(r => r.MapToRouteDTO()));
-        }
+            return Ok(_routeRepository.GetAll().Where(r => r.Date > DateTime.Now));
+        } 
 
         /// <summary>
         /// Gets all the routes
@@ -134,6 +132,8 @@ namespace DamianTourBackend.Api.Controllers
         //temp method to check claims
         private async Task<bool> IsAdmin()
         {
+            if (User.Identity.Name == null) return false;
+
             AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
 
             return user.Claims.Any(c => c.ClaimValue.Equals("admin"));
