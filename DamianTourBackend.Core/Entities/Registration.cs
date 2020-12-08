@@ -7,7 +7,7 @@ namespace DamianTourBackend.Core.Entities
 
         public Guid Id { get; set; }
         public DateTime TimeStamp { get; set; }
-        // public bool Paid { get; set; } vragen aan klant
+        public bool Paid { get; set; }
         //public Route Route { get; set; }
         public Guid RouteId { get; set; }
         //public User User { get; set; }
@@ -17,7 +17,7 @@ namespace DamianTourBackend.Core.Entities
 
         public Registration() { }
 
-        public Registration(DateTime timeStamp, Route route, User user, bool orderedShirt, ShirtSize shirtSize)
+        public Registration(DateTime timeStamp, Route route, User user, bool orderedShirt, ShirtSize shirtSize, bool paid = false)
         {
             Id = Guid.NewGuid();
             TimeStamp = timeStamp;
@@ -27,6 +27,7 @@ namespace DamianTourBackend.Core.Entities
             OrderedShirt = orderedShirt;
             ShirtSize = shirtSize;
             user.Registrations.Add(this);
+            Paid = paid;
         }
     }
 }

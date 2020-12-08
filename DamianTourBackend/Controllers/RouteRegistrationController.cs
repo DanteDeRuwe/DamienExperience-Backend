@@ -68,7 +68,7 @@ namespace DamianTourBackend.Api.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Tourname = route.TourName,
-                Distance = (route.DistanceInMeters/1000).ToString(),
+                Distance = (route.DistanceInMeters / 1000).ToString(),
                 Date = route.Date.ToString()
             });
 
@@ -100,6 +100,23 @@ namespace DamianTourBackend.Api.Controllers
             }
 
             return Ok(registration);
+        }
+
+        [HttpPost("RegistrationIsPaid")]
+        public IActionResult RegistrationIsPaid(string registrationId, string email)
+        {
+            var id = Guid.Parse(registrationId);
+
+            var user = _userRepository.GetBy(email);
+            if (user == null) return BadRequest();
+
+            var registration = _registrationRepository.GetBy(id, email);
+            if (registration == null) return BadRequest();
+
+            registration.Paid = true;
+            _registrationRepository.Update(registration, email);
+
+            return Ok();
         }
 
         [HttpGet("GetAll")]
