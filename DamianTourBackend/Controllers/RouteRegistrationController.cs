@@ -188,7 +188,7 @@ namespace DamianTourBackend.Api.Controllers
             if (user == null) return BadRequest();
 
             var registration = _registrationRepository.GetLast(email);
-            
+
             if (registration == null) return BadRequest();
             if (registration.Paid) return BadRequest();
 
@@ -196,7 +196,7 @@ namespace DamianTourBackend.Api.Controllers
             var route = _routeRepository.GetBy(registration.RouteId);
             string amount = registration.OrderedShirt ? "6500" : "5000";
             string shasign = CalculateShaSign(amount, "EUR", email, language, registration.Id.ToString(), "damiaanacties", user.Id.ToString());
-            
+
             RegistrationPaymentDTO registrationPaymentDTO = new RegistrationPaymentDTO()
             {
                 Amount = amount,
@@ -204,7 +204,7 @@ namespace DamianTourBackend.Api.Controllers
                 Email = email,
                 Language = language,
                 OrderId = registration.Id.ToString(),
-                PspId = "damiaanacties",
+                PspId = "damiaanactie",
                 UserId = user.Id.ToString(),
                 ShaSign = shasign,
                 RouteName = route.TourName
@@ -212,13 +212,13 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(registrationPaymentDTO);
         }
 
-        
+
 
         public string CalculateShaSign(string amount, string currency, string email, string language, string orderid, string pspid, string userid)
         {
             string hash;
             string key = _config["Payment:Key"];
-            string input = 
+            string input =
                 "AMOUNT=" + amount + key +
                 "CURRENCY=" + currency + key +
                 "EMAIL=" + email + key +
@@ -226,7 +226,7 @@ namespace DamianTourBackend.Api.Controllers
                 "ORDERID=" + orderid + key +
                 "PSPID=" + pspid + key +
                 "USERID=" + userid + key;
-            using(SHA1 sha1Hash = SHA1.Create())
+            using (SHA1 sha1Hash = SHA1.Create())
             {
                 byte[] sourceBytes = Encoding.UTF8.GetBytes(input);
                 byte[] hashBytes = sha1Hash.ComputeHash(sourceBytes);
