@@ -178,7 +178,7 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(DateCheckHelper.CheckGreaterThenOrEqualsDate(route.Date));
         }
 
-        [HttpGet("GeneratePaymentData")]
+        [HttpGet("GeneratePaymentData/{language}")]
         public IActionResult GeneratePaymentData(string language)
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
