@@ -195,7 +195,7 @@ namespace DamianTourBackend.Api.Controllers
 
             var route = _routeRepository.GetBy(registration.RouteId);
             string amount = registration.OrderedShirt ? "6500" : "5000";
-            string shasign = CalculateShaSign(amount, "EUR", email, language, registration.Id.ToString(), "damiaanacties", user.Id.ToString());
+            string shasign = CalculateShaSign(amount, "EUR", email, language, registration.Id.ToString(), "damiaanactie", user.Id.ToString());
 
             RegistrationPaymentDTO registrationPaymentDTO = new RegistrationPaymentDTO()
             {
@@ -232,7 +232,7 @@ namespace DamianTourBackend.Api.Controllers
                 byte[] hashBytes = sha1Hash.ComputeHash(sourceBytes);
                 hash = BitConverter.ToString(hashBytes).Replace("-", String.Empty);
             }
-            return hash;
+            return hash.ToLower();
         }
     }
 }
