@@ -212,10 +212,12 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(registrationPaymentDTO);
         }
 
+        
+
         public string CalculateShaSign(string amount, string currency, string email, string language, string orderid, string pspid, string userid)
         {
             string hash;
-            string key = _config["PaymentKey:Key"];
+            string key = _config["Payment:Key"];
             string input = 
                 "AMOUNT=" + amount + key +
                 "CURRENCY=" + currency + key +
