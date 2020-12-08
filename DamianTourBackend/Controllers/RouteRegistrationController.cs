@@ -1,4 +1,5 @@
-﻿using DamianTourBackend.Application.RouteRegistration;
+﻿using DamianTourBackend.Api.Helpers;
+using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentValidation;
@@ -21,14 +22,17 @@ namespace DamianTourBackend.Api.Controllers
         private readonly IRouteRepository _routeRepository;
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IValidator<RouteRegistrationDTO> _routeRegistrationDTOValidator;
+        private readonly IMailService _mailService;
 
         public RouteRegistrationController(IUserRepository userRepository, IRouteRepository routeRepository,
-            IRegistrationRepository registrationRepository, IValidator<RouteRegistrationDTO> routeRegistrationDTOValidator)
+            IRegistrationRepository registrationRepository,
+            IMailService mailService, IValidator<RouteRegistrationDTO> routeRegistrationDTOValidator)
         {
             _userRepository = userRepository;
             _routeRepository = routeRepository;
             _registrationRepository = registrationRepository;
             _routeRegistrationDTOValidator = routeRegistrationDTOValidator;
+            _mailService = mailService;
         }
 
         [HttpPost("")]
@@ -58,9 +62,19 @@ namespace DamianTourBackend.Api.Controllers
 
             _registrationRepository.Add(registration, mailAdress);
 
+            _mailService.SendRegistrationConfirmation(new RegistrationMailDTO
+            {
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Tourname = route.TourName,
+                Distance = (route.DistanceInMeters/1000).ToString(),
+                Date = route.Date.ToString()
+            });
+
             return Ok(registration);
         }
-        
+
         [HttpDelete("")]
         public IActionResult Delete(Guid id)
         {
@@ -75,10 +89,16 @@ namespace DamianTourBackend.Api.Controllers
             var registration = _registrationRepository.GetBy(id, email);
             if (registration == null) return BadRequest();
 
-            bool removed = user.Registrations.Remove(registration);
-            _registrationRepository.Delete(registration, email);
+            try
+            {
+                _registrationRepository.Delete(registration, email);
+            }
+            catch (Exception)
+            {
 
-            if (!removed) return BadRequest();
+                return BadRequest();
+            }
+
             return Ok(registration);
         }
 
@@ -92,10 +112,10 @@ namespace DamianTourBackend.Api.Controllers
 
             var user = _userRepository.GetBy(mailAdress);
             if (user == null) return BadRequest();
-            
+
             var all = _registrationRepository.GetAllFromUser(mailAdress);
             if (all == null || !all.Any()) return NotFound();
-            
+
             return Ok(all);
         }
 
@@ -112,7 +132,7 @@ namespace DamianTourBackend.Api.Controllers
 
             var last = _registrationRepository.GetLast(mailAdress);
             if (last == null) return NotFound();
-            
+
             return Ok(last);
         }
 
@@ -133,7 +153,7 @@ namespace DamianTourBackend.Api.Controllers
             Route route = _routeRepository.GetBy(reg.RouteId);
             if (route == null) return NotFound();
 
-            return Ok(route.Date > DateTime.Now);
+            return Ok(DateCheckHelper.CheckGreaterThenOrEqualsDate(route.Date));
         }
     }
 }

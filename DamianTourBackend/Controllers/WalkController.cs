@@ -1,16 +1,15 @@
+using DamianTourBackend.Api.Helpers;
+using DamianTourBackend.Core.Entities;
+using DamianTourBackend.Core.Interfaces;
+using DamianTourBackend.Infrastructure.Mailer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DamianTourBackend.Application;
-using DamianTourBackend.Application.UpdateWalk;
-using DamianTourBackend.Core.Entities;
-using DamianTourBackend.Core.Interfaces;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -24,17 +23,23 @@ namespace DamianTourBackend.Api.Controllers
         private readonly IWalkRepository _walkRepository;
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IRouteRepository _routeRepository;
+        private readonly IConfiguration _configuration;
+        private readonly IMailService _mailService;
 
         public WalkController(
             IUserRepository userRepository,
             IWalkRepository walkRepository,
             IRegistrationRepository registrationRepository,
-            IRouteRepository routeRepository)
+            IRouteRepository routeRepository,
+            IMailService mailService,
+             IConfiguration config)
         {
             _userRepository = userRepository;
             _walkRepository = walkRepository;
             _registrationRepository = registrationRepository;
             _routeRepository = routeRepository;
+            _configuration = config;
+            _mailService = mailService;
         }
 
         [HttpGet("{email}")]
@@ -55,8 +60,10 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(walk);
         }
 
-        [HttpPut(nameof(StopWalk))]
-        public IActionResult StopWalk()
+
+        //begone
+        [HttpPut(nameof(Stop))]
+        public IActionResult Stop()
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
 
@@ -66,35 +73,79 @@ namespace DamianTourBackend.Api.Controllers
             var user = _userRepository.GetBy(mailAdress);
             if (user == null) return BadRequest();
 
+            Walk walk = user.Walks.Last();
+            if (walk == null) return NotFound();
 
+            walk.EndTime = DateTime.Now;
+            _walkRepository.Update(user.Email, walk);
 
-            return Ok(user);
+            Registration reg = _registrationRepository.GetLast(user.Email);
+            Route route = _routeRepository.GetBy(reg.RouteId);
+
+            //_mailService.SendCertificate();
+            _mailService.SendCertificate(new CertificateDTO()
+            {
+                Id = walk.Id.ToString(),
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Distance = (route.DistanceInMeters/1000).ToString() + " KM",
+                Date = DateTime.Now.ToString(),
+            });
+
+            return Ok();
         }
 
-        [HttpPost(nameof(StartWalk))]
-        public IActionResult StartWalk()
+        [HttpPost(nameof(Start))]
+        public IActionResult Start()
         {
-
             if (!User.Identity.IsAuthenticated) return Unauthorized();
 
             string mailAdress = User.Identity.Name;
             if (mailAdress == null) return BadRequest();
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();
+            if (user == null) return NotFound("User not found");
 
-            var routeid = _registrationRepository.GetLast(mailAdress).RouteId;
-            var route = _routeRepository.GetBy(routeid);
+            var registration = _registrationRepository.GetLast(mailAdress);
+            if (registration == null) return NotFound("Registration not found");
 
-            var walk = new Walk(DateTime.Now, route);
+            var route = _routeRepository.GetBy(registration.RouteId);
+            if (route == null) return NotFound("Route not found");
 
-            _walkRepository.Add(mailAdress, walk);
+            var walk = _walkRepository.GetByUserAndRoute(user.Id, route.Id);
+            var now = DateTime.Now;
 
-            return Ok(walk);
+            if (walk == null 
+               // && DateCheckHelper.CheckEqualsDate(route.Date, now)
+                )
+            {
+                walk = new Walk(DateTime.Now, route);
+
+                _walkRepository.Add(mailAdress, walk);
+            }
+            return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpPost(nameof(TestMail))]
+        public IActionResult TestMail(string firstname, string lastname, string email, string distance, string date, string tourname)
+        {
+            _mailService.SendRegistrationConfirmation(new RegistrationMailDTO()
+            {
+                Email = email,
+                FirstName = firstname,
+                LastName = lastname,
+                Tourname = tourname,
+                Distance = distance,
+                Date = date,
+            });
+            return Ok();
         }
 
         [HttpPut(nameof(Update))]
-        public IActionResult Update(List<double[]> coords) {
+        public IActionResult Update(List<double[]> coords)
+        {
             User user = _userRepository.GetBy(User.Identity.Name);
             if (user == null) return NotFound("User not found");
 
@@ -110,5 +161,6 @@ namespace DamianTourBackend.Api.Controllers
 
             return Ok(walk);
         }
+
     }
 }
