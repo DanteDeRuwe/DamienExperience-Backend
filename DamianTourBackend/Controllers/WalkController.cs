@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DamianTourBackend.Api.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -25,6 +27,7 @@ namespace DamianTourBackend.Api.Controllers
         private readonly IRouteRepository _routeRepository;
         private readonly IConfiguration _configuration;
         private readonly IMailService _mailService;
+        private readonly IHubContext<TrackingHub> _trackingHub;
 
         public WalkController(
             IUserRepository userRepository,
@@ -32,7 +35,8 @@ namespace DamianTourBackend.Api.Controllers
             IRegistrationRepository registrationRepository,
             IRouteRepository routeRepository,
             IMailService mailService,
-             IConfiguration config)
+            IConfiguration config, 
+            IHubContext<TrackingHub> trackingHub)
         {
             _userRepository = userRepository;
             _walkRepository = walkRepository;
@@ -40,6 +44,8 @@ namespace DamianTourBackend.Api.Controllers
             _routeRepository = routeRepository;
             _configuration = config;
             _mailService = mailService;
+            _trackingHub = trackingHub;
+
         }
 
         [HttpGet("{email}")]
@@ -158,6 +164,10 @@ namespace DamianTourBackend.Api.Controllers
             walk.AddCoords(coords);
 
             _walkRepository.Update(user.Email, walk);
+            
+            //Invoke signalr to notify people that track this walker
+            //TODO only send to tracking clients
+            _trackingHub.Clients.All.SendAsync("updateWalk", walk);
 
             return Ok(walk);
         }
