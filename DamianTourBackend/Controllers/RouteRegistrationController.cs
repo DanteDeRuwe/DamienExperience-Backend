@@ -267,21 +267,21 @@ namespace DamianTourBackend.Api.Controllers
             string hash;
             string key = _config["PaymentResponse:Key"];
             string input =
-                "AAVADDRESS=" + dto.Aavaddress + key +
-                "ACCEPTANCE=" + dto.Acceptance + key +
+                //"AAVADDRESS=" + dto.Aavaddress + key +
+                //"ACCEPTANCE=" + dto.Acceptance + key +
                 "AMOUNT=" + dto.Amount + key +
-                "BRAND=" + dto.Brand + key +
-                "CARDNO=" + dto.CardNo + key +
-                "CN=" + dto.CN + key +
+                //"BRAND=" + dto.Brand + key +
+                //"CARDNO=" + dto.CardNo + key +
+                //"CN=" + dto.CN + key +
                 "CURRENCY=" + dto.Currency + key +
-                "ED=" + dto.ED + key +
-                "IP=" + dto.IP + key +
+                //"ED=" + dto.ED + key +
+                //"IP=" + dto.IP + key +
                 "NCERROR=" + dto.NCError + key +
                 "ORDERID=" + dto.OrderID + key +
                 "PAYID=" + dto.PayId + key +
-                "PM=" + dto.PM + key +
-                "STATUS=" + dto.Status + key +
-                "TRXDATE=" + dto.TRXDate + key;
+                //"PM=" + dto.PM + key +
+                "STATUS=" + dto.Status + key;//+
+                                             //"TRXDATE=" + dto.TRXDate + key;
 
             using (SHA1 sha1Hash = SHA1.Create())
             {
