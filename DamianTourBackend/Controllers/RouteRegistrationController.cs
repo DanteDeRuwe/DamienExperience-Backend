@@ -10,8 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -196,7 +194,7 @@ namespace DamianTourBackend.Api.Controllers
 
             var route = _routeRepository.GetBy(registration.RouteId);
             string amount = registration.OrderedShirt ? "6500" : "5000";
-            string shasign = CalculateNewShaSign(amount, "EUR", email, language, registration.Id.ToString(), "damiaanactie", user.Id.ToString());
+            string shasign = EncoderHelper.CalculateNewShaSign(_config, amount, "EUR", email, language, registration.Id.ToString(), "damiaanactie", user.Id.ToString());
 
             RegistrationPaymentDTO registrationPaymentDTO = new RegistrationPaymentDTO()
             {
@@ -227,7 +225,7 @@ namespace DamianTourBackend.Api.Controllers
             if (registration == null) return BadRequest();
             if (registration.Paid) return BadRequest();
 
-            var valid = ControlShaSign(dto);
+            var valid = EncoderHelper.ControlShaSign(_config, dto);
 
             if (valid)
             {
@@ -241,56 +239,6 @@ namespace DamianTourBackend.Api.Controllers
 
         }
 
-        private string CalculateNewShaSign(string amount, string currency, string email, string language, string orderid, string pspid, string userid)
-        {
-            string hash;
-            string key = _config["Payment:Key"];
-            string input =
-                "AMOUNT=" + amount + key +
-                "CURRENCY=" + currency + key +
-                "EMAIL=" + email + key +
-                "LANGUAGE=" + language + key +
-                "ORDERID=" + orderid + key +
-                "PSPID=" + pspid + key +
-                "USERID=" + userid + key;
-            using (SHA1 sha1Hash = SHA1.Create())
-            {
-                byte[] sourceBytes = Encoding.UTF8.GetBytes(input);
-                byte[] hashBytes = sha1Hash.ComputeHash(sourceBytes);
-                hash = BitConverter.ToString(hashBytes).Replace("-", String.Empty);
-            }
-            return hash.ToLower();
-        }
 
-        private bool ControlShaSign(PaymentResponseDTO dto)
-        {
-            string hash;
-            string key = _config["PaymentResponse:Key"];
-            string input =
-                //"AAVADDRESS=" + dto.Aavaddress + key +
-                //"ACCEPTANCE=" + dto.Acceptance + key +
-                "AMOUNT=" + dto.Amount + key +
-                //"BRAND=" + dto.Brand + key +
-                //"CARDNO=" + dto.CardNo + key +
-                //"CN=" + dto.CN + key +
-                "CURRENCY=" + dto.Currency + key +
-                //"ED=" + dto.ED + key +
-                //"IP=" + dto.IP + key +
-                "NCERROR=" + dto.NCError + key +
-                "ORDERID=" + dto.OrderID + key +
-                "PAYID=" + dto.PayId + key +
-                //"PM=" + dto.PM + key +
-                "STATUS=" + dto.Status + key;//+
-                                             //"TRXDATE=" + dto.TRXDate + key;
-
-            using (SHA1 sha1Hash = SHA1.Create())
-            {
-                byte[] sourceBytes = Encoding.UTF8.GetBytes(input);
-                byte[] hashBytes = sha1Hash.ComputeHash(sourceBytes);
-                hash = BitConverter.ToString(hashBytes).Replace("-", String.Empty).ToLower();
-            }
-
-            return dto.ShaSign.ToLower().Equals(hash);
-        }
     }
 }
