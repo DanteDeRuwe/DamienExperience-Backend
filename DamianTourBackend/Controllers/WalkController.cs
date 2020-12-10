@@ -167,7 +167,8 @@ namespace DamianTourBackend.Api.Controllers
             
             //Invoke signalr to notify people that track this walker
             //TODO only send to tracking clients
-            _trackingHub.Clients.All.SendAsync("updateWalk", walk);
+            _trackingHub.Clients.Group(User.Identity.Name)
+                .SendAsync("updateWalk", walk);
 
             return Ok(walk);
         }
