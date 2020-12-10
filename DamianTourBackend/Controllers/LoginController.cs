@@ -28,6 +28,11 @@ namespace DamianTourBackend.Api.Controllers
             _configuration = config;
         }
 
+        /// <summary>
+        /// Logs the user in
+        /// </summary>
+        /// <param name="model">LoginDTO containing an email and password</param>
+        /// <returns>OK with token</returns>
         [HttpPost("")]
         public async Task<IActionResult> Login(LoginDTO model)
         {

@@ -35,6 +35,11 @@ namespace DamianTourBackend.Api.Controllers
             _mailService = mailService;
         }
 
+        /// <summary>
+        /// Creates a new RouteRegistration for the current user using RouteRegistrationDTO
+        /// </summary>
+        /// <param name="registrationDTO">RouteRegistrationDTO containing the id of the chosen route, and shirtsize</param>
+        /// <returns>ok with the registration or Unauthorized if user isn't logged in, or BadRequest if user/registration isn't valid</returns>
         [HttpPost("")]
         public IActionResult Post(RouteRegistrationDTO registrationDTO)
         {
@@ -75,6 +80,11 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(registration);
         }
 
+        /// <summary>
+        /// Deletes a RouteRegistration with the given id
+        /// </summary>
+        /// <param name="id">Guid id of the registration to be deleted</param>
+        /// <returns>Ok with registration that got deleted, or Unauthorized if user isn't logged in or BadRequest if user/registration is invalid</returns>
         [HttpDelete("")]
         public IActionResult Delete(Guid id)
         {
@@ -101,7 +111,11 @@ namespace DamianTourBackend.Api.Controllers
 
             return Ok(registration);
         }
-
+        
+        /// <summary>
+        /// Returns all RouteRegistrations from current user
+        /// </summary>
+        /// <returns>Ok with all Registrations from current user</returns>
         [HttpGet("GetAll")]
         public IActionResult GetAll()
         {
@@ -119,6 +133,10 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(all);
         }
 
+        /// <summary>
+        /// Returns the last registration from the current user
+        /// </summary>
+        /// <returns>Ok with last registration</returns>
         [HttpGet("GetLast")]
         public IActionResult GetLast()
         {
@@ -136,6 +154,10 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(last);
         }
 
+        /// <summary>
+        /// Looks for registrations in the future
+        /// </summary>
+        /// <returns>Ok with boolean if user has future registrations</returns>
         [HttpGet("CheckCurrentRegistered")]
         public IActionResult CheckCurrentRegistered()
         {
