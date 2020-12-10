@@ -227,16 +227,9 @@ namespace DamianTourBackend.Api.Controllers
 
             var valid = EncoderHelper.ControlShaSign(_config, dto);
 
-            if (valid)
-            {
-                return Ok(valid);
-            }
-            else
-            {
-                return Ok(valid);
-            }
+            var route = _routeRepository.GetBy(registration.RouteId);
 
-
+            return Ok(new { TourName = route.TourName, Valid = valid });
         }
 
 
