@@ -8,6 +8,8 @@
     <PackageReference Include="AspNetCore.Identity.Mongo" Version="6.7.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.9" />
     <PackageReference Include="MongoDB.Driver" Version="2.11.2" />
+    <PackageReference Include="sautinsoft.document" Version="5.0.10.23" />
+    <PackageReference Include="SendGrid" Version="9.21.1" />
   </ItemGroup>
 
   <ItemGroup>
