@@ -226,6 +226,8 @@ namespace DamianTourBackend.Api.Controllers
             if (registration.Paid) return BadRequest();
 
             var valid = EncoderHelper.ControlShaSign(_config, dto);
+            registration.Paid = valid;
+            _registrationRepository.Update(registration, email);
 
             var route = _routeRepository.GetBy(registration.RouteId);
 
