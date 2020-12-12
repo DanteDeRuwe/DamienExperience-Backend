@@ -56,7 +56,9 @@ namespace DamianTourBackend.Api.Controllers
             if (DateCheckHelper.CheckBeforeToday(route.Date))
                 return BadRequest("You cannot register for a route in the past.");
 
-            if(DateCheckHelper.CheckAfterOrEqualsToday(_routeRepository.GetBy(_registrationRepository.GetLast(mailAdress).RouteId).Date))
+            var last = _registrationRepository.GetLast(mailAdress);
+            if(last != null)
+                if (DateCheckHelper.CheckAfterOrEqualsToday(_routeRepository.GetBy(last.RouteId).Date))
                     return BadRequest("You are already registered for a route this year.");
 
             //should happen in frontend 
