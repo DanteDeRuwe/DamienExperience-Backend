@@ -1,7 +1,5 @@
-using DamianTourBackend.Api.Helpers;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
-using DamianTourBackend.Infrastructure.Mailer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -89,7 +86,7 @@ namespace DamianTourBackend.Api.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                Distance = (route.DistanceInMeters/1000).ToString() + " KM",
+                Distance = (route.DistanceInMeters / 1000).ToString() + " KM",
                 Date = DateTime.Now.ToString(),
             });
 
@@ -110,14 +107,17 @@ namespace DamianTourBackend.Api.Controllers
             var registration = _registrationRepository.GetLast(mailAdress);
             if (registration == null) return NotFound("Registration not found");
 
+            //TODO this check needs to happen in rproduction
+            //test
+            //if(!registration.Paid) return BadRequest("Registration has not been paid");
+
             var route = _routeRepository.GetBy(registration.RouteId);
             if (route == null) return NotFound("Route not found");
 
             var walk = _walkRepository.GetByUserAndRoute(user.Id, route.Id);
-            var now = DateTime.Now;
 
-            if (walk == null 
-               // && DateCheckHelper.CheckEqualsDate(route.Date, now)
+            if (walk == null
+                // && DateCheckHelper.CheckEqualsDate(route.Date, now)
                 )
             {
                 walk = new Walk(DateTime.Now, route);
