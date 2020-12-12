@@ -46,13 +46,35 @@ namespace DamianTourBackend.Api.Controllers
         [AllowAnonymous]
         public IActionResult SearchWalk(string email)
         {
-            //if (!User.Identity.IsAuthenticated) return Unauthorized(); // wachtend optiesysteem (publieke wandelaar)
-
             var walker = _userRepository.GetBy(email);
             if (walker == null) return NotFound();
 
             var registration = _registrationRepository.GetLast(email);
             if (registration == null) return NotFound();
+
+            switch (registration.Privacy)
+            {
+                case Privacy.PRIVATE:
+                    return Ok();
+                    //break;
+                case Privacy.FRIENDS:
+                    if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+                    string mailAdress = User.Identity.Name;
+                    if (mailAdress == null) return BadRequest();
+
+                    var user = _userRepository.GetBy(mailAdress);
+                    if (user == null) return BadRequest();
+
+                    //indien geen vriend, geen walk zichtbaar maken
+                    if (!user.IsFriend(user.Email))
+                        return Ok();
+                    break;
+                //case Privacy.EVERYONE:
+                //    break;
+                default:
+                    break;
+            }
 
             var walk = _walkRepository.GetByUserAndRoute(walker.Id, registration.RouteId);
             if (walk == null) return NotFound();

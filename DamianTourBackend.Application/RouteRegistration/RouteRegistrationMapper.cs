@@ -9,8 +9,9 @@ namespace DamianTourBackend.Application.RouteRegistration
         {
             ShirtSize modelShirtSize = ShirtSize.GEEN;
             Enum.TryParse(model.ShirtSize, out modelShirtSize);
-            Privacy modelPrivacy = Privacy.PRIVATE;
+            Privacy modelPrivacy = user.Privacy;
             Enum.TryParse(model.Privacy, out modelPrivacy);
+            user.Privacy = modelPrivacy;
 
             return new Registration(
                 timeStamp: DateTime.Now,

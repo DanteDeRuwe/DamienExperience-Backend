@@ -51,7 +51,13 @@ namespace DamianTourBackend.Api.Controllers
             if (user == null) return BadRequest();
 
             var route = _routeRepository.GetBy(registrationDTO.RouteId);
-            if (route == null) return BadRequest();
+            if (route == null) return NotFound("Chosen route could not be found.");
+
+            if (DateCheckHelper.CheckBeforeToday(route.Date))
+                return BadRequest("You cannot register for a route in the past.");
+
+            if(DateCheckHelper.CheckAfterOrEqualsToday(_routeRepository.GetBy(_registrationRepository.GetLast(mailAdress).RouteId).Date))
+                    return BadRequest("You are already registered for a route this year.");
 
             //should happen in frontend 
             //validator checks if size is a part of an array! check validator!
@@ -61,6 +67,7 @@ namespace DamianTourBackend.Api.Controllers
             var registration = registrationDTO.MapToRegistration(user, route);
 
             _registrationRepository.Add(registration, mailAdress);
+            _userRepository.Update(user);
 
             _mailService.SendRegistrationConfirmation(new RegistrationMailDTO
             {
@@ -68,7 +75,7 @@ namespace DamianTourBackend.Api.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Tourname = route.TourName,
-                Distance = (route.DistanceInMeters/1000).ToString(),
+                Distance = (route.DistanceInMeters / 1000).ToString(),
                 Date = route.Date.ToString()
             });
 
@@ -153,7 +160,7 @@ namespace DamianTourBackend.Api.Controllers
             Route route = _routeRepository.GetBy(reg.RouteId);
             if (route == null) return NotFound();
 
-            return Ok(DateCheckHelper.CheckGreaterThenOrEqualsDate(route.Date));
+            return Ok(DateCheckHelper.CheckAfterOrEqualsToday(route.Date));
         }
     }
 }

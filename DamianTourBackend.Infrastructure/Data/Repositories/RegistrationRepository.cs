@@ -38,10 +38,10 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
                 .SelectMany(p => p.Registrations);
         }
 
-        public IEnumerable<Registration> GetAllFromUser(string email)
+        public ICollection<Registration> GetAllFromUser(string email)
         {
             return _users.AsQueryable().Where(u => u.Email.Equals(email))
-                .SelectMany(p => p.Registrations);
+                .SelectMany(p => p.Registrations).ToList();
         }
 
         public Registration GetBy(Guid id, string email)
