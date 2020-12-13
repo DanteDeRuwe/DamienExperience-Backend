@@ -29,6 +29,7 @@ namespace DamianTourBackend.Api.Controllers
         }
 
         [HttpPost("")]
+        [Produces("text/plain")]
         public async Task<IActionResult> Login(LoginDTO model)
         {
             var validation = _loginValidator.Validate(model);
