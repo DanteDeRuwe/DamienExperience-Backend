@@ -1,13 +1,16 @@
 ﻿using DamianTourBackend.Api.Helpers;
+using DamianTourBackend.Application;
 using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -23,9 +26,10 @@ namespace DamianTourBackend.Api.Controllers
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IValidator<RouteRegistrationDTO> _routeRegistrationDTOValidator;
         private readonly IMailService _mailService;
+        private readonly UserManager<AppUser> _userManager;
 
         public RouteRegistrationController(IUserRepository userRepository, IRouteRepository routeRepository,
-            IRegistrationRepository registrationRepository,
+            IRegistrationRepository registrationRepository, UserManager<AppUser> userManager,
             IMailService mailService, IValidator<RouteRegistrationDTO> routeRegistrationDTOValidator)
         {
             _userRepository = userRepository;
@@ -33,6 +37,7 @@ namespace DamianTourBackend.Api.Controllers
             _registrationRepository = registrationRepository;
             _routeRegistrationDTOValidator = routeRegistrationDTOValidator;
             _mailService = mailService;
+            _userManager = userManager;
         }
 
         [HttpPost("")]
@@ -85,9 +90,13 @@ namespace DamianTourBackend.Api.Controllers
         }
 
         [HttpDelete("")]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> DeleteAsync(Guid id)
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+            AppUser appUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            if (!appUser.Claims.Any(c => c.ClaimValue.Equals("admin"))) return Unauthorized("You do not have the required permission to do that!");
+
 
             string email = User.Identity.Name;
             if (email == null) return BadRequest();
@@ -112,7 +121,7 @@ namespace DamianTourBackend.Api.Controllers
         }
 
         [HttpGet("GetAll")]
-        public IActionResult GetAll()
+        public IActionResult GetAllAsync()
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
 

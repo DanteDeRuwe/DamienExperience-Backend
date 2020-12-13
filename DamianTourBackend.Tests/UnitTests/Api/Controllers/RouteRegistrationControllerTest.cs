@@ -149,7 +149,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
 
             // Act 
             var numberOfRegistrations = user.Registrations.Count;
-            var result = _sut.Delete(registration.Id);
+            var result = _sut.DeleteAsync(registration.Id);
 
             // Assert 
             result.Should().BeOfType<OkObjectResult>()
@@ -170,7 +170,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _sut.ControllerContext = FakeControllerContext.NotLoggedIn; //!
 
             // Act 
-            var result = _sut.Delete(Guid.NewGuid()); //guid shouldn't matter
+            var result = _sut.DeleteAsync(Guid.NewGuid()); //guid shouldn't matter
 
             // Assert 
             result.Should().BeOfType<UnauthorizedResult>();
@@ -191,7 +191,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
 
             // Act 
             var numberOfRegistrations = user.Registrations.Count;
-            var result = _sut.Delete(registrationId);
+            var result = _sut.DeleteAsync(registrationId);
 
             // Assert 
             result.Should().BeOfType<BadRequestResult>();
@@ -215,7 +215,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _registrationRepository.GetAllFromUser(user.Email).Returns(user.Registrations);
             
             //Act
-            var result = _sut.GetAll();
+            var result = _sut.GetAllAsync();
             
             // Assert 
             result.Should().BeOfType<OkObjectResult>()
@@ -238,7 +238,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _registrationRepository.GetLast(user.Email).ReturnsNull();
             
             //Act
-            var result = _sut.GetAll();
+            var result = _sut.GetAllAsync();
             
             // Assert 
             result.Should().BeOfType<NotFoundResult>();
@@ -251,7 +251,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _sut.ControllerContext = FakeControllerContext.NotLoggedIn; //!
 
             // Act 
-            var result = _sut.GetAll();
+            var result = _sut.GetAllAsync();
 
             // Assert 
             result.Should().BeOfType<UnauthorizedResult>();
