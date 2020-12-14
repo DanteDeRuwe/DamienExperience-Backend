@@ -20,6 +20,8 @@ namespace DamianTourBackend.Core.Entities
         {
             Registrations = new List<Registration>();
             Walks = new List<Walk>();
+            Friends = new List<string>();
+            Privacy = Privacy.PRIVATE;
         }
 
         public User(string lastName, string firstName, string email, string phoneNumber)
@@ -36,7 +38,7 @@ namespace DamianTourBackend.Core.Entities
 
         public bool IsFriend(string email)
         {
-            foreach(string friend in Friends)
+            foreach (string friend in Friends)
                 if (friend.ToLower().Equals(email.ToLower()))
                     return true;
 
