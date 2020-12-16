@@ -1,15 +1,18 @@
 ﻿using DamianTourBackend.Api.Helpers;
 using DamianTourBackend.Application.Payment;
+using DamianTourBackend.Application;
 using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -26,10 +29,17 @@ namespace DamianTourBackend.Api.Controllers
         private readonly IValidator<RouteRegistrationDTO> _routeRegistrationDTOValidator;
         private readonly IMailService _mailService;
         private readonly IConfiguration _config;
+        private readonly UserManager<AppUser> _userManager;
 
-        public RouteRegistrationController(IUserRepository userRepository, IRouteRepository routeRepository,
-            IRegistrationRepository registrationRepository,
-            IMailService mailService, IValidator<RouteRegistrationDTO> routeRegistrationDTOValidator, IConfiguration config)
+        public RouteRegistrationController(
+            IUserRepository userRepository, 
+            IRouteRepository routeRepository,
+            IRegistrationRepository registrationRepository, 
+            UserManager<AppUser> userManager,
+            IMailService mailService, 
+            IValidator<RouteRegistrationDTO> routeRegistrationDTOValidator,
+            IConfiguration config
+            )
         {
             _userRepository = userRepository;
             _routeRepository = routeRepository;
@@ -37,8 +47,14 @@ namespace DamianTourBackend.Api.Controllers
             _routeRegistrationDTOValidator = routeRegistrationDTOValidator;
             _mailService = mailService;
             _config = config;
+            _userManager = userManager;
         }
 
+        /// <summary>
+        /// Creates a new RouteRegistration for the current user using RouteRegistrationDTO
+        /// </summary>
+        /// <param name="registrationDTO">RouteRegistrationDTO containing the id of the chosen route, and shirtsize</param>
+        /// <returns>ok with the registration or Unauthorized if user isn't logged in, or BadRequest if user/registration isn't valid</returns>
         [HttpPost("")]
         public IActionResult Post(RouteRegistrationDTO registrationDTO)
         {
@@ -55,7 +71,15 @@ namespace DamianTourBackend.Api.Controllers
             if (user == null) return BadRequest();
 
             var route = _routeRepository.GetBy(registrationDTO.RouteId);
-            if (route == null) return BadRequest();
+            if (route == null) return NotFound("Chosen route could not be found.");
+
+            if (DateCheckHelper.CheckBeforeToday(route.Date))
+                return BadRequest("You cannot register for a route in the past.");
+
+            var last = _registrationRepository.GetLast(mailAdress);
+            if(last != null)
+                if (DateCheckHelper.CheckAfterOrEqualsToday(_routeRepository.GetBy(last.RouteId).Date))
+                    return BadRequest("You are already registered for a route this year.");
 
             //should happen in frontend 
             //validator checks if size is a part of an array! check validator!
@@ -65,6 +89,7 @@ namespace DamianTourBackend.Api.Controllers
             var registration = registrationDTO.MapToRegistration(user, route);
 
             _registrationRepository.Add(registration, mailAdress);
+            _userRepository.Update(user);
 
             _mailService.SendRegistrationConfirmation(new RegistrationMailDTO
             {
@@ -79,10 +104,18 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(registration);
         }
 
+        /// <summary>
+        /// Deletes a RouteRegistration with the given id
+        /// </summary>
+        /// <param name="id">Guid id of the registration to be deleted</param>
+        /// <returns>Ok with registration that got deleted, or Unauthorized if user isn't logged in or BadRequest if user/registration is invalid</returns>
         [HttpDelete("")]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> DeleteAsync(Guid id)
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+            AppUser appUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            if (!appUser.Claims.Any(c => c.ClaimValue.Equals("admin"))) return Unauthorized("You do not have the required permission to do that!");
 
             string email = User.Identity.Name;
             if (email == null) return BadRequest();
@@ -123,8 +156,13 @@ namespace DamianTourBackend.Api.Controllers
             return Ok();
         }
 
+        
+        /// <summary>
+        /// Returns all RouteRegistrations from current user
+        /// </summary>
+        /// <returns>Ok with all Registrations from current user</returns>
         [HttpGet("GetAll")]
-        public IActionResult GetAll()
+        public IActionResult GetAllAsync()
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
 
@@ -140,6 +178,10 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(all);
         }
 
+        /// <summary>
+        /// Returns the last registration from the current user
+        /// </summary>
+        /// <returns>Ok with last registration</returns>
         [HttpGet("GetLast")]
         public IActionResult GetLast()
         {
@@ -157,6 +199,10 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(last);
         }
 
+        /// <summary>
+        /// Looks for registrations in the future
+        /// </summary>
+        /// <returns>Ok with boolean if user has future registrations</returns>
         [HttpGet("CheckCurrentRegistered")]
         public IActionResult CheckCurrentRegistered()
         {
@@ -174,7 +220,7 @@ namespace DamianTourBackend.Api.Controllers
             Route route = _routeRepository.GetBy(reg.RouteId);
             if (route == null) return NotFound();
 
-            return Ok(DateCheckHelper.CheckGreaterThenOrEqualsDate(route.Date));
+            return Ok(DateCheckHelper.CheckAfterOrEqualsToday(route.Date));
         }
 
         [HttpGet("GeneratePaymentData/{language}")]

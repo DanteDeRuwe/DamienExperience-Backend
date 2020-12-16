@@ -61,7 +61,8 @@ namespace DamianTourBackend.Tests.UnitTests
         public static readonly Faker<RouteRegistrationDTO> RouteRegistrationDTOFaker = new Faker<RouteRegistrationDTO>()
             .RuleFor(r => r.ShirtSize, f => f.PickRandom<ShirtSize>().ToString())
             .RuleFor(r => r.OrderedShirt, f => f.Random.Bool())
-            .RuleFor(r => r.RouteId, f => Guid.NewGuid());
+            .RuleFor(r => r.RouteId, f => Guid.NewGuid())
+            .RuleFor(r=> r.Privacy, f => "EVERYONE");
 
         private static ICollection<Registration> GenerateRegistrationsForUser(Faker f, User u) =>
             RouteRegistrationDTOFaker

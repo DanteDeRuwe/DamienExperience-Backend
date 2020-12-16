@@ -47,17 +47,44 @@ namespace DamianTourBackend.Api.Controllers
 
         }
 
+        /// <summary>
+        /// Looks for walk with given email
+        /// </summary>
+        /// <param name="email">email of person who walks</param>
+        /// <returns>ok with walk or notFound if given email isn't valid</returns>
         [HttpGet("{email}")]
         [AllowAnonymous]
         public IActionResult SearchWalk(string email)
         {
-            //if (!User.Identity.IsAuthenticated) return Unauthorized(); // wachtend optiesysteem (publieke wandelaar)
-
             var walker = _userRepository.GetBy(email);
             if (walker == null) return NotFound();
 
             var registration = _registrationRepository.GetLast(email);
             if (registration == null) return NotFound();
+
+            switch (registration.Privacy)
+            {
+                case Privacy.PRIVATE:
+                    return Ok();
+                    //break;
+                case Privacy.FRIENDS:
+                    if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+                    string mailAdress = User.Identity.Name;
+                    if (mailAdress == null) return BadRequest();
+
+                    var user = _userRepository.GetBy(mailAdress);
+                    if (user == null) return BadRequest();
+
+                    //indien geen vriend, geen walk zichtbaar maken
+                    if (!user.IsFriend(user.Email))
+                        return Ok();
+                    break;
+                //case Privacy.EVERYONE:
+                //    break;
+                default:
+                    break;
+            }
 
             var walk = _walkRepository.GetByUserAndRoute(walker.Id, registration.RouteId);
             if (walk == null) return NotFound();
@@ -66,7 +93,12 @@ namespace DamianTourBackend.Api.Controllers
         }
 
 
-        //begone
+        //begone 
+        //Jordy schreef dit ^
+        /// <summary>
+        /// Stops the walk of the current user
+        /// </summary>
+        /// <returns>Ok or Unauthorized if user isn't logged in or BadRequest if user isn't valid or NotFound if current walk is invalid</returns>
         [HttpPut(nameof(Stop))]
         public IActionResult Stop()
         {
@@ -101,6 +133,10 @@ namespace DamianTourBackend.Api.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Starts the walk from the current user
+        /// </summary>
+        /// <returns>Ok or Unauthorized if user isn't logged in or BadRequest if user isn't valid or NotFound if route/registration/user is not found</returns>
         [HttpPost(nameof(Start))]
         public IActionResult Start()
         {
@@ -135,22 +171,11 @@ namespace DamianTourBackend.Api.Controllers
             return Ok();
         }
 
-        [AllowAnonymous]
-        [HttpPost(nameof(TestMail))]
-        public IActionResult TestMail(string firstname, string lastname, string email, string distance, string date, string tourname)
-        {
-            _mailService.SendRegistrationConfirmation(new RegistrationMailDTO()
-            {
-                Email = email,
-                FirstName = firstname,
-                LastName = lastname,
-                Tourname = tourname,
-                Distance = distance,
-                Date = date,
-            });
-            return Ok();
-        }
-
+        /// <summary>
+        /// Updates the users current walk with given coordinates
+        /// </summary>
+        /// <param name="coords">coordinates that need to be pushed onto the walk</param>
+        /// <returns>ok with current walk or NotFound if user/walk is invalid</returns>
         [HttpPut(nameof(Update))]
         public IActionResult Update(List<double[]> coords)
         {

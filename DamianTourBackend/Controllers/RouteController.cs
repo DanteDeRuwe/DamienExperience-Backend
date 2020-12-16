@@ -129,7 +129,10 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(_routeRepository.GetAll());
         }
 
-        //temp method to check claims
+        /// <summary>
+        /// Checks if user is admin
+        /// </summary>
+        /// <returns>boolean if user is admin</returns>
         private async Task<bool> IsAdmin()
         {
             if (User.Identity.Name == null) return false;

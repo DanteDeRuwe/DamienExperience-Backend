@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DamianTourBackend.Api.Controllers;
+using DamianTourBackend.Application;
 using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentAssertions;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
@@ -23,6 +26,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         private readonly IMailService _mailService;
         private readonly IValidator<RouteRegistrationDTO> _validator;
         private readonly RouteRegistrationController _sut;
+        private readonly UserManager<AppUser> _um;
 
         public RouteRegistrationControllerTest()
         {
@@ -31,7 +35,8 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _registrationRepository = Substitute.For<IRegistrationRepository>();
             _validator = Substitute.For<IValidator<RouteRegistrationDTO>>();
             _mailService = Substitute.For<IMailService>();
-            _sut = new RouteRegistrationController(_userRepository, _routeRepository, _registrationRepository, _mailService, _validator);
+            _um = Substitute.For<FakeUserManager>();
+            _sut = new RouteRegistrationController(_userRepository, _routeRepository, _registrationRepository, _um, _mailService, _validator, FakeConfiguration.Get());
         }
 
         [Fact]
@@ -127,7 +132,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var result = _sut.Post(routeRegistrationDTO);
 
             // Assert 
-            result.Should().BeOfType<BadRequestResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
             
             _userRepository.Received().GetBy(user.Email);
             _routeRepository.Received().GetBy(route.Id);
@@ -136,7 +141,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         }
         
         [Fact]
-        public void Delete_LoggedInUserWithGoodRegistration_ShouldDeleteRegistrationAndReturnsOk()
+        public async Task Delete_LoggedInUserWithGoodRegistration_ShouldDeleteRegistrationAndReturnsOk()
         {
             // Arrange 
             var user = DummyData.UserFaker.Generate();
@@ -147,10 +152,12 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _userRepository.GetBy(user.Email).Returns(user);
             _registrationRepository.GetBy(registration.Id, user.Email).Returns(registration);
 
+            var appUser = FakeAppUser.For(user).WithClaims("admin");
+            _um.FindByNameAsync(user.Email).Returns(Task.FromResult(appUser));
+            
             // Act 
-            var numberOfRegistrations = user.Registrations.Count;
-            var result = _sut.Delete(registration.Id);
-
+            var result = await _sut.DeleteAsync(registration.Id);
+            
             // Assert 
             result.Should().BeOfType<OkObjectResult>()
                 .Which.Value.Should().BeEquivalentTo(
@@ -164,13 +171,13 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         }
 
         [Fact]
-        public void Delete_UserNotLoggedIn_ReturnsUnauthorized()
+        public async Task Delete_UserNotLoggedIn_ReturnsUnauthorized()
         {
             // Arrange 
             _sut.ControllerContext = FakeControllerContext.NotLoggedIn; //!
 
             // Act 
-            var result = _sut.Delete(Guid.NewGuid()); //guid shouldn't matter
+            var result = await _sut.DeleteAsync(Guid.NewGuid()); //guid shouldn't matter
 
             // Assert 
             result.Should().BeOfType<UnauthorizedResult>();
@@ -178,7 +185,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
 
 
         [Fact]
-        public void Delete_NoSuchRegistration_ReturnsBadRequest()
+        public async Task Delete_NoSuchRegistration_ReturnsBadRequest()
         {
             // Arrange 
             var user = DummyData.UserFaker.Generate();
@@ -188,10 +195,14 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             
             _userRepository.GetBy(user.Email).Returns(user);
             _registrationRepository.GetBy(Arg.Any<Guid>(), user.Email).ReturnsNull();
+            
+            var appUser = FakeAppUser.For(user).WithClaims("admin");
+            _um.FindByNameAsync(user.Email).Returns(Task.FromResult(appUser));
 
+            
             // Act 
             var numberOfRegistrations = user.Registrations.Count;
-            var result = _sut.Delete(registrationId);
+            var result = await _sut.DeleteAsync(registrationId);
 
             // Assert 
             result.Should().BeOfType<BadRequestResult>();
@@ -215,7 +226,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _registrationRepository.GetAllFromUser(user.Email).Returns(user.Registrations);
             
             //Act
-            var result = _sut.GetAll();
+            var result = _sut.GetAllAsync();
             
             // Assert 
             result.Should().BeOfType<OkObjectResult>()
@@ -238,7 +249,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _registrationRepository.GetLast(user.Email).ReturnsNull();
             
             //Act
-            var result = _sut.GetAll();
+            var result = _sut.GetAllAsync();
             
             // Assert 
             result.Should().BeOfType<NotFoundResult>();
@@ -251,7 +262,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _sut.ControllerContext = FakeControllerContext.NotLoggedIn; //!
 
             // Act 
-            var result = _sut.GetAll();
+            var result = _sut.GetAllAsync();
 
             // Assert 
             result.Should().BeOfType<UnauthorizedResult>();

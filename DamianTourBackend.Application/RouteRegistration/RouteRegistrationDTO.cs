@@ -9,5 +9,6 @@ namespace DamianTourBackend.Application.RouteRegistration
         public Guid RouteId { get; set; }
         public bool OrderedShirt { get; set; }
         public string ShirtSize { get; set; }
+        public string Privacy { get; set; }
     }
 }
