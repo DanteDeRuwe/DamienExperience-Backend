@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using DamianTourBackend.Core.Entities;
 
@@ -32,24 +33,13 @@ namespace DamianTourBackend.Application.UpdateWaypoint
 
         public static ICollection<Waypoint> MapToWaypoints(this ICollection<WaypointDTO> waypoints)
         {
-            ICollection<Waypoint> res = new List<Waypoint>();
-            foreach(WaypointDTO dto in waypoints)
-            {
-                res.Add(MapToWaypoint(dto));
-            }
-            return res;
+            return waypoints.Select(dto => MapToWaypoint(dto)).ToList();
         }
 
         public static ICollection<WaypointDTO> MapToWaypointDTOs(this ICollection<Waypoint> waypoints)
         {
-            ICollection<WaypointDTO> res = new List<WaypointDTO>();
-            if (waypoints == null)
-                return null;
-            foreach (Waypoint waypoint in waypoints)
-            {
-                res.Add(MapToWaypointDTO(waypoint));
-            }
-            return res;
+            if (waypoints == null) return null;
+            return waypoints.Select(waypoint => MapToWaypointDTO(waypoint)).ToList();
         }
     }
 }

@@ -11,11 +11,7 @@
         public string UserId { get; set; }
         public string ShaSign { get; set; }
         public string RouteName { get; set; }
-
-
-        public RegistrationPaymentDTO()
-        {
-
-        }
+        
+        public RegistrationPaymentDTO() { }
     }
 }

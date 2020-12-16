@@ -45,7 +45,5 @@
         public string Status { get; set; }
 
         public string TRXDate { get; set; }
-
-
     }
 }

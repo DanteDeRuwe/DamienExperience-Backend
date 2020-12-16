@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using DamianTourBackend.Application.RouteRegistration;
+using DamianTourBackend.Application.StopWalk;
 
 namespace DamianTourBackend.Infrastructure.Mailer
 {

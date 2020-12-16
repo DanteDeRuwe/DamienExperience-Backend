@@ -1,7 +1,4 @@
 ﻿using DamianTourBackend.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DamianTourBackend.Application.UpdateWalk
 {
@@ -11,8 +8,6 @@ namespace DamianTourBackend.Application.UpdateWalk
         {
             walk.StartTime = model.StartTime != null ? model.StartTime : walk.StartTime;
             walk.EndTime = model.EndTime != null ? walk.EndTime : model.EndTime;
-            //afhankelijk van hoe we het in de App wille implementeren moet dit 
-            //veranderd worden en de coords toevoegen aan de lijst ipv ze te vervangen
             walk.WalkedPath.Coordinates = model.Coordinates;
             walk.WalkedPath.LineColor = model.LineColor;
         }
@@ -36,6 +31,5 @@ namespace DamianTourBackend.Application.UpdateWalk
                 LineColor = walk.WalkedPath.LineColor,
                 Coordinates = walk.WalkedPath.Coordinates
             };
-            
     }
 }

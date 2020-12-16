@@ -34,8 +34,6 @@ namespace DamianTourBackend.Application.Register
                 .NotEmpty().WithMessage("Password confirmation is required")
                 .MinimumLength(8).WithMessage("Password should be a minimum of 8 characters long")
                 .Equal(x => x.Password).WithMessage("Passwords should match.");
-
-
         }
 
         private bool BeValidBirthDate(string value)

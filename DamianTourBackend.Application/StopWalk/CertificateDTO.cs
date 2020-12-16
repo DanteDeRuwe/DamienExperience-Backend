@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DamianTourBackend.Core.Entities
+﻿namespace DamianTourBackend.Application.StopWalk
 {
     public class CertificateDTO
     {
@@ -13,9 +9,6 @@ namespace DamianTourBackend.Core.Entities
         public string Distance { get; set; }
         public string Date { get; set; }
 
-        public CertificateDTO()
-        {
-
-        }
+        public CertificateDTO() { }
     }
 }
