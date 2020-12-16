@@ -8,9 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
-using SendGrid;
 using System;
-using System.Net.Mail;
 using System.Text;
 
 namespace DamianTourBackend.Infrastructure
@@ -20,7 +18,6 @@ namespace DamianTourBackend.Infrastructure
 
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-
             services.AddIdentityMongoDbProvider<AppUser>(options =>
             {
                 // Password settings.
@@ -66,14 +63,12 @@ namespace DamianTourBackend.Infrastructure
                     RequireExpirationTime = true //Ensure token hasn't expired
                 };
             });
-
-
+            
             services.AddSingleton(x =>
             {
                 var client = new MongoClient(configuration["MongoDbSettings:ConnectionString"]);
                 return client.GetDatabase(configuration["MongoDbSettings:DatabaseName"]);
             });
-
 
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<IUserRepository, UserRepository>();
