@@ -1,4 +1,5 @@
 ﻿using DamianTourBackend.Api.Helpers;
+using DamianTourBackend.Application.Payment;
 using DamianTourBackend.Application;
 using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Core.Entities;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,6 +28,7 @@ namespace DamianTourBackend.Api.Controllers
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IValidator<RouteRegistrationDTO> _routeRegistrationDTOValidator;
         private readonly IMailService _mailService;
+        private readonly IConfiguration _config;
         private readonly UserManager<AppUser> _userManager;
 
         public RouteRegistrationController(
@@ -34,7 +37,8 @@ namespace DamianTourBackend.Api.Controllers
             IRegistrationRepository registrationRepository, 
             UserManager<AppUser> userManager,
             IMailService mailService, 
-            IValidator<RouteRegistrationDTO> routeRegistrationDTOValidator
+            IValidator<RouteRegistrationDTO> routeRegistrationDTOValidator,
+            IConfiguration config
             )
         {
             _userRepository = userRepository;
@@ -42,6 +46,7 @@ namespace DamianTourBackend.Api.Controllers
             _registrationRepository = registrationRepository;
             _routeRegistrationDTOValidator = routeRegistrationDTOValidator;
             _mailService = mailService;
+            _config = config;
             _userManager = userManager;
         }
 
@@ -133,6 +138,24 @@ namespace DamianTourBackend.Api.Controllers
 
             return Ok(registration);
         }
+
+        [HttpPost("RegistrationIsPaid")]
+        public IActionResult RegistrationIsPaid(string registrationId, string email)
+        {
+            var id = Guid.Parse(registrationId);
+
+            var user = _userRepository.GetBy(email);
+            if (user == null) return BadRequest();
+
+            var registration = _registrationRepository.GetBy(id, email);
+            if (registration == null) return BadRequest();
+
+            registration.Paid = true;
+            _registrationRepository.Update(registration, email);
+
+            return Ok();
+        }
+
         
         /// <summary>
         /// Returns all RouteRegistrations from current user
@@ -199,5 +222,64 @@ namespace DamianTourBackend.Api.Controllers
 
             return Ok(DateCheckHelper.CheckAfterOrEqualsToday(route.Date));
         }
+
+        [HttpGet("GeneratePaymentData/{language}")]
+        public IActionResult GeneratePaymentData(string language)
+        {
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+            string email = User.Identity.Name;
+            var user = _userRepository.GetBy(email);
+            if (user == null) return BadRequest();
+
+            var registration = _registrationRepository.GetLast(email);
+
+            if (registration == null) return BadRequest();
+            if (registration.Paid) return BadRequest();
+
+
+            var route = _routeRepository.GetBy(registration.RouteId);
+            string amount = registration.OrderedShirt ? "6500" : "5000";
+            string shasign = EncoderHelper.CalculateNewShaSign(_config, amount, "EUR", email, language, registration.Id.ToString(), "damiaanactie", user.Id.ToString());
+
+            RegistrationPaymentDTO registrationPaymentDTO = new RegistrationPaymentDTO()
+            {
+                Amount = amount,
+                Currency = "EUR",
+                Email = email,
+                Language = language,
+                OrderId = registration.Id.ToString(),
+                PspId = "damiaanactie",
+                UserId = user.Id.ToString(),
+                ShaSign = shasign,
+                RouteName = route.TourName
+            };
+            return Ok(registrationPaymentDTO);
+        }
+
+        [HttpPost("ControlPaymentResponse")]
+        public IActionResult ControlPaymentResponse(PaymentResponseDTO dto)
+        {
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+            string email = User.Identity.Name;
+            var user = _userRepository.GetBy(email);
+            if (user == null) return BadRequest();
+
+            var registration = _registrationRepository.GetLast(email);
+
+            if (registration == null) return BadRequest();
+            if (registration.Paid) return BadRequest();
+
+            var valid = EncoderHelper.ControlShaSign(_config, dto);
+            registration.Paid = valid;
+            _registrationRepository.Update(registration, email);
+
+            var route = _routeRepository.GetBy(registration.RouteId);
+
+            return Ok(new { TourName = route.TourName, Valid = valid });
+        }
+
+
     }
 }

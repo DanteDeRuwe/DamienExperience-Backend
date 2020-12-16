@@ -36,7 +36,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _validator = Substitute.For<IValidator<RouteRegistrationDTO>>();
             _mailService = Substitute.For<IMailService>();
             _um = Substitute.For<FakeUserManager>();
-            _sut = new RouteRegistrationController(_userRepository, _routeRepository, _registrationRepository, _um, _mailService, _validator);
+            _sut = new RouteRegistrationController(_userRepository, _routeRepository, _registrationRepository, _um, _mailService, _validator, FakeConfiguration.Get());
         }
 
         [Fact]
