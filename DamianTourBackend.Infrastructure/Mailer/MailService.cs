@@ -1,22 +1,6 @@
-﻿
-using DamianTourBackend.Core.Entities;
-using DamianTourBackend.Core.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using SautinSoft.Document;
-using SendGrid;
-using SendGrid.Helpers.Mail;
-using System;
+﻿using DamianTourBackend.Core.Entities;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
 using System.Net.Http;
-using System.Net.Mail;
-using System.Net.Mime;
-using System.Text;
-using System.Threading.Tasks;
 using DamianTourBackend.Application.RouteRegistration;
 
 namespace DamianTourBackend.Infrastructure.Mailer

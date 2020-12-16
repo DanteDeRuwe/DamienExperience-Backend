@@ -10,9 +10,6 @@
         public string Distance { get; set; }
         public string Date { get; set; }
 
-        public RegistrationMailDTO()
-        {
-
-        }
+        public RegistrationMailDTO() { }
     }
 }

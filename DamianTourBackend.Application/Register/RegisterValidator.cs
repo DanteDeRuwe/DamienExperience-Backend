@@ -1,6 +1,7 @@
 ﻿using DamianTourBackend.Application.Login;
 using FluentValidation;
 using System;
+using DamianTourBackend.Application.Helpers;
 
 namespace DamianTourBackend.Application.Register
 {
