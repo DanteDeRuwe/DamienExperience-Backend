@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 using System.Linq;
+using DamianTourBackend.Api.Hubs;
 
 namespace DamianTourBackend.Api
 {
@@ -40,10 +41,20 @@ namespace DamianTourBackend.Api
                 c.OperationProcessors.Add(
                     new AspNetCoreOperationSecurityScopeProcessor("JWT")); //adds the token when a request is send
             });
+            
+            //TODO Configure CORS
+            services.AddCors(options => 
+                options.AddPolicy(
+                    "AllowAllOrigins", 
+                    builder => builder
+                        .AllowCredentials()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .SetIsOriginAllowed(_=>true)
+                )
+            );
 
-            services.AddCors(options => options.AddPolicy("AllowAllOrigins", builder => builder.AllowAnyOrigin()));
-
-
+            services.AddSignalR();
 
             services.AddInfrastructure(Configuration); // Configure the services of the infrastructure layer
             services.AddApplication(Configuration); // Configure the services of the application layer
@@ -66,10 +77,16 @@ namespace DamianTourBackend.Api
 
             app.UseRouting();
 
+            app.UseCors("AllowAllOrigins");
+            
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => endpoints.MapControllers());
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<TrackingHub>("/tracking");
+            });
         }
     }
 }

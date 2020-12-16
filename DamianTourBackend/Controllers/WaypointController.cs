@@ -30,6 +30,11 @@ namespace DamianTourBackend.Api.Controllers
             _userManager = userManager;
         }
 
+        /// <summary>
+        /// Get waypoints with given tour name
+        /// </summary>
+        /// <param name="tourName">name of the tour of the waypoints you want to get</param>
+        /// <returns>ok with all the waypoints of the selectedRoute</returns>
         [AllowAnonymous]
         [HttpGet(nameof(Get))]
         public IActionResult Get(string tourName)
@@ -42,6 +47,11 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(waypoints);
         }
 
+        /// <summary>
+        /// Add waypoints using UpdateWaypointDTO
+        /// </summary>
+        /// <param name="updateWaypoint">UpdateWaypointDTO with list of waypoints and info and name of route</param>
+        /// <returns>ok with waypoints or Unauthorized if user isn't admin or BadRequest if route name isn't valid</returns>
         [HttpPost(nameof(AddWaypoints))]
         public IActionResult AddWaypoints(UpdateWaypointDTO updateWaypoint)
         {
@@ -64,7 +74,12 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(waypoints);
         }
 
-
+        /// <summary>
+        /// Add waypoints to given route
+        /// </summary>
+        /// <param name="routename">name of route you want to add waypoints to</param>
+        /// <param name="waypointDTO">WaypointDTO containg longitude, latitude and Dictionary of info</param>
+        /// <returns>Ok with route, or Unauthorized if current user isn't admin or BadRequest if route isn't valid</returns>
         [HttpPut(nameof(AddWaypoint))]
         public IActionResult AddWaypoint(string routename, WaypointDTO waypointDTO)
         {
@@ -80,6 +95,12 @@ namespace DamianTourBackend.Api.Controllers
             return Ok(route);
         }
 
+        /// <summary>
+        /// Deletes waypoint from given route
+        /// </summary>
+        /// <param name="routename">Name of the route you want to delete waypoints from</param>
+        /// <param name="waypoint">Waypoint you want to delete</param>
+        /// <returns>Ok or Unauthorized if current user isn't admin orBadRequest if routename isn't valid</returns>
         [HttpDelete(nameof(DeleteWaypoint))]
         public IActionResult DeleteWaypoint(string routename, Waypoint waypoint)//If this doesn't work, Lucas will fix
         {
@@ -94,7 +115,10 @@ namespace DamianTourBackend.Api.Controllers
             return Ok();
         }
 
-
+        /// <summary>
+        /// Checks if current user is admin
+        /// </summary>
+        /// <returns>Boolean if user is admin</returns>
         private async Task<bool> IsAdmin()
         {
             if (User.Identity.Name == null) return false;

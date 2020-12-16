@@ -29,6 +29,11 @@ namespace DamianTourBackend.Api.Controllers
             _userRepository = userRepository;
         }
 
+        /// <summary>
+        /// Registers a user using RegisterDTO
+        /// </summary>
+        /// <param name="model">RegisterDTO containing name, phone, date of birth, email and password(confirmation)</param>
+        /// <returns>Created with user token</returns>
         [HttpPost("")]
         public async Task<IActionResult> Register(RegisterDTO model)
         {
@@ -49,6 +54,11 @@ namespace DamianTourBackend.Api.Controllers
             return Created("", token);
         }
 
+        /// <summary>
+        /// Checks if email is available
+        /// </summary>
+        /// <param name="email">email to be validated</param>
+        /// <returns>true if available, false if not available</returns>
         [HttpGet("checkusername")]
         public async Task<ActionResult<bool>> CheckAvailableUserName(string email)
         {
