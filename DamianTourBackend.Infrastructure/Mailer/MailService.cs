@@ -17,6 +17,7 @@ using System.Net.Mail;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+using DamianTourBackend.Application.RouteRegistration;
 
 namespace DamianTourBackend.Infrastructure.Mailer
 {

@@ -1,7 +1,7 @@
-﻿using DamianTourBackend.Core.Entities;
-using System.Threading.Tasks;
+﻿using DamianTourBackend.Application.RouteRegistration;
+using DamianTourBackend.Core.Entities;
 
-namespace DamianTourBackend.Core.Interfaces
+namespace DamianTourBackend.Infrastructure.Mailer
 {
     public interface IMailService
     {

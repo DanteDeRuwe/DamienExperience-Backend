@@ -9,6 +9,7 @@ using NSubstitute.ReturnsExtensions;
 using System;
 using System.Linq;
 using DamianTourBackend.Api.Hubs;
+using DamianTourBackend.Infrastructure.Mailer;
 using Microsoft.AspNetCore.SignalR;
 using Xunit;
 

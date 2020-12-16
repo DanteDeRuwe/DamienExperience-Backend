@@ -7,6 +7,7 @@ using DamianTourBackend.Application;
 using DamianTourBackend.Application.RouteRegistration;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
+using DamianTourBackend.Infrastructure.Mailer;
 using FluentAssertions;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
