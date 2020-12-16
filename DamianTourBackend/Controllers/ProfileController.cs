@@ -2,6 +2,7 @@ using AspNetCore.Identity.Mongo.Model;
 using DamianTourBackend.Api.Helpers;
 using DamianTourBackend.Application;
 using DamianTourBackend.Application.UpdateProfile;
+using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -26,16 +28,19 @@ namespace DamianTourBackend.Api.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IValidator<UpdateProfileDTO> _updateProfileValidator;
         private readonly RoleManager<MongoRole> _roleManager;
+        private readonly IRegistrationRepository _registrationRepository;
 
         public ProfileController(IUserRepository userRepository, 
             IValidator<UpdateProfileDTO> updateProfileValidator, 
             UserManager<AppUser> userManager,
-            RoleManager<MongoRole> roleManager)
+            RoleManager<MongoRole> roleManager,
+            IRegistrationRepository registrationRepository)
         {
             _userRepository = userRepository;
             _updateProfileValidator = updateProfileValidator;
             _userManager = userManager;
             _roleManager = roleManager;
+            _registrationRepository = registrationRepository;
         }
 
         /// <summary>
@@ -112,6 +117,55 @@ namespace DamianTourBackend.Api.Controllers
             if (!result.Succeeded) return BadRequest();
 
             return Ok(user);
+        }
+        
+        [HttpPut(nameof(UpdateFriends))]
+        public IActionResult UpdateFriends(ICollection<string> friends)
+        {
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null) return BadRequest();
+
+            var user = _userRepository.GetBy(mailAdress);
+            if (user == null) return BadRequest();
+
+            user.Friends = friends;
+
+            // Update User
+            _userRepository.Update(user);
+
+            return Ok(user.Friends);
+        }
+
+        [HttpPut(nameof(UpdatePrivacy))]
+        public IActionResult UpdatePrivacy(string privacy)
+        {
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
+
+            string mailAdress = User.Identity.Name;
+            if (mailAdress == null) return BadRequest();
+
+            var user = _userRepository.GetBy(mailAdress);
+            if (user == null) return BadRequest();
+
+            Privacy updatedPrivacy = Privacy.PRIVATE;
+            Enum.TryParse(privacy, out updatedPrivacy);
+
+            user.Privacy = updatedPrivacy;
+
+            var last = _registrationRepository.GetLast(mailAdress);
+            if (last != null)
+            {
+                last.Privacy = updatedPrivacy;
+                _registrationRepository.Update(last, mailAdress);
+                user.Registrations = _registrationRepository.GetAllFromUser(mailAdress);
+            }
+
+            // Update User
+            _userRepository.Update(user);
+
+            return Ok(user.Privacy);
         }
 
         /// <summary>

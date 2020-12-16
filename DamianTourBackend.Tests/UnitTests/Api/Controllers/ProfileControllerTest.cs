@@ -21,6 +21,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         private readonly UserManager<AppUser> _um;
         private readonly IValidator<UpdateProfileDTO> _updateProfileValidator;
         private readonly RoleManager<MongoRole> _rm;
+        private readonly IRegistrationRepository _registrationRepository;
 
         public ProfileControllerTest()
         {
@@ -28,8 +29,9 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _updateProfileValidator = Substitute.For<IValidator<UpdateProfileDTO>>();
             _um = Substitute.For<FakeUserManager>();
             _rm = Substitute.For<FakeRoleManager>();
+            _registrationRepository =  Substitute.For<IRegistrationRepository>();
 
-            _sut = new ProfileController(_userRepository, _updateProfileValidator, _um, _rm);
+            _sut = new ProfileController(_userRepository, _updateProfileValidator, _um, _rm, _registrationRepository);
         }
 
         [Fact]
@@ -83,7 +85,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         {
             // Arrange 
             var user = DummyData.UserFaker.Generate();
-            var idUser = new AppUser() { UserName = user.Email, Email = user.Email };
+            var idUser = FakeAppUser.For(user);
 
             _um.FindByNameAsync(idUser.Email).Returns(idUser);
             _um.DeleteAsync(idUser).Returns(IdentityResult.Success);
@@ -133,11 +135,11 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             // Arrange 
             var updateProfileDTO = DummyData.UpdateProfileDTOFaker.Generate();
             var user = DummyData.UserFaker.Generate();
-            var idUser = new AppUser() { UserName = user.Email, Email = user.Email };
+            var appUser = FakeAppUser.For(user);
 
             _updateProfileValidator.SetupPass();
-            _um.FindByNameAsync(idUser.Email).Returns(idUser);
-            _um.UpdateAsync(idUser).Returns(IdentityResult.Success);
+            _um.FindByNameAsync(appUser.Email).Returns(appUser);
+            _um.UpdateAsync(appUser).Returns(IdentityResult.Success);
 
             _sut.ControllerContext = FakeControllerContext.For(user);
             _userRepository.GetBy(user.Email).Returns(user);
@@ -147,7 +149,10 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
 
             // Assert 
             result.Should().BeOfType<OkObjectResult>()
-                .Which.Value.Should().BeEquivalentTo(updateProfileDTO);
+                .Which.Value.Should().BeEquivalentTo(
+                    updateProfileDTO, 
+                    options => options.Excluding(u=>u.Friends)
+                );
             _userRepository.Received().Update(user);
         }
 
@@ -173,8 +178,9 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             // Arrange 
             var updateProfileDTO = DummyData.UpdateProfileDTOFaker.Generate();
             var user = DummyData.UserFaker.Generate();
-            var idUser = new AppUser() { UserName = user.Email, Email = user.Email };
-            _um.FindByNameAsync(idUser.Email).Returns(idUser);
+            var appUser = FakeAppUser.For(user);
+            
+            _um.FindByNameAsync(appUser.Email).Returns(appUser);
             _updateProfileValidator.SetupPass();
             _sut.ControllerContext = FakeControllerContext.For(user);
 

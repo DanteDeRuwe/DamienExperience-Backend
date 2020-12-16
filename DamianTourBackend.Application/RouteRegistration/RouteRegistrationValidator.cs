@@ -20,12 +20,25 @@ namespace DamianTourBackend.Application.RouteRegistration
                 //.NotEmpty().WithMessage("Size of shirt cannot be empty")
                 .Must(CheckSize)
                 .MaximumLength(5).WithMessage("Size of shirt must be valid");
+
+            RuleFor(x => x.Privacy)
+                //.NotEmpty().WithMessage("Size of privacy cannot be empty")
+                .Must(CheckPrivacy)
+                .MaximumLength(8).WithMessage("Size of privacy must be valid");
         }
 
         private bool CheckSize(string shirtSize)
         {
             foreach (ShirtSize size in Enum.GetValues(typeof(ShirtSize)))
                 if (shirtSize.ToLower().Equals(size.ToString().ToLower()))
+                    return true;
+            return false;
+        }
+
+        private bool CheckPrivacy(string privacy)
+        {
+            foreach (Privacy enumPrivacy in Enum.GetValues(typeof(Privacy)))
+                if (privacy.ToLower().Equals(enumPrivacy.ToString().ToLower()))
                     return true;
             return false;
         }

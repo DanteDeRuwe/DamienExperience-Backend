@@ -10,7 +10,7 @@ namespace DamianTourBackend.Core.Interfaces
         Registration GetLast(string email);
         void Add(Registration registration, string email);
         void Delete(Registration registration, string email);
-        IEnumerable<Registration> GetAllFromUser(string email);
+        ICollection<Registration> GetAllFromUser(string email);
         IEnumerable<Registration> GetAll();
         void Update(Registration registration, string email);
     }

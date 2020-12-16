@@ -13,13 +13,16 @@ namespace DamianTourBackend.Core.Entities
         public string DateOfBirth { get; set; }
         public ICollection<Walk> Walks { get; set; }
         public ICollection<Registration> Registrations { get; set; }
+        public ICollection<string> Friends { get; set; }
+        public Privacy Privacy { get; set; }
 
         public User()
         {
             Registrations = new List<Registration>();
             Walks = new List<Walk>();
+            Friends = new List<string>();
+            Privacy = Privacy.PRIVATE;
         }
-
 
         public User(string lastName, string firstName, string email, string phoneNumber)
         {
@@ -29,6 +32,17 @@ namespace DamianTourBackend.Core.Entities
             PhoneNumber = phoneNumber;
             Registrations = new List<Registration>();
             Walks = new List<Walk>();
+            Friends = new List<string>();
+            Privacy = Privacy.PRIVATE;
+        }
+
+        public bool IsFriend(string email)
+        {
+            foreach (string friend in Friends)
+                if (friend.ToLower().Equals(email.ToLower()))
+                    return true;
+
+            return false;
         }
     }
 }
