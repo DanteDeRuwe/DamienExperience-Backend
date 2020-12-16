@@ -28,9 +28,14 @@ namespace DamianTourBackend.Api.Controllers
         private readonly IMailService _mailService;
         private readonly UserManager<AppUser> _userManager;
 
-        public RouteRegistrationController(IUserRepository userRepository, IRouteRepository routeRepository,
-            IRegistrationRepository registrationRepository, UserManager<AppUser> userManager,
-            IMailService mailService, IValidator<RouteRegistrationDTO> routeRegistrationDTOValidator)
+        public RouteRegistrationController(
+            IUserRepository userRepository, 
+            IRouteRepository routeRepository,
+            IRegistrationRepository registrationRepository, 
+            UserManager<AppUser> userManager,
+            IMailService mailService, 
+            IValidator<RouteRegistrationDTO> routeRegistrationDTOValidator
+            )
         {
             _userRepository = userRepository;
             _routeRepository = routeRepository;
@@ -96,7 +101,6 @@ namespace DamianTourBackend.Api.Controllers
 
             AppUser appUser = await _userManager.FindByNameAsync(User.Identity.Name);
             if (!appUser.Claims.Any(c => c.ClaimValue.Equals("admin"))) return Unauthorized("You do not have the required permission to do that!");
-
 
             string email = User.Identity.Name;
             if (email == null) return BadRequest();
