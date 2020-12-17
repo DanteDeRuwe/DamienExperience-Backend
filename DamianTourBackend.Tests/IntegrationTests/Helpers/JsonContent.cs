@@ -2,7 +2,7 @@
 using System.Text;
 using Newtonsoft.Json;
 
-namespace DamianTourBackend.Tests.IntegrationTests
+namespace DamianTourBackend.Tests.IntegrationTests.Helpers
 {
     public class JsonContent : StringContent
     {

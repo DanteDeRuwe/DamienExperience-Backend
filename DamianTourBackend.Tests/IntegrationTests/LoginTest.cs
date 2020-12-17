@@ -4,20 +4,26 @@ using DamianTourBackend.Api;
 using DamianTourBackend.Application.Login;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using DamianTourBackend.Tests.IntegrationTests.Helpers;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
+using MongoDB.Driver;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace DamianTourBackend.Tests.IntegrationTests
 {
-    public class LoginTest : IDisposable
+    public class PersonTests : IClassFixture<CustomAppFactory<Startup>>, IDisposable
     {
-        private WebApplicationFactory<Startup> _factory;
+        private readonly CustomAppFactory<Startup> _factory;
 
-        public LoginTest()
+        public PersonTests(CustomAppFactory<Startup> fixture)
         {
-            _factory = new WebApplicationFactory<Startup>();
+            _factory = fixture;
         }
-        
+
         [Fact]
         public async Task Login()
         {
@@ -25,12 +31,13 @@ namespace DamianTourBackend.Tests.IntegrationTests
             var client = _factory.CreateClient();
             var loginDTO = new LoginDTO() {Email = "string@string.string", Password = "stringstring"};
             var loginContent = new JsonContent(loginDTO);
-            
+
             // Act
             var response = await client.PostAsync("/api/login", loginContent);
             var content = await response.Content.ReadAsStringAsync();
-    
+
             // Assert
+            response.EnsureSuccessStatusCode();
             content.Should().MatchRegex("^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$");
         }
 
