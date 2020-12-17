@@ -3,29 +3,22 @@ using System.Threading.Tasks;
 using DamianTourBackend.Api;
 using DamianTourBackend.Application.Login;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
 using DamianTourBackend.Tests.IntegrationTests.Helpers;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
-using MongoDB.Driver;
 using Xunit;
 
 namespace DamianTourBackend.Tests.IntegrationTests
 {
-    public class PersonTests : IClassFixture<CustomAppFactory<Startup>>, IDisposable
+    public class LoginTest : IClassFixture<CustomAppFactory<Startup>>, IDisposable
     {
         private readonly CustomAppFactory<Startup> _factory;
 
-        public PersonTests(CustomAppFactory<Startup> fixture)
+        public LoginTest(CustomAppFactory<Startup> fixture)
         {
             _factory = fixture;
         }
 
         [Fact]
-        public async Task Login()
+        public async Task Login_GoodCredentials_ShouldReturnToken()
         {
             // Arrange
             var client = _factory.CreateClient();
