@@ -1,17 +1,16 @@
+using DamianTourBackend.Api.Hubs;
+using DamianTourBackend.Application.StopWalk;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
+using DamianTourBackend.Infrastructure.Mailer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using DamianTourBackend.Api.Hubs;
-using DamianTourBackend.Application.StopWalk;
-using DamianTourBackend.Infrastructure.Mailer;
-using Microsoft.AspNetCore.SignalR;
 
 
 namespace DamianTourBackend.Api.Controllers
@@ -36,7 +35,7 @@ namespace DamianTourBackend.Api.Controllers
             IRegistrationRepository registrationRepository,
             IRouteRepository routeRepository,
             IMailService mailService,
-            IConfiguration config, 
+            IConfiguration config,
             IHubContext<TrackingHub> trackingHub)
         {
             _userRepository = userRepository;
@@ -67,21 +66,21 @@ namespace DamianTourBackend.Api.Controllers
             switch (registration.Privacy)
             {
                 case Privacy.PRIVATE:
-                    return Ok(); // don't return walk
+                    return NotFound(); // don't return walk
                 case Privacy.FRIENDS when !User.Identity.IsAuthenticated:
                     return Unauthorized();
                 case Privacy.FRIENDS:
-                {
-                    string mailAdress = User.Identity.Name;
-                    if (mailAdress == null) return BadRequest();
+                    {
+                        string mailAdress = User.Identity.Name;
+                        if (mailAdress == null) return BadRequest();
 
-                    var user = _userRepository.GetBy(mailAdress);
-                    if (user == null) return BadRequest();
+                        var user = _userRepository.GetBy(mailAdress);
+                        if (user == null) return BadRequest();
 
-                    if (!user.IsFriend(user.Email))
-                        return Ok(); // don't return walk
-                    break;
-                }
+                        if (!walker.IsFriend(user.Email))
+                            return BadRequest(); // don't return walk
+                        break;
+                    }
             }
 
             var walk = _walkRepository.GetByUserAndRoute(walker.Id, registration.RouteId);
@@ -180,7 +179,7 @@ namespace DamianTourBackend.Api.Controllers
             walk.AddCoords(coords);
 
             _walkRepository.Update(user.Email, walk);
-            
+
             //Invoke signalr to notify people that track this walker
             _trackingHub.Clients.Group(User.Identity.Name)
                 .SendAsync("updateWalk", walk);

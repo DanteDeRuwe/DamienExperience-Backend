@@ -35,12 +35,12 @@ namespace DamianTourBackend.Api.Controllers
         [HttpGet("GetRouteByName/{routeName}")]
         public IActionResult GetRouteByName(string routeName)
         {
-            var route = _routeRepository.GetByName(routeName); 
+            var route = _routeRepository.GetByName(routeName);
             if (route == null) return BadRequest();
 
             return Ok(route);
         }
-        
+
         /// <summary>
         /// Returns one route with the specified routeid
         /// </summary>
@@ -118,7 +118,7 @@ namespace DamianTourBackend.Api.Controllers
         {
             //maybe refactor into repomethod
             return Ok(_routeRepository.GetAll().Where(r => r.Date > DateTime.Now));
-        } 
+        }
 
         /// <summary>
         /// Gets all the routes
