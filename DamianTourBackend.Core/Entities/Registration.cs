@@ -12,7 +12,7 @@ namespace DamianTourBackend.Core.Entities
         //public User User { get; set; }
         public bool OrderedShirt { get; set; }
         public ShirtSize ShirtSize { get; set; }
-        public string SizeShirt { get; set; } //DELETE THIS after db reset
+        //public string SizeShirt { get; set; } //DELETE THIS after db reset
         public Privacy Privacy { get; set; }
 
         public Registration() { }
