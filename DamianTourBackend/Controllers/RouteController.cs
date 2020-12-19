@@ -19,11 +19,13 @@ namespace DamianTourBackend.Api.Controllers
     {
         private readonly IRouteRepository _routeRepository;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IRegistrationRepository _registrationRepository;
 
-        public RouteController(IRouteRepository routeRepository, UserManager<AppUser> userManager)
+        public RouteController(IRouteRepository routeRepository, UserManager<AppUser> userManager, IRegistrationRepository registrationRepository)
         {
             _routeRepository = routeRepository;
             _userManager = userManager;
+            _registrationRepository = registrationRepository;
         }
 
         /// <summary>
@@ -86,7 +88,12 @@ namespace DamianTourBackend.Api.Controllers
             if (!IsAdmin().Result) return Unauthorized();
             var route = _routeRepository.GetByName(routeName);
 
-            if (route == null) return BadRequest();
+            if (route == null) return BadRequest("Route was not found.");
+
+            if (_registrationRepository.GetAllFromRoute(route.Id).Count() != 0)
+            {
+                return BadRequest("Route can not be deleted, there are registrations for this route.");
+            }
 
             _routeRepository.Delete(route);
 
