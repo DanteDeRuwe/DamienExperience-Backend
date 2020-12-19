@@ -8,7 +8,7 @@ namespace DamianTourBackend.Application.Payment
     {
         public static RegistrationPaymentDTO DTOFrom(User user, Route route, Registration registration, string language, IConfiguration config)
         {
-            string amount = registration.OrderedShirt ? "6500" : "5000";
+            string amount = registration.OrderedShirt ? "6000" : "5000";
             string shasign = EncoderHelper.CalculateNewShaSign(config, amount, "EUR", user.Email, language, registration.Id.ToString(), "damiaanactie", user.Id.ToString());
 
             return new RegistrationPaymentDTO()
