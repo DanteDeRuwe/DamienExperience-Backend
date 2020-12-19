@@ -4,7 +4,6 @@ namespace DamianTourBackend.Core.Entities
 {
     public class Registration
     {
-
         public Guid Id { get; set; }
         public DateTime TimeStamp { get; set; }
         public bool Paid { get; set; }

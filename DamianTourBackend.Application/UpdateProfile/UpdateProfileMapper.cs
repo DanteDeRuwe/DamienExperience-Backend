@@ -1,4 +1,5 @@
-﻿using DamianTourBackend.Core.Entities;
+﻿using DamianTourBackend.Application.Helpers;
+using DamianTourBackend.Core.Entities;
 
 namespace DamianTourBackend.Application.UpdateProfile
 {

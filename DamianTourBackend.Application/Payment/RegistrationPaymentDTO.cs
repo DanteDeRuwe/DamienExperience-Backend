@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DamianTourBackend.Core.Entities
+﻿namespace DamianTourBackend.Application.Payment
 {
     public class RegistrationPaymentDTO
     {
@@ -15,11 +11,7 @@ namespace DamianTourBackend.Core.Entities
         public string UserId { get; set; }
         public string ShaSign { get; set; }
         public string RouteName { get; set; }
-
-
-        public RegistrationPaymentDTO()
-        {
-
-        }
+        
+        public RegistrationPaymentDTO() { }
     }
 }

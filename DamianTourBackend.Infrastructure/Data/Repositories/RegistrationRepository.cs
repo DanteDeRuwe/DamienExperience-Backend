@@ -58,8 +58,6 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
 
         public void Update(Registration registration, string email)
         {
-            //mabye rework this later if needed
-            //propebly not realy needed
             Delete(registration, email);
             Add(registration, email);
         }

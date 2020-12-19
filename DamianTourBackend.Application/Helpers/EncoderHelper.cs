@@ -1,10 +1,10 @@
-﻿using DamianTourBackend.Application.Payment;
-using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Security.Cryptography;
 using System.Text;
+using DamianTourBackend.Application.Payment;
+using Microsoft.Extensions.Configuration;
 
-namespace DamianTourBackend.Api.Helpers
+namespace DamianTourBackend.Application.Helpers
 {
     public static class EncoderHelper
     {

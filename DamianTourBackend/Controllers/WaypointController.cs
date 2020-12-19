@@ -1,5 +1,4 @@
-﻿using DamianTourBackend.Api.Helpers;
-using DamianTourBackend.Application;
+﻿using DamianTourBackend.Application;
 using DamianTourBackend.Application.UpdateWaypoint;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
@@ -8,7 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using DamianTourBackend.Application.Helpers;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -18,7 +19,6 @@ namespace DamianTourBackend.Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class WaypointController : ControllerBase
     {
-
         private readonly IRouteRepository _routeRepository;
         private readonly IUserRepository _userRepository;
         private readonly UserManager<AppUser> _userManager;
@@ -39,7 +39,6 @@ namespace DamianTourBackend.Api.Controllers
         [HttpGet(nameof(Get))]
         public IActionResult Get(string tourName)
         {
-
             var route = _routeRepository.GetByName(tourName);
             if (route == null) return BadRequest();
 
@@ -61,12 +60,7 @@ namespace DamianTourBackend.Api.Controllers
             var route = _routeRepository.GetByName(updateWaypoint.TourName);
             if (route == null) return BadRequest();
 
-            ICollection<Waypoint> waypoints = new List<Waypoint>();
-
-            foreach (var dto in updateWaypoint.Dtos)
-            {
-                waypoints.Add(dto.MapToWaypoint());
-            }
+            var waypoints = updateWaypoint.Dtos.Select(dto => dto.MapToWaypoint()).ToList();
 
             route.Waypoints = waypoints;
             _routeRepository.Update(route);
@@ -122,9 +116,7 @@ namespace DamianTourBackend.Api.Controllers
         private async Task<bool> IsAdmin()
         {
             if (User.Identity.Name == null) return false;
-
             AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
-
             return user.IsAdmin();
         }
     }

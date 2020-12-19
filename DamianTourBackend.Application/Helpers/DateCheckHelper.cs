@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DamianTourBackend.Api.Helpers
+namespace DamianTourBackend.Application.Helpers
 {
     public static class DateCheckHelper
     {

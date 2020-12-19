@@ -11,9 +11,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using DamianTourBackend.Application.Helpers;
 
 namespace DamianTourBackend.Api.Controllers
 {
@@ -208,7 +208,6 @@ namespace DamianTourBackend.Api.Controllers
         [HttpPost(nameof(RemoveAdmin))]
         public async Task<ActionResult> RemoveAdmin(string email)
         {
-            
             //Checks if given email is valid
             AppUser user = await _userManager.FindByEmailAsync(email);
             if (user == null) return NotFound();
@@ -241,8 +240,7 @@ namespace DamianTourBackend.Api.Controllers
 
             AppUser admin = await _userManager.FindByEmailAsync(mailAdress);
             if (admin == null) return BadRequest();
-
-
+            
             return Ok(admin.IsAdmin());
         }        
      }

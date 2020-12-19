@@ -34,6 +34,5 @@ namespace DamianTourBackend.Core.Entities
         public TimeSpan WalkedTime() {
             return EndTime - StartTime;
         }
-
     }
 }

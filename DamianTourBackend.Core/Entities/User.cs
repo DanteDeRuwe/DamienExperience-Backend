@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DamianTourBackend.Core.Entities
 {
@@ -38,11 +39,7 @@ namespace DamianTourBackend.Core.Entities
 
         public bool IsFriend(string email)
         {
-            foreach (string friend in Friends)
-                if (friend.ToLower().Equals(email.ToLower()))
-                    return true;
-
-            return false;
+            return Friends.Any(friend => friend.ToLower().Equals(email.ToLower()));
         }
     }
 }
