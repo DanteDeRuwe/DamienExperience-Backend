@@ -1,4 +1,6 @@
-﻿namespace DamianTourBackend.Application.UpdateProfile
+﻿using System.Collections.Generic;
+
+namespace DamianTourBackend.Application.UpdateProfile
 {
     public class UpdateProfileDTO
     {
@@ -8,6 +10,7 @@
         public string PhoneNumber { get; set; }
         public string DateOfBirth { get; set; }
         //public string Wachtwoord { get; set; }        Wachtwoord kan momenteel nog niet veranderd worden (nog te bespreken)
-        //public string Adres { get; set; }
+        public List<string> Friends { get; set; }
+        public int Privacy { get; set; }
     }
 }

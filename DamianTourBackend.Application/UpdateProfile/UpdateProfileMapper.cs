@@ -1,4 +1,5 @@
-﻿using DamianTourBackend.Core.Entities;
+﻿using DamianTourBackend.Application.Helpers;
+using DamianTourBackend.Core.Entities;
 
 namespace DamianTourBackend.Application.UpdateProfile
 {
@@ -6,11 +7,15 @@ namespace DamianTourBackend.Application.UpdateProfile
     {
         public static void UpdateUser(this UpdateProfileDTO model, ref User user)
         {
+            var privacy = (Privacy) model.Privacy;
+
             user.Email = model.Email ?? user.Email;
             user.FirstName = model.FirstName ?? model.FirstName;
             user.LastName = model.LastName ?? user.LastName;
             user.PhoneNumber = model.PhoneNumber ?? user.PhoneNumber;
             user.DateOfBirth = model.DateOfBirth != null ? DateParser.Parse(model.DateOfBirth) : user.DateOfBirth;
+            user.Friends = model.Friends ?? user.Friends;
+            user.Privacy = privacy != user.Privacy ? privacy : user.Privacy;
         }
 
         public static void UpdateIdentityUser(this UpdateProfileDTO model, ref AppUser appUser)
@@ -19,14 +24,19 @@ namespace DamianTourBackend.Application.UpdateProfile
             appUser.UserName = model.Email ?? appUser.UserName;
         }
 
-        public static User MapToUser(this UpdateProfileDTO model) =>
-            new User
+        public static User MapToUser(this UpdateProfileDTO model)
+        {
+            var privacy = (Privacy) model.Privacy;
+            return new User
             {
                 Email = model.Email,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 PhoneNumber = model.PhoneNumber,
-                DateOfBirth = DateParser.Parse(model.DateOfBirth)
+                DateOfBirth = DateParser.Parse(model.DateOfBirth),
+                Friends = model.Friends,
+                Privacy = privacy
             };
+        }
     }
 }

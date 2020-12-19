@@ -38,10 +38,16 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
                 .SelectMany(p => p.Registrations);
         }
 
-        public IEnumerable<Registration> GetAllFromUser(string email)
+        public ICollection<Registration> GetAllFromUser(string email)
         {
             return _users.AsQueryable().Where(u => u.Email.Equals(email))
-                .SelectMany(p => p.Registrations);
+                .SelectMany(p => p.Registrations).ToList();
+        }
+
+        public ICollection<Registration> GetAllFromRoute(Guid id)
+        {
+            return _users.AsQueryable()
+                .SelectMany(p => p.Registrations).Where(r => r.RouteId.Equals(id)).ToList();
         }
 
         public Registration GetBy(Guid id, string email)
@@ -58,8 +64,6 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
 
         public void Update(Registration registration, string email)
         {
-            //mabye rework this later if needed
-            //propebly not realy needed
             Delete(registration, email);
             Add(registration, email);
         }

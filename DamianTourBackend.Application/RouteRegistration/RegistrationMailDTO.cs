@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DamianTourBackend.Core.Entities
+﻿namespace DamianTourBackend.Application.RouteRegistration
 {
     public class RegistrationMailDTO
     {
@@ -14,9 +10,6 @@ namespace DamianTourBackend.Core.Entities
         public string Distance { get; set; }
         public string Date { get; set; }
 
-        public RegistrationMailDTO()
-        {
-
-        }
+        public RegistrationMailDTO() { }
     }
 }

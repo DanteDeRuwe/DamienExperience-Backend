@@ -8,6 +8,9 @@ using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using System;
 using System.Linq;
+using DamianTourBackend.Api.Hubs;
+using DamianTourBackend.Infrastructure.Mailer;
+using Microsoft.AspNetCore.SignalR;
 using Xunit;
 
 namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
@@ -21,6 +24,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         private readonly IConfiguration _configuration;
         private readonly WalkController _sut;
         private readonly IRouteRepository _routeRepository;
+        private readonly IHubContext<TrackingHub> _trackingHub;
 
         public WalkControllerTest()
         {
@@ -30,8 +34,9 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _routeRepository = Substitute.For<IRouteRepository>();
             _mailService = Substitute.For<IMailService>();
             _configuration = Substitute.For<IConfiguration>();
+            _trackingHub = Substitute.For<IHubContext<TrackingHub>>();
 
-            _sut = new WalkController(_userRepository, _walkRepository, _registrationRepository, _routeRepository, _mailService, _configuration);
+            _sut = new WalkController(_userRepository, _walkRepository, _registrationRepository, _routeRepository, _mailService, _configuration, _trackingHub);
         }
 
         [Fact]

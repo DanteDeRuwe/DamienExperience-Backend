@@ -4,8 +4,6 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 
-using System.Text;
-
 namespace DamianTourBackend.Infrastructure.Data.Repositories
 {
     class RouteRepository : IRouteRepository
@@ -15,7 +13,6 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
         public RouteRepository(IMongoDatabase db) 
         {
             _routes = db.GetCollection<Route>("Routes");
-
         }
 
         public void Add(Route route)

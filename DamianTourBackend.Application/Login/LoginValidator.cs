@@ -5,7 +5,6 @@ namespace DamianTourBackend.Application.Login
 {
     public class LoginValidator : AbstractValidator<LoginDTO>
     {
-
         public LoginValidator()
         {
             RuleFor(x => x.Email)

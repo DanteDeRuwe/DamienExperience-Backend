@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DamianTourBackend.Api.Helpers
+namespace DamianTourBackend.Application.Helpers
 {
     public static class DateCheckHelper
     {
@@ -14,9 +14,14 @@ namespace DamianTourBackend.Api.Helpers
             return true;
         }
 
-        public static bool CheckGreaterThenOrEqualsDate(DateTime datetime1)
+        public static bool CheckAfterOrEqualsToday(DateTime datetime1)
         {
-            return datetime1.Date > DateTime.Now.Date;
+            return datetime1.Date >= DateTime.Now.Date;
+        }
+
+        public static bool CheckBeforeToday(DateTime datetime1)
+        {
+            return datetime1.Date < DateTime.Now.Date;
         }
 
     }
