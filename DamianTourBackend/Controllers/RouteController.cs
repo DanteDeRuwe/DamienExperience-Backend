@@ -19,11 +19,13 @@ namespace DamianTourBackend.Api.Controllers
     {
         private readonly IRouteRepository _routeRepository;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IRegistrationRepository _registrationRepository;
 
-        public RouteController(IRouteRepository routeRepository, UserManager<AppUser> userManager)
+        public RouteController(IRouteRepository routeRepository, UserManager<AppUser> userManager, IRegistrationRepository registrationRepository)
         {
             _routeRepository = routeRepository;
             _userManager = userManager;
+            _registrationRepository = registrationRepository;
         }
 
         /// <summary>
@@ -35,12 +37,12 @@ namespace DamianTourBackend.Api.Controllers
         [HttpGet("GetRouteByName/{routeName}")]
         public IActionResult GetRouteByName(string routeName)
         {
-            var route = _routeRepository.GetByName(routeName); 
+            var route = _routeRepository.GetByName(routeName);
             if (route == null) return BadRequest();
 
             return Ok(route);
         }
-        
+
         /// <summary>
         /// Returns one route with the specified routeid
         /// </summary>
@@ -86,7 +88,12 @@ namespace DamianTourBackend.Api.Controllers
             if (!IsAdmin().Result) return Unauthorized();
             var route = _routeRepository.GetByName(routeName);
 
-            if (route == null) return BadRequest();
+            if (route == null) return BadRequest("Route was not found.");
+
+            if (_registrationRepository.GetAllFromRoute(route.Id).Count() != 0)
+            {
+                return BadRequest("Route can not be deleted, there are registrations for this route.");
+            }
 
             _routeRepository.Delete(route);
 
@@ -118,7 +125,7 @@ namespace DamianTourBackend.Api.Controllers
         {
             //maybe refactor into repomethod
             return Ok(_routeRepository.GetAll().Where(r => r.Date > DateTime.Now));
-        } 
+        }
 
         /// <summary>
         /// Gets all the routes

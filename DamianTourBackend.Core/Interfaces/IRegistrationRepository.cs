@@ -12,6 +12,7 @@ namespace DamianTourBackend.Core.Interfaces
         void Delete(Registration registration, string email);
         ICollection<Registration> GetAllFromUser(string email);
         IEnumerable<Registration> GetAll();
+        ICollection<Registration> GetAllFromRoute(Guid id);
         void Update(Registration registration, string email);
     }
 }

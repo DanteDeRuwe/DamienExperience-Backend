@@ -44,6 +44,12 @@ namespace DamianTourBackend.Infrastructure.Data.Repositories
                 .SelectMany(p => p.Registrations).ToList();
         }
 
+        public ICollection<Registration> GetAllFromRoute(Guid id)
+        {
+            return _users.AsQueryable()
+                .SelectMany(p => p.Registrations).Where(r => r.RouteId.Equals(id)).ToList();
+        }
+
         public Registration GetBy(Guid id, string email)
         {
             return _users.AsQueryable().Where(u => u.Email.Equals(email))

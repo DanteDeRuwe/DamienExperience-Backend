@@ -20,13 +20,15 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
     {
         private readonly IRouteRepository _routeRepository;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IRegistrationRepository _registrationRepository;
         private readonly RouteController _routeController;
 
         public RouteControllerTest()
         {
             _routeRepository = Substitute.For<IRouteRepository>();
             _userManager = Substitute.For<FakeUserManager>();
-            _routeController = new RouteController(_routeRepository, _userManager);
+            _registrationRepository = Substitute.For<IRegistrationRepository>();
+            _routeController = new RouteController(_routeRepository, _userManager, _registrationRepository);
         }
 
         [Fact]

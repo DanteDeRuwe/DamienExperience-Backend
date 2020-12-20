@@ -40,7 +40,7 @@ namespace DamianTourBackend.Api.Controllers
         public IActionResult Get(string tourName)
         {
             var route = _routeRepository.GetByName(tourName);
-            if (route == null) return BadRequest();
+            if (route == null) return BadRequest("No route found for given name");
 
             IEnumerable<Waypoint> waypoints = route.Waypoints;
             return Ok(waypoints);
@@ -55,10 +55,10 @@ namespace DamianTourBackend.Api.Controllers
         public IActionResult AddWaypoints(UpdateWaypointDTO updateWaypoint)
         {
             //needed to put it in an object 
-            if (!IsAdmin().Result) return Unauthorized();
+            if (!IsAdmin().Result) return Unauthorized("You need to have Admin permissions to perform this action.");
 
             var route = _routeRepository.GetByName(updateWaypoint.TourName);
-            if (route == null) return BadRequest();
+            if (route == null) return BadRequest("No route found");
 
             var waypoints = updateWaypoint.Dtos.Select(dto => dto.MapToWaypoint()).ToList();
 
@@ -77,10 +77,10 @@ namespace DamianTourBackend.Api.Controllers
         [HttpPut(nameof(AddWaypoint))]
         public IActionResult AddWaypoint(string routename, WaypointDTO waypointDTO)
         {
-            if (!IsAdmin().Result) return Unauthorized();
+            if (!IsAdmin().Result) return Unauthorized("You need to have Admin permissions to perform this action.");
 
             var route = _routeRepository.GetByName(routename);
-            if (route == null) return BadRequest();
+            if (route == null) return BadRequest("Route not found");
 
             route.Waypoints.Add(waypointDTO.MapToWaypoint());
 
@@ -98,10 +98,10 @@ namespace DamianTourBackend.Api.Controllers
         [HttpDelete(nameof(DeleteWaypoint))]
         public IActionResult DeleteWaypoint(string routename, Waypoint waypoint)//If this doesn't work, Lucas will fix
         {
-            if (!IsAdmin().Result) return Unauthorized();
+            if (!IsAdmin().Result) return Unauthorized("You need to have Admin permissions to perform this action.");
 
             var route = _routeRepository.GetByName(routename);
-            if (route == null) return BadRequest();
+            if (route == null) return BadRequest("No route found");
 
             route.Waypoints.Remove(waypoint);
             _routeRepository.Update(route);

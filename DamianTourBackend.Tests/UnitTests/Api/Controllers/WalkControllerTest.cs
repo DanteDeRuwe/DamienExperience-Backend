@@ -1,16 +1,16 @@
 ﻿using DamianTourBackend.Api.Controllers;
+using DamianTourBackend.Api.Hubs;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
+using DamianTourBackend.Infrastructure.Mailer;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using System;
 using System.Linq;
-using DamianTourBackend.Api.Hubs;
-using DamianTourBackend.Infrastructure.Mailer;
-using Microsoft.AspNetCore.SignalR;
 using Xunit;
 
 namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
@@ -72,7 +72,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var result = _sut.SearchWalk(walker.Email);
 
             // Assert
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
 
             _userRepository.Received().GetBy(walker.Email);
             _registrationRepository.DidNotReceive().GetLast(walker.Email);
@@ -93,7 +93,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var result = _sut.SearchWalk(walker.Email);
 
             // Assert
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
 
             _userRepository.Received().GetBy(walker.Email);
             _registrationRepository.Received().GetLast(walker.Email);
@@ -115,7 +115,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var result = _sut.SearchWalk(walker.Email);
 
             // Assert
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
 
             _userRepository.Received().GetBy(walker.Email);
             _registrationRepository.Received().GetLast(walker.Email);
@@ -131,6 +131,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var route = DummyData.RouteFaker.Generate();
             var reg = user.Registrations.Last();
             route.Id = reg.RouteId;
+            reg.Paid = true;
             _sut.ControllerContext = FakeControllerContext.For(user);
             _userRepository.GetBy(user.Email).Returns(user);
             _registrationRepository.GetLast(user.Email).Returns(reg);
@@ -150,13 +151,14 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         }
 
         [Fact]
-        public void StartWalk_UserAndRegistrationAndRouteAndWalkExists_ReturnsOk()
+        public void StartWalk_UserAndRegistrationAndRouteAndWalkExists_ReturnsBadRequest()
         {
             //Arrange
             var user = DummyData.UserFaker.Generate();
             var route = DummyData.RouteFaker.Generate();
             var reg = user.Registrations.Last();
             route.Id = reg.RouteId;
+            reg.Paid = true;
             _sut.ControllerContext = FakeControllerContext.For(user);
             _userRepository.GetBy(user.Email).Returns(user);
             _registrationRepository.GetLast(user.Email).Returns(reg);
@@ -167,7 +169,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var result = _sut.Start();
 
             //Assert
-            result.Should().BeOfType<OkResult>();
+            result.Should().BeOfType<BadRequestObjectResult>();
 
             _userRepository.Received().GetBy(user.Email);
             _registrationRepository.Received().GetLast(user.Email);
@@ -235,6 +237,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var route = DummyData.RouteFaker.Generate();
             var reg = user.Registrations.Last();
             route.Id = reg.RouteId;
+            reg.Paid = true;
             _sut.ControllerContext = FakeControllerContext.For(user);
             _userRepository.GetBy(user.Email).Returns(user);
             _registrationRepository.GetLast(user.Email).Returns(reg);
@@ -250,7 +253,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _userRepository.Received().GetBy(user.Email);
             _registrationRepository.Received().GetLast(user.Email);
             _routeRepository.Received().GetBy(route.Id);
-            _walkRepository.DidNotReceive().GetByUserAndRoute(user.Id, route.Id);
+            //_walkRepository.DidNotReceive().GetByUserAndRoute(user.Id, route.Id);
 
         }
     }
