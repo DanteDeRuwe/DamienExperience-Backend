@@ -58,10 +58,10 @@ namespace DamianTourBackend.Api.Controllers
         public IActionResult SearchWalk(string email)
         {
             var walker = _userRepository.GetBy(email);
-            if (walker == null) return NotFound("The user you where looking for doesn't exist.");
+            if (walker == null) return NotFound("The user you were looking for doesn't exist.");
 
             var registration = _registrationRepository.GetLast(email);
-            if (registration == null) return NotFound("The user you where looking for has no registrations.");
+            if (registration == null) return NotFound("The user you were looking for has no registrations.");
 
             switch (registration.Privacy)
             {
