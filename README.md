@@ -21,3 +21,5 @@ Jordy Van Kerkvoorde | [@JordyVanKerkvoorde](https://github.com/JordyVanKerkvoor
 ## Zie ook
 - [Android Repository](https://github.com/HoGent-Projecten3/projecten3-2021-android-d4)
 - [Angular Repository](https://github.com/HoGent-Projecten3/projecten3-2021-angular-d4)
+- [ChatService](https://github.com/JordyVanKerkvoorde/DamienExperience_chatservice)
+- [MailService](https://github.com/JordyVanKerkvoorde/DamienExperience_mailservice)
