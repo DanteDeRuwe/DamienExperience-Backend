@@ -65,7 +65,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var secondTimeRegister = await _sut.Register(registerDTO);
 
             // Assert
-            secondTimeRegister.Should().BeOfType<BadRequestResult>();
+            secondTimeRegister.Should().BeOfType<BadRequestObjectResult>();
             _userRepository.DidNotReceive().Add(Arg.Any<User>());
         }
 

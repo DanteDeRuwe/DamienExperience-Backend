@@ -41,11 +41,11 @@ namespace DamianTourBackend.Api.Controllers
             if (!validation.IsValid) return BadRequest(validation);
 
             var existingUser = _userRepository.GetBy(model.Email);
-            if (existingUser != null) return BadRequest();
+            if (existingUser != null) return BadRequest("User with the given email already exists");
 
             var identityUser = model.MapToAppUser();
             var result = await _userManager.CreateAsync(identityUser, model.Password);
-            if (!result.Succeeded) return BadRequest();
+            if (!result.Succeeded) return BadRequest("Unable to register the new user, internal error");
 
             var user = model.MapToUser();
             _userRepository.Add(user);

@@ -58,17 +58,17 @@ namespace DamianTourBackend.Api.Controllers
         public IActionResult SearchWalk(string email)
         {
             var walker = _userRepository.GetBy(email);
-            if (walker == null) return NotFound();
+            if (walker == null) return NotFound("The user you were looking for doesn't exist.");
 
             var registration = _registrationRepository.GetLast(email);
-            if (registration == null) return NotFound();
+            if (registration == null) return NotFound("The user you were looking for has no registrations.");
 
             switch (registration.Privacy)
             {
                 case Privacy.PRIVATE:
                     return NotFound(); // don't return walk
                 case Privacy.FRIENDS when !User.Identity.IsAuthenticated:
-                    return Unauthorized();
+                    return Unauthorized("You have not been authorized to track this user.");
                 case Privacy.FRIENDS:
                     {
                         string mailAdress = User.Identity.Name;
@@ -84,7 +84,7 @@ namespace DamianTourBackend.Api.Controllers
             }
 
             var walk = _walkRepository.GetByUserAndRoute(walker.Id, registration.RouteId);
-            if (walk == null) return NotFound();
+            if (walk == null) return NotFound("No walk found for the user you are trying to track.");
 
             return Ok(walk);
         }
@@ -140,14 +140,15 @@ namespace DamianTourBackend.Api.Controllers
             var registration = _registrationRepository.GetLast(mailAdress);
             if (registration == null) return NotFound("Registration not found");
 
-            //TODO this check needs to happen in rproduction
-            //test
-            //if(!registration.Paid) return BadRequest("Registration has not been paid");
+
+            if (!registration.Paid) return BadRequest("Registration has not been paid");
 
             var route = _routeRepository.GetBy(registration.RouteId);
             if (route == null) return NotFound("Route not found");
 
             var walk = _walkRepository.GetByUserAndRoute(user.Id, route.Id);
+
+
 
             if (walk == null
                 // && DateCheckHelper.CheckEqualsDate(route.Date, now)
@@ -155,8 +156,13 @@ namespace DamianTourBackend.Api.Controllers
             {
                 walk = new Walk(DateTime.Now, route);
                 _walkRepository.Add(mailAdress, walk);
+                return Ok();
             }
-            return Ok();
+            else
+            {
+                return BadRequest("Walk already exsists");
+            }
+
         }
 
         /// <summary>

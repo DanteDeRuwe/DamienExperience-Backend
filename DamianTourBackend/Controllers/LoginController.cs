@@ -40,10 +40,10 @@ namespace DamianTourBackend.Api.Controllers
             if (!validation.IsValid) return BadRequest(validation);
 
             var user = await _userManager.FindByNameAsync(model.Email);
-            if (user == null) return BadRequest();
+            if (user == null) return BadRequest("User not found");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-            if (!result.Succeeded) return BadRequest();
+            if (!result.Succeeded) return BadRequest("Not able to sign in, internal error");
 
             string token = TokenHelper.GetToken(user.Email, _configuration);
             return Ok(token);
