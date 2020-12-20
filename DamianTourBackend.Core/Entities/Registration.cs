@@ -7,12 +7,9 @@ namespace DamianTourBackend.Core.Entities
         public Guid Id { get; set; }
         public DateTime TimeStamp { get; set; }
         public bool Paid { get; set; }
-        //public Route Route { get; set; }
         public Guid RouteId { get; set; }
-        //public User User { get; set; }
         public bool OrderedShirt { get; set; }
         public ShirtSize ShirtSize { get; set; }
-        //public string SizeShirt { get; set; } //DELETE THIS after db reset
         public Privacy Privacy { get; set; }
 
         public Registration() { }
@@ -21,9 +18,7 @@ namespace DamianTourBackend.Core.Entities
         {
             Id = Guid.NewGuid();
             TimeStamp = timeStamp;
-            //Route = route;
             RouteId = route.Id;
-            //User = user;
             OrderedShirt = orderedShirt;
             ShirtSize = shirtSize;
             Privacy = privacy;
