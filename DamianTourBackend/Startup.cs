@@ -41,29 +41,18 @@ namespace DamianTourBackend.Api
                 c.OperationProcessors.Add(
                     new AspNetCoreOperationSecurityScopeProcessor("JWT")); //adds the token when a request is send
             });
-
-            services.AddCors(options =>
-            {
+            
+            //TODO Configure CORS
+            services.AddCors(options => 
                 options.AddPolicy(
-                    "AllowAllOrigins",
+                    "AllowAllOrigins", 
                     builder => builder
                         .AllowCredentials()
                         .AllowAnyHeader()
                         .AllowAnyMethod()
-                        .SetIsOriginAllowed(_ => true)
-                );
-                
-                options.AddDefaultPolicy(builder =>
-                {
-                    string[] origins = Configuration.GetSection("CORS:origins").Get<string[]>();
-                    builder.AllowAnyHeader()
-                        .AllowCredentials()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .WithOrigins(origins);
-                });
-            });
-            
+                        .SetIsOriginAllowed(_=>true)
+                )
+            );
 
             services.AddSignalR();
 
@@ -89,7 +78,6 @@ namespace DamianTourBackend.Api
             app.UseRouting();
 
             app.UseCors("AllowAllOrigins");
-            // app.UseCors(); for production
             
             app.UseAuthentication();
             app.UseAuthorization();
