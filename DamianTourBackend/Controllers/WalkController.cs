@@ -140,14 +140,15 @@ namespace DamianTourBackend.Api.Controllers
             var registration = _registrationRepository.GetLast(mailAdress);
             if (registration == null) return NotFound("Registration not found");
 
-            //TODO this check needs to happen in rproduction
-            //test
-            //if(!registration.Paid) return BadRequest("Registration has not been paid");
+
+            if (!registration.Paid) return BadRequest("Registration has not been paid");
 
             var route = _routeRepository.GetBy(registration.RouteId);
             if (route == null) return NotFound("Route not found");
 
             var walk = _walkRepository.GetByUserAndRoute(user.Id, route.Id);
+
+
 
             if (walk == null
                 // && DateCheckHelper.CheckEqualsDate(route.Date, now)
@@ -155,8 +156,13 @@ namespace DamianTourBackend.Api.Controllers
             {
                 walk = new Walk(DateTime.Now, route);
                 _walkRepository.Add(mailAdress, walk);
+                return Ok();
             }
-            return Ok();
+            else
+            {
+                return BadRequest("Walk already exsists");
+            }
+
         }
 
         /// <summary>
