@@ -1,16 +1,16 @@
 ﻿using DamianTourBackend.Api.Controllers;
+using DamianTourBackend.Api.Hubs;
 using DamianTourBackend.Core.Entities;
 using DamianTourBackend.Core.Interfaces;
+using DamianTourBackend.Infrastructure.Mailer;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using System;
 using System.Linq;
-using DamianTourBackend.Api.Hubs;
-using DamianTourBackend.Infrastructure.Mailer;
-using Microsoft.AspNetCore.SignalR;
 using Xunit;
 
 namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
@@ -150,7 +150,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
         }
 
         [Fact]
-        public void StartWalk_UserAndRegistrationAndRouteAndWalkExists_ReturnsOk()
+        public void StartWalk_UserAndRegistrationAndRouteAndWalkExists_ReturnsBadRequest()
         {
             //Arrange
             var user = DummyData.UserFaker.Generate();
@@ -167,7 +167,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var result = _sut.Start();
 
             //Assert
-            result.Should().BeOfType<OkResult>();
+            result.Should().BeOfType<BadRequestObjectResult>();
 
             _userRepository.Received().GetBy(user.Email);
             _registrationRepository.Received().GetLast(user.Email);
