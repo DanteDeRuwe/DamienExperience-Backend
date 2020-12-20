@@ -29,7 +29,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             _updateProfileValidator = Substitute.For<IValidator<UpdateProfileDTO>>();
             _um = Substitute.For<FakeUserManager>();
             _rm = Substitute.For<FakeRoleManager>();
-            _registrationRepository =  Substitute.For<IRegistrationRepository>();
+            _registrationRepository = Substitute.For<IRegistrationRepository>();
 
             _sut = new ProfileController(_userRepository, _updateProfileValidator, _um, _rm, _registrationRepository);
         }
@@ -61,7 +61,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var meResult = _sut.Get();
 
             // Assert 
-            meResult.Should().BeOfType<UnauthorizedResult>();
+            meResult.Should().BeOfType<UnauthorizedObjectResult>();
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var meResult = _sut.Get();
 
             // Assert 
-            meResult.Should().BeOfType<BadRequestResult>();
+            meResult.Should().BeOfType<BadRequestObjectResult>();
         }
 
 
@@ -111,7 +111,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             // Act 
             var result = await _sut.Delete();
             // Assert 
-            result.Should().BeOfType<BadRequestResult>();
+            result.Should().BeOfType<BadRequestObjectResult>();
         }
 
 
@@ -126,7 +126,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             // Act 
             var result = await _sut.Delete();
             // Assert 
-            result.Should().BeOfType<UnauthorizedResult>();
+            result.Should().BeOfType<UnauthorizedObjectResult>();
         }
 
         [Fact]
@@ -150,8 +150,8 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             // Assert 
             result.Should().BeOfType<OkObjectResult>()
                 .Which.Value.Should().BeEquivalentTo(
-                    updateProfileDTO, 
-                    options => options.Excluding(u=>u.Friends)
+                    updateProfileDTO,
+                    options => options.Excluding(u => u.Friends)
                 );
             _userRepository.Received().Update(user);
         }
@@ -179,7 +179,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var updateProfileDTO = DummyData.UpdateProfileDTOFaker.Generate();
             var user = DummyData.UserFaker.Generate();
             var appUser = FakeAppUser.For(user);
-            
+
             _um.FindByNameAsync(appUser.Email).Returns(appUser);
             _updateProfileValidator.SetupPass();
             _sut.ControllerContext = FakeControllerContext.For(user);
@@ -190,7 +190,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var result = await _sut.Update(updateProfileDTO);
             // Assert 
 
-            result.Should().BeOfType<BadRequestResult>();
+            result.Should().BeOfType<BadRequestObjectResult>();
         }
 
 
@@ -205,7 +205,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             // Act 
             var meResult = await _sut.Update(updateProfileDTO);
             // Assert 
-            meResult.Should().BeOfType<UnauthorizedResult>();
+            meResult.Should().BeOfType<UnauthorizedObjectResult>();
         }
     }
 }

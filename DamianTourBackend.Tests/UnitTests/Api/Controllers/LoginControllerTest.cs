@@ -65,7 +65,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var login = await _sut.Login(loginDTO);
 
             //Assert
-            login.Should().BeOfType<BadRequestResult>();
+            login.Should().BeOfType<BadRequestObjectResult>();
 
         }
 
