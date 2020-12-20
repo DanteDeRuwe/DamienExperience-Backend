@@ -50,13 +50,13 @@ namespace DamianTourBackend.Api.Controllers
         [HttpGet("")]
         public IActionResult Get()
         {
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+            if (!User.Identity.IsAuthenticated) return Unauthorized("You need to be logged on to perform this action");
 
             string mailAdress = User.Identity.Name;
-            if (mailAdress == null) return BadRequest();
+            if (mailAdress == null) return BadRequest("User not found");
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();
+            if (user == null) return BadRequest("User not found");
 
             return Ok(user);
         }
@@ -68,21 +68,21 @@ namespace DamianTourBackend.Api.Controllers
         [HttpDelete(nameof(Delete))]
         public async Task<IActionResult> Delete()
         {
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+            if (!User.Identity.IsAuthenticated) return Unauthorized("You need to be logged on to perform this action");
 
             string mailAdress = User.Identity.Name;
-            if (mailAdress == null) return BadRequest();
+            if (mailAdress == null) return BadRequest("User not found");
 
             var user = _userRepository.GetBy(mailAdress);
             var identityUser = await _userManager.FindByNameAsync(mailAdress);
-            if (user == null || identityUser == null) return BadRequest();
+            if (user == null || identityUser == null) return BadRequest("User not found");
 
             // Delete User
             _userRepository.Delete(user);
 
             // Delete IdentityUser
             var result = await _userManager.DeleteAsync(identityUser);
-            if (!result.Succeeded) return BadRequest();
+            if (!result.Succeeded) return BadRequest("Not able to delete the user, internal error");
 
             return Ok();
         }
@@ -95,17 +95,17 @@ namespace DamianTourBackend.Api.Controllers
         [HttpPut(nameof(Update))]
         public async Task<IActionResult> Update(UpdateProfileDTO updateProfileDTO)
         {
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+            if (!User.Identity.IsAuthenticated) return Unauthorized("You need to be logged in to perform this action");
 
             var validation = _updateProfileValidator.Validate(updateProfileDTO);
             if (!validation.IsValid) return BadRequest(validation);
 
             string mailAdress = User.Identity.Name;
-            if (mailAdress == null) return BadRequest();
+            if (mailAdress == null) return BadRequest("User not found");
 
             var user = _userRepository.GetBy(mailAdress);
             var identityUser = await _userManager.FindByNameAsync(mailAdress);
-            if (user == null || identityUser == null) return BadRequest();
+            if (user == null || identityUser == null) return BadRequest("User not found");
 
             // Update User
             updateProfileDTO.UpdateUser(ref user);
@@ -114,7 +114,7 @@ namespace DamianTourBackend.Api.Controllers
             // Update IdentityUser
             updateProfileDTO.UpdateIdentityUser(ref identityUser);
             var result = await _userManager.UpdateAsync(identityUser);
-            if (!result.Succeeded) return BadRequest();
+            if (!result.Succeeded) return BadRequest("Unable to update the user, internal error");
 
             return Ok(user);
         }
@@ -122,13 +122,13 @@ namespace DamianTourBackend.Api.Controllers
         [HttpPut(nameof(UpdateFriends))]
         public IActionResult UpdateFriends(ICollection<string> friends)
         {
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+            if (!User.Identity.IsAuthenticated) return Unauthorized("You need to be logged in to perform this action");
 
             string mailAdress = User.Identity.Name;
-            if (mailAdress == null) return BadRequest();
+            if (mailAdress == null) return BadRequest("User not found");
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();
+            if (user == null) return BadRequest("User not found");
 
             user.Friends = friends;
 
@@ -141,13 +141,13 @@ namespace DamianTourBackend.Api.Controllers
         [HttpPut(nameof(UpdatePrivacy))]
         public IActionResult UpdatePrivacy(string privacy)
         {
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+            if (!User.Identity.IsAuthenticated) return Unauthorized("You need to be logged in to perform this action");
 
             string mailAdress = User.Identity.Name;
-            if (mailAdress == null) return BadRequest();
+            if (mailAdress == null) return BadRequest("User not found");
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();
+            if (user == null) return BadRequest("User not found");
 
             Privacy updatedPrivacy = Privacy.PRIVATE;
             Enum.TryParse(privacy, out updatedPrivacy);
@@ -177,21 +177,21 @@ namespace DamianTourBackend.Api.Controllers
         public async Task<ActionResult> AddAdmin(string email) {
 
             AppUser user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return NotFound();
+            if (user == null) return NotFound("User not found");
 
             string mailAddressCurrentUser = User.Identity.Name;
-            if (mailAddressCurrentUser == null || mailAddressCurrentUser.Equals("")) return Unauthorized();
+            if (mailAddressCurrentUser == null || mailAddressCurrentUser.Equals("")) return Unauthorized("User not found");
 
             //Checks if current user exists
             AppUser admin = await _userManager.FindByEmailAsync(mailAddressCurrentUser);
-            if (admin == null ) return BadRequest();
+            if (admin == null ) return BadRequest("User not found");
 
             //Create Admin role
             if (!await _roleManager.RoleExistsAsync("admin"))
                 await _roleManager.CreateAsync(new MongoRole("admin"));
 
             //Checks if current user is admin
-            if (!admin.IsAdmin()) return Unauthorized();
+            if (!admin.IsAdmin()) return Unauthorized("You need admin permissions to perform this action");
 
             //Add to be updated user to admin role
             await _userManager.AddToRoleAsync(user, "admin");
@@ -210,16 +210,16 @@ namespace DamianTourBackend.Api.Controllers
         {
             //Checks if given email is valid
             AppUser user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return NotFound();
+            if (user == null) return NotFound("User not found");
 
             //Checks if current user is admin
             string mailAdress = User.Identity.Name;
-            if (mailAdress == null || mailAdress.Equals("")) return Unauthorized();
+            if (mailAdress == null || mailAdress.Equals("")) return Unauthorized("User not found");
             
             AppUser admin = await _userManager.FindByEmailAsync(mailAdress);
-            if (admin == null) return BadRequest();
+            if (admin == null) return BadRequest("User not found");
            
-            if (!admin.IsAdmin()) return Unauthorized();
+            if (!admin.IsAdmin()) return Unauthorized("You need admin permissions to perform this action");
 
             //Remove user from role
             await _userManager.RemoveFromRoleAsync(user, "admin");
@@ -236,10 +236,10 @@ namespace DamianTourBackend.Api.Controllers
         public async Task<ActionResult> IsAdmin()
         {
             string mailAdress = User.Identity.Name;
-            if (mailAdress == null || mailAdress.Equals("")) return Unauthorized();
+            if (mailAdress == null || mailAdress.Equals("")) return Unauthorized("User not found");
 
             AppUser admin = await _userManager.FindByEmailAsync(mailAdress);
-            if (admin == null) return BadRequest();
+            if (admin == null) return BadRequest("User not found");
             
             return Ok(admin.IsAdmin());
         }        

@@ -58,17 +58,17 @@ namespace DamianTourBackend.Api.Controllers
         public IActionResult SearchWalk(string email)
         {
             var walker = _userRepository.GetBy(email);
-            if (walker == null) return NotFound();
+            if (walker == null) return NotFound("The user you where looking for doesn't exist.");
 
             var registration = _registrationRepository.GetLast(email);
-            if (registration == null) return NotFound();
+            if (registration == null) return NotFound("The user you where looking for has no registrations.");
 
             switch (registration.Privacy)
             {
                 case Privacy.PRIVATE:
                     return NotFound(); // don't return walk
                 case Privacy.FRIENDS when !User.Identity.IsAuthenticated:
-                    return Unauthorized();
+                    return Unauthorized("You have not been authorized to track this user.");
                 case Privacy.FRIENDS:
                     {
                         string mailAdress = User.Identity.Name;
@@ -84,7 +84,7 @@ namespace DamianTourBackend.Api.Controllers
             }
 
             var walk = _walkRepository.GetByUserAndRoute(walker.Id, registration.RouteId);
-            if (walk == null) return NotFound();
+            if (walk == null) return NotFound("No walk found for the user you are trying to track.");
 
             return Ok(walk);
         }

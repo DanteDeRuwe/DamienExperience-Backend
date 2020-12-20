@@ -153,16 +153,16 @@ namespace DamianTourBackend.Api.Controllers
         [HttpGet("GetAll")]
         public IActionResult GetAllAsync()
         {
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+            if (!User.Identity.IsAuthenticated) return Unauthorized("You need to be logged in to perform this action");
 
             string mailAdress = User.Identity.Name;
-            if (mailAdress == null) return BadRequest();
+            if (mailAdress == null) return BadRequest("User not found");
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();
+            if (user == null) return BadRequest("User not found");
 
             var all = _registrationRepository.GetAllFromUser(mailAdress);
-            if (all == null || !all.Any()) return NotFound();
+            if (all == null || !all.Any()) return NotFound("No registrations found");
 
             return Ok(all);
         }
@@ -174,16 +174,16 @@ namespace DamianTourBackend.Api.Controllers
         [HttpGet("GetLast")]
         public IActionResult GetLast()
         {
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+            if (!User.Identity.IsAuthenticated) return Unauthorized("You need to be logged in to perform this action");
 
             string mailAdress = User.Identity.Name;
-            if (mailAdress == null) return BadRequest();
+            if (mailAdress == null) return BadRequest("User not found");
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();
+            if (user == null) return BadRequest("User not found");
 
             var last = _registrationRepository.GetLast(mailAdress);
-            if (last == null) return NotFound();
+            if (last == null) return NotFound("No registration found");
 
             return Ok(last);
         }
@@ -195,19 +195,19 @@ namespace DamianTourBackend.Api.Controllers
         [HttpGet("CheckCurrentRegistered")]
         public IActionResult CheckCurrentRegistered()
         {
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+            if (!User.Identity.IsAuthenticated) return Unauthorized("You need to be logged in to perform this action");
 
             string mailAdress = User.Identity.Name;
-            if (mailAdress == null) return BadRequest();
+            if (mailAdress == null) return BadRequest("User not found");
 
             var user = _userRepository.GetBy(mailAdress);
-            if (user == null) return BadRequest();
+            if (user == null) return BadRequest("User not found");
 
             var registration = _registrationRepository.GetLast(mailAdress);
             if (registration == null) return Ok(false);
 
             var route = _routeRepository.GetBy(registration.RouteId);
-            if (route == null) return NotFound();
+            if (route == null) return NotFound("No route found");
 
             return Ok(DateCheckHelper.CheckAfterOrEqualsToday(route.Date));
         }
@@ -215,16 +215,16 @@ namespace DamianTourBackend.Api.Controllers
         [HttpGet("GeneratePaymentData/{language}")]
         public IActionResult GeneratePaymentData(string language)
         {
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+            if (!User.Identity.IsAuthenticated) return Unauthorized("You need to be logged in to perform this action");
 
             string email = User.Identity.Name;
             var user = _userRepository.GetBy(email);
-            if (user == null) return BadRequest();
+            if (user == null) return BadRequest("No user found");
 
             var registration = _registrationRepository.GetLast(email);
 
-            if (registration == null) return BadRequest();
-            if (registration.Paid) return BadRequest();
+            if (registration == null) return BadRequest("No registration found");
+            if (registration.Paid) return BadRequest("You have already paid for this registration");
             
             var route = _routeRepository.GetBy(registration.RouteId);
 
@@ -235,16 +235,16 @@ namespace DamianTourBackend.Api.Controllers
         [HttpPost("ControlPaymentResponse")]
         public IActionResult ControlPaymentResponse(PaymentResponseDTO dto)
         {
-            if (!User.Identity.IsAuthenticated) return Unauthorized();
+            if (!User.Identity.IsAuthenticated) return Unauthorized("You need to be logged in to perform this action");
 
             string email = User.Identity.Name;
             var user = _userRepository.GetBy(email);
-            if (user == null) return BadRequest();
+            if (user == null) return BadRequest("User not found");
 
             var registration = _registrationRepository.GetLast(email);
 
-            if (registration == null) return BadRequest();
-            if (registration.Paid) return BadRequest();
+            if (registration == null) return BadRequest("No registration found");
+            if (registration.Paid) return BadRequest("You have already paid for this registration");
 
             var valid = EncoderHelper.ControlShaSign(_config, dto);
             registration.Paid = valid;
