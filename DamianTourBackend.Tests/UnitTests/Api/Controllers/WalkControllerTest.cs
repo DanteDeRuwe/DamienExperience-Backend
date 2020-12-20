@@ -131,6 +131,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var route = DummyData.RouteFaker.Generate();
             var reg = user.Registrations.Last();
             route.Id = reg.RouteId;
+            reg.Paid = true;
             _sut.ControllerContext = FakeControllerContext.For(user);
             _userRepository.GetBy(user.Email).Returns(user);
             _registrationRepository.GetLast(user.Email).Returns(reg);
@@ -157,6 +158,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var route = DummyData.RouteFaker.Generate();
             var reg = user.Registrations.Last();
             route.Id = reg.RouteId;
+            reg.Paid = true;
             _sut.ControllerContext = FakeControllerContext.For(user);
             _userRepository.GetBy(user.Email).Returns(user);
             _registrationRepository.GetLast(user.Email).Returns(reg);
@@ -235,6 +237,7 @@ namespace DamianTourBackend.Tests.UnitTests.Api.Controllers
             var route = DummyData.RouteFaker.Generate();
             var reg = user.Registrations.Last();
             route.Id = reg.RouteId;
+            reg.Paid = true;
             _sut.ControllerContext = FakeControllerContext.For(user);
             _userRepository.GetBy(user.Email).Returns(user);
             _registrationRepository.GetLast(user.Email).Returns(reg);
